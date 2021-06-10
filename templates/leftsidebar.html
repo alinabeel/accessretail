@@ -1,0 +1,42 @@
+    <!-- ========== Left Sidebar Start ========== -->
+    <div class="left side-menu">
+        <div class="slimscroll-menu" id="remove-scroll">
+
+            <!--- Sidemenu -->
+            <div id="sidebar-menu">
+                <!-- Left Menu Start -->
+                <ul class="metismenu" id="side-menu">
+                    <li class="menu-title">Menu</li>
+                    <li>
+                        <a href="{% url 'dashboard' country_code=global.country_code %}" class="waves-effect">
+                            <i class="icon-accelerator"></i> <span> Dashboard </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="waves-effect" aria-expanded="true"><i
+                                class="icon-todolist-check"></i><span> System Setups <span
+                                    class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span>
+                            </span></a>
+                        <ul class="submenu">
+                            <li><a href="{% url 'master-setups:country-list'%}">Country</a></li>
+                            <li><a href="{% url 'master-setups:user-list' country_code=global.country_code %}">Users</a></li>
+                            <li><a href="{% url 'master-setups:usercountry-list' country_code=global.country_code %}">Country Users</a></li>
+                            <li><a href="{% url 'master-setups:region-type-list'  country_code=global.country_code %}">Region Types</a></li>
+                            <li><a href="{% url 'master-setups:region-list' country_code=global.country_code %}">Region</a></li>
+                            <li><a href="{% url 'master-setups:indexsetup-list' country_code=global.country_code %}">Index Setup</a></li>
+                            <li><a href="{% url 'master-setups:category-list' country_code=global.country_code %}">Categories</a></li>
+                            <li><a href="{% url 'master-setups:indexcategory-list' country_code=global.country_code %}">Index Category</a></li>
+                            <li><a href="{% url 'master-setups:threshold' country_code=global.country_code  %}">Threshold</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+            </div>
+            <!-- Sidebar -->
+            <div class="clearfix"></div>
+
+        </div>
+        <!-- Sidebar -left -->
+
+    </div>
+    <!-- Left Sidebar End -->

@@ -1,0 +1,99 @@
+{% extends 'base_full.html' %}
+{% load static %}
+{% block content %}
+    {% load crispy_forms_tags %}
+
+        <div class="wrapper-page">
+            <div class="card card-pages shadow-none">
+                <div class="card-body">
+                    <div class="text-center m-t-0 m-b-15">
+                            <a href="index.html" class="logo logo-admin"><img src="{% static '/assets/images/logo.png' %}" alt="" height="80"></a>
+                    </div>
+                    <h5 class="font-18 text-center">Sign in to continue.</h5>
+
+                <form method="POST" action="{% url 'admin_login_process' %}" class="needs-validation" novalidate="">
+                  {% csrf_token %}
+                  <div class="form-group">
+                    <label for="email">E-Mail</label>
+                    <input id="email" type="text" class="form-control" name="username" tabindex="1" required autofocus>
+                    <div class="invalid-feedback">
+                      Please fill in your Username
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="d-block">
+                    	<label for="password" class="control-label">Password</label>
+
+                    </div>
+                    <input id="password" type="password" class="form-control" name="password" tabindex="2" required>
+                    <div class="invalid-feedback">
+                      please fill in your password
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" name="remember" class="custom-control-input" tabindex="3" id="remember-me">
+                      <label class="custom-control-label" for="remember-me">Remember Me</label>
+                    </div>
+                  </div>
+                  {% if messages %}
+                  <div class="form-group">
+                    {% for message in messages %}
+                      {% if message.tags == "error" %}
+                      <div class="alert alert-danger">
+                        {{ message }}
+                      </div>
+                      {% endif %}
+                      {% if message.tags == "success" %}
+                      <div class="alert alert-success">
+                        {{ message }}
+                      </div>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
+                      Login
+                    </button>
+                  </div>
+                </form>
+                    {% comment %} <form method="post" class="mt-5">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="form-group">
+                            <div class="col-12">
+                                <div class="checkbox checkbox-primary">
+                                        <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="customCheck1">
+                                                <label class="custom-control-label" for="customCheck1"> Remember me</label>
+                                                </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group text-center m-t-20">
+                            <div class="col-12">
+                                <button class="btn btn-primary btn-block btn-lg waves-effect waves-light" type="submit">Log In</button>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group row m-t-30 m-b-0">
+                            <div class="col-sm-7">
+                                <a href="/reset-password" class="text-muted"><i class="fa fa-lock m-r-5"></i> Forgot your password?</a>
+                            </div>
+                            <div class="col-sm-5 text-right">
+                                <a href="/signup" class="text-muted">Create an account</a>
+                            </div>
+                        </div>
+
+                    </form> {% endcomment %}
+
+                </div>
+            </div>
+        </div>
+{% endblock content %}

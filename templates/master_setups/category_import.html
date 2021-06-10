@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block action_buttons %}{% endblock action_buttons %}
+{% block stylesheets %}
+    <link href="/static/assets/plugins/dropzone/dist/dropzone.css" rel="stylesheet" type="text/css">
+{% endblock stylesheets %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<!-- Dropzone css -->
+<div class="row justify-content-center align-items-center">
+    <div class="col-lg-10">
+
+        <div class="card m-b-30">
+            <div class="card-body">
+                  <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="form-group text-center m-t-20">
+                        <div class="col-12">
+                            <button class="btn btn-primary btn-block btn-lg waves-effect waves-light" type="submit">Import</button>
+                        </div>
+                    </div>
+                </form>
+            {% if uploaded_file_url %}
+                <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
+            {% endif %}
+            </div
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block javascripts %}
+<!-- Dropzone js -->
+<script src="/static/assets/plugins/dropzone/dist/dropzone.js"></script>
+{% endblock javascripts %}

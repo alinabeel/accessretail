@@ -1,0 +1,77 @@
+{% load static %}
+        <!-- Top Bar Start -->
+        <div class="topbar">
+
+            <!-- LOGO -->
+            <div class="topbar-left">
+                <a href="" class="logo">
+                    <span class="logo-light">
+                            <img src="{% static '/assets/images/logo.png' %}" width="120" >
+                        </span>
+                    <span class="logo-sm">
+                            <i class="mdi mdi-camera-control"></i>
+                        </span>
+                </a>
+            </div>
+
+            <nav class="navbar-custom">
+                <ul class="navbar-right list-inline float-right mb-0">
+
+                    <!-- language-->
+                    <li class="dropdown notification-list list-inline-item d-none d-md-inline-block">
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                        {{ request.session.country_name }}<span class="mdi mdi-chevron-down"></span>
+                        </a>
+                        {% if global.usercountries.count > 1 %}
+                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-animated language-switch">
+                            {% for user in global.usercountries %}
+                            <a class="dropdown-item" href="{% url 'dashboard' country_code=user.country.code %}"><span> {{ user.country.name}} </span></a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </li>
+
+                    <!-- full screen -->
+                    <li class="dropdown notification-list list-inline-item d-none d-md-inline-block">
+                        <a class="nav-link waves-effect" href="#" id="btn-fullscreen">
+                            <i class="mdi mdi-arrow-expand-all noti-icon"></i>
+                        </a>
+                    </li>
+
+                    <li class="dropdown notification-list list-inline-item">
+                        <div class="dropdown notification-list nav-pro-img">
+                            <a class="dropdown-toggle nav-link arrow-none nav-user" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                                Welcome: {{ request.user.first_name|capfirst }} {{ request.user.last_name|capfirst }} <span class="mdi mdi-chevron-down"></span>   {% comment %} <img src="{% static 'assets/images/users/user-4.jpg' %}" alt="user" class="rounded-circle"> {% endcomment %}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right profile-dropdown ">
+                                <!-- item-->
+                                <a class="dropdown-item" href="#"><i class="mdi mdi-account-circle"></i> Profile</a>
+                                <a class="dropdown-item d-block" href="#"><span class="badge badge-success float-right">11</span><i class="mdi mdi-settings"></i> Settings</a>
+                                <a class="dropdown-item" href="#"><i class="mdi mdi-lock-open-outline"></i> Lock screen</a>
+                                <div class="dropdown-divider"></div>
+
+
+                                {% if request.user.is_authenticated %}
+                                    <a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="mdi mdi-power text-danger"></i> Logout</a>
+                                {% else %}
+                                <a class="dropdown-item text-danger" href="{% url 'login' %}"><i class="mdi mdi-power text-danger"></i> Login</a>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                    </li>
+
+                </ul>
+
+                <ul class="list-inline menu-left mb-0">
+                    <li class="float-left">
+                        <button class="button-menu-mobile open-left waves-effect">
+                            <i class="mdi mdi-menu"></i>
+                        </button>
+                    </li>
+                </ul>
+
+            </nav>
+
+        </div>
+        <!-- Top Bar End -->

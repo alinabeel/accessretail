@@ -1,0 +1,22 @@
+{% extends 'base_full.html' %}
+{% load static %}
+{% block content %}
+    {% load crispy_forms_tags %}
+        <div class="wrapper-page">
+            <div class="card card-pages shadow-none">
+                <div class="card-body">
+                    <div class="text-center m-t-0 m-b-15">
+                            <a href="index.html" class="logo logo-admin"><img src="{% static '/assets/images/logo.png' %}" alt="" height="80"></a>
+                    </div>
+                    <h5 class="font-18 text-center">Restricted.</h5>
+                    <div class="p-md-5">You are not assigned in any country, please contact your Manager for more information.</div>
+
+                  <div class="form-group">
+                    <a href="{% url 'login' %}" class="btn btn-primary btn-lg btn-block" tabindex="4">
+                      Go Back
+                    </a>
+                  </div>
+                </div>
+            </div>
+        </div>
+{% endblock content %}

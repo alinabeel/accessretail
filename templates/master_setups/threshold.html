@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block action_buttons %}<a href="{% url 'master-setups:threshold-update' country_code=global.country_code %}" class="btn btn-info btn-lg waves-effect waves-light">Update Threshold</a>{% endblock action_buttons %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card m-b-30">
+            <div class="card-body">
+
+                <table class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+
+                    {% for obj in threshold %}
+                    <tbody>
+                    <tr>
+                        <td colspan=4 ><h5>Audited Data Threashold (in %)</h5></td>
+                    </tr>
+
+                    <tr>
+                        <th width="300">Audited data price Min:</th>
+                        <td>{{ obj.audited_data_price_min }}%</td>
+                        <th>Audited data price Max:</th>
+                        <td>{{ obj.audited_data_price_max }}%</td>
+                    </tr>
+
+                    <tr>
+                        <th >Audited data purchase Min:</th>
+                        <td>{{ obj.audited_data_purchase_min }}%</td>
+                        <th>Audited data purchase Max:</th>
+                        <td>{{ obj.audited_data_purchase_max }}%</td>
+                    </tr>
+
+                    <tr>
+                        <th >Audited data sales Min:</th>
+                        <td>{{ obj.audited_data_sales_min }}%</td>
+                        <th>Audited data sales Max:</th>
+                        <td>{{ obj.audited_data_sales_max }}%</td>
+                    </tr>
+
+                    <tr>
+                        <th >Audited data stock Min:</th>
+                        <td>{{ obj.audited_data_stock_min }}%</td>
+                        <th>Audited data stock Max:</th>
+                        <td>{{ obj.audited_data_stock_max }}%</td>
+                    </tr>
+                    <tr>
+                        <td colspan=4 ><h5>Outlet Factors Threashold (in %)</h5></td>
+                    </tr>
+                    <tr>
+                        <th >Outlet factor numaric Min:</th>
+                        <td>{{ obj.outlet_factor_numaric_min }}%</td>
+                        <th>Outlet factor numaric Max:</th>
+                        <td>{{ obj.outlet_factor_numaric_max }}%</td>
+                    </tr>
+
+                    </tbody>
+                    {% empty %}
+                    No record found
+                    {% endfor %}
+
+                </table>
+
+            </div>
+        </div>
+    </div> <!-- end col -->
+</div> <!-- end row -->
+
+
+{% endblock content %}
+
+{% block javascripts %}
+{% endblock javascripts %}
