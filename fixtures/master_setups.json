@@ -1,0 +1,67 @@
+[
+{
+    "model": "master_setups.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$150000$ipZ8h5PRtCRv$vjL9ron8s3dY49pxgM1ewPcG0nSpxqkR1ue7pSYN3nQ=",
+        "last_login": "2021-06-10T20:05:31.311Z",
+        "is_superuser": true,
+        "first_name": "Admin",
+        "last_name": "Access Retail",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2021-06-10T19:35:28.915Z",
+        "role": "1",
+        "username": "admin@accessretailpk.com",
+        "email": "admin@accessretailpk.com",
+        "city": null,
+        "state": null,
+        "zip": null,
+        "country": null,
+        "phone_no": null,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 1,
+    "fields": {
+        "created": "2021-06-10T19:54:22.079Z",
+        "updated": "2021-06-10T19:54:22.079Z",
+        "name": "Pakistan",
+        "code": "PK"
+    }
+},
+{
+    "model": "master_setups.usercountry",
+    "pk": 1,
+    "fields": {
+        "created": "2021-06-10T19:55:26.475Z",
+        "updated": "2021-06-10T19:55:26.475Z",
+        "country": 1,
+        "user": [
+            1
+        ]
+    }
+},
+{
+    "model": "master_setups.threshold",
+    "pk": 1,
+    "fields": {
+        "created": "2021-06-10T20:01:36.828Z",
+        "updated": "2021-06-10T20:01:37.038Z",
+        "country": 1,
+        "audited_data_purchase_min": "-10.00",
+        "audited_data_purchase_max": "10.00",
+        "audited_data_stock_min": "-10.00",
+        "audited_data_stock_max": "10.00",
+        "audited_data_price_min": "-10.00",
+        "audited_data_price_max": "10.00",
+        "audited_data_sales_min": "-10.00",
+        "audited_data_sales_max": "10.00",
+        "outlet_factor_numaric_min": "0.00",
+        "outlet_factor_numaric_max": "1.00"
+    }
+}
+]
