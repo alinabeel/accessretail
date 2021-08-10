@@ -1,5 +1,6 @@
 
     var send_data = {}
+
     $(document).ready(function() {
         getAPIData();
         renameFilters();
@@ -150,11 +151,9 @@
         });
     });
 
-
     $(".or-add, .and-add").click(function(){
         renameFilters();
     });
-
 
     $("#btn_filter").click(function(){
         getAPIData();
@@ -178,3 +177,4 @@
         $("#condition_html").val($("#accordion").html());
 
     });
+

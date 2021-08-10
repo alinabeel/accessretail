@@ -18,17 +18,61 @@
                                     class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span>
                             </span></a>
                         <ul class="submenu">
-                            <li><a href="{% url 'master-setups:country-list'%}">Country</a></li>
+                            <li><a href="{% url 'master-setups:country-list'%}">Countries</a></li>
                             <li><a href="{% url 'master-setups:user-list' country_code=global.country_code %}">Users</a></li>
                             <li><a href="{% url 'master-setups:usercountry-list' country_code=global.country_code %}">Country Users</a></li>
                             <li><a href="{% url 'master-setups:region-type-list'  country_code=global.country_code %}">Region Types</a></li>
                             <li><a href="{% url 'master-setups:region-list' country_code=global.country_code %}">Region</a></li>
                             <li><a href="{% url 'master-setups:indexsetup-list' country_code=global.country_code %}">Index Setup</a></li>
-                            <li><a href="{% url 'master-setups:category-list' country_code=global.country_code %}">Categories</a></li>
+                            <li><a href="{% url 'master-data:category-list' country_code=global.country_code %}">Categories</a></li>
                             <li><a href="{% url 'master-setups:indexcategory-list' country_code=global.country_code %}">Index Category</a></li>
+                            <li><a href="{% url 'master-setups:month-list' country_code=global.country_code  %}">Months</a></li>
                             <li><a href="{% url 'master-setups:threshold' country_code=global.country_code  %}">Threshold</a></li>
                         </ul>
                     </li>
+
+                    <li>
+                        <a href="javascript:void(0);" class="waves-effect"><i class="icon-diamond"></i>
+                            <span> Master Imports <span class="float-right menu-arrow"><i
+                                        class="mdi mdi-chevron-right"></i></span> </span></a>
+
+                        <ul class="submenu">
+                            <li><a href="{% url 'master-data:census-list' country_code=global.country_code %}">Census</a></li>
+
+                            <li><a href="{% url 'master-data:outlet-type-list' country_code=global.country_code %}">Channel/ Outlet Type</a></li>
+                            <li><a href="{% url 'master-data:panel-profile-list' country_code=global.country_code %}">Panel</a></li>
+                            <li><a href="{% url 'master-data:rbd-list' country_code=global.country_code %}">RBD</a></li>
+                            <li><a href="{% url 'master-data:cell-list' country_code=global.country_code %}">Cell</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="waves-effect"><i class="icon-diamond"></i>
+                            <span> Monthly Imports <span class="float-right menu-arrow"><i
+                                        class="mdi mdi-chevron-right"></i></span> </span></a>
+
+                        <ul class="submenu">
+                            <li><a href="{% url 'master-data:usable-outlet-list' country_code=global.country_code %}">Usable Outlets</a></li>
+                            <li><a href="{% url 'master-data:product-list' country_code=global.country_code %}">Products</a></li>
+                            <li><a href="{% url 'master-data:product-audit-list' country_code=global.country_code %}">Audit Data</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="waves-effect"><i class="icon-diamond"></i>
+                            <span> Reports <span class="float-right menu-arrow"><i
+                                        class="mdi mdi-chevron-right"></i></span> </span></a>
+
+                        <ul class="submenu">
+                            <li><a href="{% url 'reports:rbd-summary-overview-list-view' country_code=global.country_code %}">RBD Summary Overview</a></li>
+                            <li><a href="{% url 'reports:rbd-summary-list-view' country_code=global.country_code %}">RBD Summary</a></li>
+                            <li><hr ></li>
+                            <li><a href="{% url 'reports:cell-summary-overview-list-view' country_code=global.country_code %}">Cell Summary Overview</a></li>
+                            <li><a href="{% url 'reports:cell-summary-list-view' country_code=global.country_code %}">Cell Summary</a></li>
+                            <li><hr ></li>
+                            <li><a href="{% url 'reports:cell-shop-inspection-list-view' country_code=global.country_code %}">Cell & Shop Inspection</a></li>
+                            <li><a href="{% url 'reports:import-logs' country_code=global.country_code %}">Import Logs</a></li>
+                        </ul>
+                    </li>
+
                 </ul>
 
             </div>

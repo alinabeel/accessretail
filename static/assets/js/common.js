@@ -71,3 +71,8 @@ function ucword(words) {
 function isObject(obj) {
     return obj !== null && typeof obj === 'object';
 }
+
+
+function stripSlashes(str){
+    return str.toString().replace(/\\(.)/mg, "$1");
+}

@@ -2,13 +2,15 @@
 {% now "Y" as current_year %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
     <title>
-        Access Retail - Admin Panel - {% block title %} {{ page_title }} {% endblock title%}
-    </title>    <meta content="Responsive admin theme build on top of Bootstrap 4" name="description" />
+        {{ global.app_name }} - Admin Panel - {% block title %} {{ page_title }} {% endblock title%}
+    </title>
+    <meta content="Responsive admin theme build on top of Bootstrap 4" name="description" />
     <meta content="WisdomSol.net" name="author" />
     <!-- Favicon - loaded as static -->
     <link href="{% static '/assets/images/favicon.png' %}" rel="icon" type="image/png">
@@ -29,37 +31,28 @@
             <!-- Start content -->
             <div class="content">
                 <div class="container-fluid">
-            <div class="page-title-box">
-                <div class="row align-items-center">
-                    <div class="col-sm-6">
-                        <h4 class="page-title">{% block page_title %} {{ header_title }} {% endblock page_title%}</h4>
+                    <div class="page-title-box">
+                        <div class="row align-items-center">
+                            <div class="col-sm-6">
+                                <h4 class="page-title">{% block page_title %} {{ header_title }}
+                                    {% endblock page_title%}</h4>
+                            </div>
+                            <div class="col-sm-6 text-right">
+                                {% block action_buttons %}{% endblock %}
+                            </div>
+                        </div>
+                        <!-- end row -->
                     </div>
-                    <div class="col-sm-6 text-right">
-                        {% block action_buttons %}{% endblock %}
-                    </div>
-                </div>
-                <!-- end row -->
-            </div>
-            <!-- end page-title -->
+                    <!-- end page-title -->
                     {% if messages %}
-                        {% for message in messages %}
-                            {% if message.tags == "success" %}
-                                <div class="alert alert-success">
-                                    {{ message }}
-                                </div>
-                            {% endif %}
-                            {% if message.tags == "info" %}
-                                <div class="alert alert-info">
-                                    {{ message }}
-                                </div>
-                            {% endif %}
-                            {% if message.tags == "error" %}
-                                <div class="alert alert-danger">
-                                    {{ message }}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}"
+                        role="alert">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
                     {% endif %}
+
 
                     {% block content %}
                     {% endblock content %}
@@ -70,7 +63,7 @@
             <!-- content -->
 
             <footer class="footer">
-                © {{current_year}} Access Retail ( {{ global.app_env }} )
+                © {{current_year}} {{ global.app_name }} ( {{ global.app_env }} )
             </footer>
         </div>
         <!-- ============================================================== -->
@@ -80,9 +73,9 @@
     </div>
     <!-- END wrapper -->
 
-{% include 'scripts.html' %}
-<!-- Specific JS goes HERE -->
-{% block javascripts %}{% endblock javascripts %}
+    {% include 'scripts.html' %}
+    <!-- Specific JS goes HERE -->
+    {% block javascripts %}{% endblock javascripts %}
 </body>
 
 </html>

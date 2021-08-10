@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% block action_buttons %}
+<a href="{% url 'master-data:panel-profile-update' country_code=global.country_code%}" class="btn btn-info btn-lg waves-effect waves-light">Update Panel Profile</a>
+<a href="{% url 'master-data:panel-profile-import' country_code=global.country_code%}" class="btn btn-info btn-lg waves-effect waves-light">Import Panel Profile</a>
+{% endblock action_buttons %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card m-b-30">
+            <div class="card-body">
+
+                <table id="ajax_datatable" class="datatable table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                </table>
+
+            </div>
+        </div>
+    </div> <!-- end col -->
+</div> <!-- end row -->
+{% endblock content %}
+
+{% block javascripts %}
+<script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+<script language="javascript">
+    var dt_ajax_url = '{% url "master-data:panel-profile-list-ajax" country_code=global.country_code %}';
+    $(document).ready(function() {
+        AjaxDatatableViewUtils.initialize_table(
+            $('#ajax_datatable'),
+            dt_ajax_url,
+            common_dt_options
+        );
+    });
+
+</script>
+{% endblock javascripts %}

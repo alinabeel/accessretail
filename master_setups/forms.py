@@ -1,3 +1,4 @@
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
@@ -9,6 +10,7 @@ from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit
 
 from django.contrib.auth.models import User
 from master_setups.models import *
+from master_data.models import *
 
 User = get_user_model()
 
@@ -61,30 +63,6 @@ class IndexCategoryModelForm(forms.ModelForm):
 
         )
 
-
-class UploadModalForm(forms.ModelForm):
-    class Meta:
-        model = Upload
-        fields = (
-            'import_mode',
-            'file'
-        )
-
-class CategoryListFormHelper(FormHelper):
-    model = Category
-    form_tag = False
-    form_method = 'GET'
-    layout = Layout(
-        'name',
-        Submit('submit', 'Filter'),
-    )
-class CategoryModelForm(forms.ModelForm):
-    class Meta:
-        model = Category
-        fields = ('name','code', 'parent', 'description', 'is_active', )
-
-
-
 class UserCountryModelForm(forms.ModelForm):
     # user = forms.MultipleChoiceField(choices=Country.objects.all(), widget=forms.CheckboxSelectMultiple())
 
@@ -132,5 +110,44 @@ class RegionModelForm(forms.ModelForm):
         model = Region
         fields = ('name','code', 'region_type', 'parent', 'description')
         # parent = TreeNodeChoiceField(queryset=Region.objects.all().filter(country__code='NP'))
+
+
+class MonthModelForm(forms.ModelForm):
+
+    def __init__(self,*args,**kwargs):
+        self.country_code = kwargs.pop('country_code')
+        super (self.__class__,self ).__init__(*args,**kwargs) # populates the post
+
+    def clean(self):
+        data = self.cleaned_data
+        code = data.get('code')
+        name = data.get('name')
+        year = data.get('year')
+
+        todays_date = date.today()
+        current_year = todays_date.year
+
+        if (code == '' or name == ''):
+            raise forms.ValidationError('This field cannot be left blank')
+
+        if (len(str(year)) < 4 or len(str(year)) > 4 ):
+             raise forms.ValidationError({'year': 'year must be 4 digt long'})
+        if (year > current_year):
+             raise forms.ValidationError({'year': 'year must be less than or equal to current year'})
+
+        if self.instance.pk is None:  # adding new value
+            for instance in Cell.objects.filter(country__code = self.country_code):
+                if instance.code == code:
+                    raise forms.ValidationError({'code': code + ' is already exist.'})
+        else: #updating value
+            for instance in Cell.objects.filter(country__code = self.country_code).exclude(pk = self.instance.pk):
+                if instance.code == code:
+                    raise forms.ValidationError({'code': code + ' is already exist.'})
+
+        return data
+
+    class Meta:
+        model = Month
+        fields = ('name','code','year','is_locked')
 
 

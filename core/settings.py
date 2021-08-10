@@ -4,23 +4,23 @@ env = environ.Env()
 environ.Env.read_env()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SECRET_KEY = '9yh&mdgvf_d&k=4wisdom9=+a)ali!9smfg&b4_+x3u&#Sol#vd'
 
-
-# SECURITY WARNING: don't run with debug turned on in production!
-APP_NAME = "Access Retail"
+SECRET_KEY = env('SECRET_KEY')
+APP_NAME = env('APP_NAME')
 DEBUG = env('DEBUG')
+ENVIROMENT = env('ENVIROMENT')
 
-# DEVELOPMENT = "PRODUCTION"
-# DEVELOPMENT = "STAGING"
-DEVELOPMENT = "LOCAL"
+ALLOWED_HOSTS = ['*']
 
 INTERNAL_IPS = [
     '0.0.0.0',
     '127.0.0.1',
 ]
-ALLOWED_HOSTS = ['*']
 
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',
+    'http://localhost:8000',
+]
 
 
 # Application definition
@@ -36,13 +36,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #Installed Apps
-
+    # 'djadmin2',
     #For Development
     'data_browser',
     "var_dump",
     'debug_toolbar',
     'debugtools',
     #For Production
+    # 'django_select2',
     'ajax_datatable',
     'django_filters',
     'django_tables2',
@@ -54,23 +55,26 @@ INSTALLED_APPS = [
     'crispy_forms',
     'mptt',
     'django_mptt_admin',
-    'easyaudit',
+    # 'easyaudit',
     'django_extensions',
 
     'simple_import',
     'import_export',
     'report_builder',
-
+    # 'advanced_filters',
+    # 'custard',
+    # Add our new application
+    # 'demo.apps.DemoConfig',
+    # 'custom_field.apps.CustomFieldConfig',
     #Projects Apps
     # 'custom_field.apps.CustomFieldConfig',
     'master_setups.apps.MasterSetupsConfig',
+    'master_data.apps.MasterDataConfig',
+    'monthly_setups_and_data.apps.MonthlySetupsAndDataConfig',
 ]
 
 
-
-
 MIDDLEWARE = [
-
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -81,8 +85,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #Installed Apps
-
-    'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
+    # 'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     #Projects Apps
 
@@ -111,11 +114,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ),
 }
-
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000',
-    'http://localhost:8000',
-]
 
 ROOT_URLCONF = 'core.urls'
 TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")  # ROOT dir for templates
@@ -147,37 +145,16 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-if DEVELOPMENT=="PRODUCTION":
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': env("DB_NAME"),
-            'USER': env("DB_USER"),
-            'PASSWORD': env("DB_PASSWORD"),
-            'HOST': env("DB_HOST"),
-            'PORT': env("DB_PORT"),
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env("DB_NAME"),
+        'USER': env("DB_USER"),
+        'PASSWORD': env("DB_PASSWORD"),
+        'HOST': env("DB_HOST"),
+        'PORT': env("DB_PORT"),
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
-    # DATABASES = {
-    #     'default': {
-    #         'ENGINE': 'django.db.backends.postgresql',
-    #         'NAME': env("DB_NAME"),
-    #         'USER': env("DB_USER"),
-    #         'PASSWORD': env("DB_PASSWORD"),
-    #         'HOST': env("DB_HOST"),
-    #         'PORT': env("DB_PORT"),
-    #     }
-    # }
-
-
-
+}
 
 
 # Password validation
@@ -244,7 +221,10 @@ MPTT_DEFAULT_LEVEL_INDICATOR = "+--"
 DEFAULT_LEVEL_INDICATOR = "+--"
 #exclude eady audit models
 DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_EXTRA = [
-
+                        'master_data.PanelProfile',
+                        'master_data.UsableOutlet',
+                        'master_data.Product',
+                        'master_data.ProductAudit',
                         ]
 
 # AJAX_DATATABLE_MAX_COLUMNS = 100
@@ -254,6 +234,9 @@ DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_EXTRA = [
 # AJAX_DATATABLE_TEST_FILTERS = True
 # AJAX_DATATABLE_DISABLE_QUERYSET_OPTIMIZATION = True
 
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda r: False,  # disables it
+}
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -266,8 +249,6 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     X_FRAME_OPTIONS = "DENY"
-
-    ALLOWED_HOSTS = ["*"]
 
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     EMAIL_HOST = ''

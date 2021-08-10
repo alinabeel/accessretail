@@ -1,0 +1,41 @@
+from django.core.management.base import BaseCommand
+from csv import DictReader
+from master_data.models import Census
+from master_setups.models import Country
+import json
+from collections import OrderedDict
+
+
+
+class Command(BaseCommand):
+
+    def add_arguments(self, parser):
+        parser.add_argument('file_name', type=str)
+
+    def handle(self, *args, **options):
+        file_name = options['file_name']
+
+        # organisation = UserProfile.objects.get(user__email=organisor_email)
+        country = Country.objects.get(id=1)
+        with open(file_name, 'r',encoding='utf-8-sig') as read_obj:
+            csv_reader = DictReader(read_obj)
+
+            for row in csv_reader:
+                row = {k.strip(): v.strip() for (k, v) in row.items()}
+                data_head = list(row.keys())
+                data_values = list(row.values())
+                json_row = json.dumps(row)
+                print((row))
+                exit()
+
+                # json_row = json_row.lstrip('\\ufeff')
+                # print(json_row)
+                new = Census.objects.create(
+                    country=country,
+                    censusdata=json_row,
+                    data_head = data_head,
+                    data_values = data_values,
+                )
+
+
+

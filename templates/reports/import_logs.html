@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card m-b-30">
+            <div class="card-body">
+                <table id="ajax_datatable" class="datatable table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                </table
+            </div>
+        </div>
+    </div> <!-- end col -->
+</div> <!-- end row -->
+{% endblock content %}
+
+{% block javascripts %}
+<script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+<script language="javascript">
+    var dt_ajax_url = '{% url "reports:import-logs-ajax" country_code=global.country_code %}';
+    $(document).ready(function() {
+        AjaxDatatableViewUtils.initialize_table(
+            $('#ajax_datatable'),
+            dt_ajax_url,
+            common_dt_options
+        );
+
+ $('#ajax_datatable').on('draw.dt', function(event) {
+    onTableDraw(event);
+});
+
+var onTableDraw = function (event) {
+
+    var html_table = $(event.target);
+    html_table.find('tr').each(function(index, item) {
+
+        try {
+            var row = $(item);
+            text = row.children('td.is_processing').first().text();
+
+            var error_counter = isNaN(text) ? 0 : parseInt(text);
+
+            if (text == 'Error') {
+                row.addClass('table-danger');
+            }else if(text=='Processing'){
+                row.addClass('table-info');
+            }
+
+        }
+            catch(err) {
+        }
+
+    });
+}
+
+
+
+    });
+
+</script>
+{% endblock javascripts %}

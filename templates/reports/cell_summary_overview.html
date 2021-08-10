@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+{% load static %}
+{% block stylesheets %}<style></style>{% endblock stylesheets %}
+{% load crispy_forms_tags %}
+{% block action_buttons %}
+{% endblock action_buttons %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card m-b-30">
+            <div class="card-body">
+                <form name="frm1" id="frm1" action="" method="POST">
+                    {% csrf_token %}
+
+                    <section>
+                        <div class="container-fluid">
+                            <div id="result-count" class="text-right">
+                                <span class='font-weight-bold'></span> results found.
+                            </div>
+                            <div class="row properties_table justify-content-center">
+                                <div id="no_results">
+                                    <h5>No results found</h5>
+                                </div>
+                                <div class="table-responsive">
+                                    <table
+                                        class="table table-striped table-bordered dt-responsive header-fixed"
+                                        id="list_data" data-toggle="table"
+                                        url="{% url 'reports:cell-summary-overview-ajax'  country_code=global.country_code %}">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="2">Cell Overview</th>
+                                                <th colspan="2" class="prevmonth" id="prevmonthname">Last Month in the application</th>
+                                                <th colspan="2" class="currmonth" id="currmonthname">Current Month in the application</th>
+                                            </tr>
+                                            <tr>
+                                                <th>RBD Name/Code</th>
+                                                <th>RBD Condition</th>
+                                                <th class="prevmonth">Total Outlets in RBD</th>
+                                                <th class="prevmonth">Cell</th>
+
+                                                <th class="currmonth">Total Outlets in RBD</th>
+                                                <th class="currmonth">Cell</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody id="listing">
+                                        </tbody>
+                                    </table>
+                                    <div id="after_list_data"></div>
+
+                                </div>
+                            </div>
+                            <div class="row justify-content-center">
+                                <nav aria-label="navigation" style="display: none;">
+                                    <ul class="pagination">
+                                        <li class="page-item">
+                                            <button type="button" class="btn btn-primary page-link"
+                                                id="previous">Previous</button>
+                                        </li>
+                                        <li class="page-item pull-right">
+                                            <button type="button" class="btn btn-primary page-link"
+                                                id="next">Next</button>
+                                        </li>
+                                    </ul>
+                                </nav>
+
+                                <div style="width: 300px;">
+                                    <table class="table table-striped">
+                                        <tr><th class="text-center" colspan="2">Color Legends</th></tr>
+                                        <tr><th>Equals to</th><td class="green"></td></tr>
+                                        <tr><th>Less Than</th><td class="orange"></td></tr>
+                                        <tr><th>Greater Than</th><td class="red"></td></tr>
+                                        <tr><th>Missing</th><td class="blue"></td></tr>
+
+                                    </table>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </section>
+
+
+                </form>
+
+
+
+
+            </div>
+        </div>
+    </div> <!-- end col -->
+</div> <!-- end row -->
+{% endblock content %}
+
+{% block javascripts %}
+<script language="javascript">
+
+    var send_data = {}
+    $(document).ready(function() {
+        getAPIData();
+
+    });
+
+    function putTableData(result) {
+        // creating table row for each result and
+        // pushing to the html cntent of table body of listing table
+        let row;
+        if(result["results"].length > 0){
+            $("#no_results").hide();
+            $("#list_data").show();
+            $("#listing").html("");
+            let tr_index = 0;
+            $.each(result["results"], function (a, rbd_row) {
+
+                tr = '<tr>';
+                /*
+                if(tr_index==0){
+                    row +=  '<tr>';
+                    $.each(b, function (aa, bb) {
+                        if(aa=='condition_html' || aa=='serialize_str' ){return;}
+                        row += '<th>' + ucword(aa) + '</th>';
+                    });
+                    row +=  '</tr>';
+
+                    'RBD_Name' : ("%s(%s)")%(rbd_name,rbd_code),
+                    'Condition' : "<br />".join(rbd_filter_human.split("\n")),
+                    'Total_Outlets_in_RBD_Previous' : total_outlets_in_rbd_previous,
+                    'Cell':[],
+                    'Cel_Sub_Total': 0,
+                                'Cell_Name' : ("%s(%s)")%(cell_name,cell_code),
+                                'Condition' : "<br />".join(filter_human.split("\n")),
+                                'Total_Outlets_in_Cell_Previous' : total_outlets_in_cell_previous,
+
+                }
+                */
+                tr += "<td>" + rbd_row.RBD_Name + "</td>";
+                tr += "<td>" + rbd_row.Condition + "</td>";
+
+                tr += "<td>" + rbd_row.Total_Outlets_in_RBD_Previous + "</td>";
+
+                if(jQuery.isEmptyObject(rbd_row.Cell)!=true){
+                    let inner_table = ''
+                    inner_table += '<table class="table datatable table table-striped table-bordered dt-responsive nowrap">';
+                    inner_table += '<tr>';
+                    inner_table += '<th class="prevmonth">Cell Name/Code</th>';
+                    inner_table += '<th class="prevmonth">Cell Condition</th>';
+                    inner_table += '<th class="prevmonth">Outlets in Cell</th>';
+                    inner_table += '</tr>';
+
+
+                    $.each(rbd_row.Cell, function (aa, CellRow) {
+                        inner_table += '<tr>';
+                        inner_table += "<td>" + CellRow.Cell_Name + "</td>";
+                        inner_table += "<td>" + CellRow.Condition + "</td>";
+                        inner_table += "<td>" + CellRow.Total_Outlets_in_Cell_Previous + "</td>";
+                        inner_table += '</tr>';
+                    });
+
+                        if(rbd_row.Cell_Sub_Total_Previous == rbd_row.Total_Outlets_in_RBD_Previous){row_class = 'green'}
+                        if(rbd_row.Cell_Sub_Total_Previous < rbd_row.Total_Outlets_in_RBD_Previous){row_class = 'orange'}
+                        if(rbd_row.Cell_Sub_Total_Previous > rbd_row.Total_Outlets_in_RBD_Previous){row_class = 'red'}
+
+                        inner_table += '<tr class="'+row_class+'" ">';
+                        inner_table += "<td colspan=2> Total Outlets in RBD </td>";
+                        inner_table += "<td>" + rbd_row.Cell_Sub_Total_Previous + "</td>";
+                        inner_table += '</tr>';
+                    inner_table += '</table>';
+
+                    tr += "<td>" + inner_table + "</td>";
+
+                }else{
+                    tr += '<td class="blue">No Cell Found</td>';
+                }
+
+
+
+
+
+
+                tr += "<td>" + rbd_row.Total_Outlets_in_RBD_Current + "</td>";
+
+                if(jQuery.isEmptyObject(rbd_row.Cell)!=true){
+                    let inner_table = ''
+                    inner_table += '<table class="table datatable table table-striped table-bordered dt-responsive nowrap">';
+                    inner_table += '<tr>';
+                    inner_table += '<th class="currmonth">Cell Name/Code</th>';
+                    inner_table += '<th class="currmonth">Cell Condition</th>';
+                    inner_table += '<th class="currmonth">Outlets in Cell</th>';
+                    inner_table += '</tr>';
+
+
+                    $.each(rbd_row.Cell, function (aa, CellRow) {
+                        inner_table += '<tr>';
+                        inner_table += "<td>" + CellRow.Cell_Name + "</td>";
+                        inner_table += "<td>" + CellRow.Condition + "</td>";
+                        inner_table += "<td>" + CellRow.Total_Outlets_in_Cell_Current + "</td>";
+                        inner_table += '</tr>';
+                    });
+
+                        if(rbd_row.Cell_Sub_Total_Current == rbd_row.Total_Outlets_in_RBD_Current){row_class = 'green'}
+                        if(rbd_row.Cell_Sub_Total_Current < rbd_row.Total_Outlets_in_RBD_Current){row_class = 'orange'}
+                        if(rbd_row.Cell_Sub_Total_Current > rbd_row.Total_Outlets_in_RBD_Current){row_class = 'red'}
+                        inner_table += '<tr class="'+row_class+'" ">';
+                        inner_table += "<td colspan=2> Total Outlets in RBD </td>";
+                        inner_table += "<td>" + rbd_row.Cell_Sub_Total_Current + "</td>";
+                        inner_table += '</tr>';
+                    inner_table += '</table>';
+
+                    tr += "<td>" + inner_table + "</td>";
+
+                }else{
+                    tr += '<td class="blue">No Cell Found</td>';
+                }
+
+
+
+
+
+                tr += '</tr>';
+                tr_index++;
+                $("#listing").append(tr);
+            });
+
+            let sum_of_subtotals = '';
+            let total_outlets_in_pp = ''
+
+            //if(result.sum_total_outlets_in_rbd_current == result.total_outlets_in_pp_current){row_class = 'green'}
+            //if(result.sum_total_outlets_in_rbd_current < result.total_outlets_in_pp_current){row_class = 'orange'}
+            //if(result.sum_total_outlets_in_rbd_current > result.total_outlets_in_pp_current){row_class = 'red'}
+            sum_of_subtotals += '<table class="table table-striped table-bordered dt-responsive nowrap">';
+                sum_of_subtotals += '<tr style="text-align:center;">';
+                    sum_of_subtotals += "<td colspan=6><h4>Total</h4></td>";
+                sum_of_subtotals += '</tr>';
+                /*sum_of_subtotals += '<tr class="'+row_class+'" ">';
+                    sum_of_subtotals += "<th>Sum of Total Outlets in RBDs </th>";
+                    sum_of_subtotals += '<td class="bold">' + result.sum_total_outlets_in_rbd_previous + '</td>';
+                    sum_of_subtotals += "<th>Sum of Total Outlets in RBDs </th>";
+                    sum_of_subtotals += '<td class="bold">' + result.sum_total_outlets_in_rbd_current + '</td>';
+                sum_of_subtotals += '</tr>'; */
+            //sum_of_subtotals += '</table>';
+
+            //total_outlets_in_pp += '<table class="table datatable table table-striped table-bordered dt-responsive nowrap">';
+                sum_of_subtotals += '<tr>';
+                sum_of_subtotals += "<th>Total Outlets in Panel Previous</th>";
+                sum_of_subtotals += '<td class="bold">' + result.total_outlets_in_pp_previous + '</td>';
+                sum_of_subtotals += "<th>Total Outlets in Panel Current</th>";
+                sum_of_subtotals += '<td class="bold">' + result.total_outlets_in_pp_current + '</td>';
+                sum_of_subtotals += '</tr>';
+                sum_of_subtotals += '</table>';
+
+
+
+
+            $("#after_list_data").append(sum_of_subtotals);
+            $("#after_list_data").append(total_outlets_in_pp);
+
+        }
+        else{
+            // if no result found for the given filter, then display no result
+            $("#no_results h5").html("No results found");
+            $("#list_data").hide();
+            $("#no_results").show();
+        }
+        // setting previous and next page url for the given result
+
+        $("#prevmonthname").html(result["previous_month"]);
+        $("#currmonthname").html(result["current_month"]);
+        let prev_url = result["previous"];
+        let next_url = result["next"];
+        // disabling-enabling button depending on existence of next/prev page.
+        if (prev_url === null) {
+            $("#previous").addClass("disabled");
+            $("#previous").prop('disabled', true);
+        } else {
+            $("#previous").removeClass("disabled");
+            $("#previous").prop('disabled', false);
+        }
+        if (next_url === null) {
+            $("#next").addClass("disabled");
+            $("#next").prop('disabled', true);
+        } else {
+            $("#next").removeClass("disabled");
+            $("#next").prop('disabled', false);
+        }
+        // setting the url
+        $("#previous").attr("url", result["previous"]);
+        $("#next").attr("url", result["next"]);
+        // displaying result count
+        $("#result-count span").html(result["count"]);
+
+
+
+
+        var table = $('#list_data').DataTable({
+            "paging": false,//Dont want paging
+            "bPaginate": false,//Dont want paging
+            fixedHeader: {
+                header: true,
+                footer: true
+            },
+            scrollY: '600px',
+            scrollX: true,
+            scroller: true,
+            scrollCollapse: true,
+            columnDefs: [
+                { width: '100', targets: [0,1] }
+            ],
+            //fixedColumns: {leftColumns: 1},
+
+        });
+
+
+    }
+
+    function getAPIData() {
+        let url = $('#list_data').attr("url")
+        var datastring = $("#frm1").serialize();
+
+        $.ajax({
+            method: 'GET',
+            url: url,
+            data: datastring,
+            beforeSend: function(){
+                $("#no_results h5").html("Loading data...");
+            },
+            success: function (result) {
+                putTableData(result);
+            },
+            error: function (response) {
+                $("#no_results h5").html("Something went wrong");
+                $("#list_data").hide();
+            }
+        });
+
+        /*$.ajax({
+            method: 'GET',
+            url: "{% url 'reports:cell-summary-ajax'  country_code=global.country_code %}",
+            data: datastring,
+            beforeSend: function(){
+                //$("#no_results h5").html("Loading data...");
+            },
+            success: function (result) {
+                console.log(JSON.parse(result));
+            },
+            error: function (response) {
+                //$("#no_results h5").html("Something went wrong");
+                //$("#list_data").hide();
+            }
+        });*/
+
+    }
+
+    $("#next").click(function () {
+        let url = $(this).attr("url");
+        if (!url)
+            $(this).prop('all', true);
+
+        $(this).prop('all', false);
+        $.ajax({
+            method: 'GET',
+            url: url,
+            success: function (result) {
+                putTableData(result);
+            },
+            error: function(response){
+                console.log(response)
+            }
+        });
+    });
+
+    $("#previous").click(function () {
+        let url = $(this).attr("url");
+        if (!url)
+            $(this).prop('all', true);
+
+        $(this).prop('all', false);
+        $.ajax({
+            method: 'GET',
+            url: url,
+            success: function (result) {
+                putTableData(result);
+            },
+            error: function(response){
+                console.log(response)
+            }
+        });
+    });
+</script>
+{% endblock javascripts %}
