@@ -3,8 +3,9 @@
 {% block stylesheets %}
 {% endblock stylesheets %}
 {% load crispy_forms_tags %}
+
 {% block action_buttons %}
-<a href="{% url 'reports:cell-shop-inspection-ajax' country_code=global.country_code%}?export=csv" class="btn btn-info btn-lg waves-effect waves-light">Export CSV</a>
+    <a href="{% url 'reports:rbd-shop-inspection-ajax' country_code=global.country_code%}?export=csv" class="btn btn-info btn-lg waves-effect waves-light">Export CSV</a>
 {% endblock action_buttons %}
 {% block content %}
 <div class="row">
@@ -13,7 +14,6 @@
             <div class="card-body">
                 <form name="frm1" id="frm1" action="" method="POST">
                     {% csrf_token %}
-
                     <section>
                         <div class="container-fluid">
                             <div id="result-count" class="text-right">
@@ -27,19 +27,18 @@
                                     <table
                                         class="table datatable table table-striped table-bordered dt-responsive header-fixed"
                                         id="list_data" data-toggle="table"
-                                        url="{% url 'reports:cell-shop-inspection-ajax'  country_code=global.country_code %}">
+                                        url="{% url 'reports:rbd-shop-inspection-ajax'  country_code=global.country_code %}">
                                         <thead>
                                             <tr>
-                                                <th colspan="9">Cell Summary</th>
+                                                <th colspan="8">RBD Summary</th>
                                                 <th colspan="12" class="prevmonth" id="prevmonthname">Last Month in the application</th>
                                                 <th colspan="12" class="currmonth" id="currmonthname">Current Month in the application</th>
                                             </tr>
                                             <tr>
                                                 <th>RBD Name</th>
-                                                <th>Cell Name</th>
-                                                <th>Cell Code</th>
-                                                <th>Cell Description</th>
-                                                <th>Active</th>
+                                                <th>Sub-RBD Name</th>
+                                                <th>Sub-RBD Code</th>
+                                                <th>Sub-RBD Description</th>
                                                 <th>Condition</th>
                                                 <th>Numeric Universe (N)<br>(Selected Projection Set-up)</th>
                                                 <th>W_Universe<br>(Selected Projection Setup)</th>

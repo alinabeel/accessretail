@@ -71,39 +71,96 @@ class Upload(CreateUpdateMixIn, models.Model):
 
 
 
-class State(models.Model):
+
+class Province(CodeNameMixIn,CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    code = models.CharField(max_length=50)
-    name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        db_table = 'state'
+        db_table = 'province'
 
-        verbose_name = 'State'
-        verbose_name_plural = 'States'
-        ordering = ['name']
+        verbose_name = 'Province'
+        verbose_name_plural = 'Provinces'
 
-class City(models.Model):
+class District(CodeNameMixIn,CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
-    code = models.CharField(max_length=50)
-    name = models.CharField(max_length=100)
-    latitude = models.FloatField(null=True)
-    longitude = models.FloatField(null=True)
-    timezone = models.CharField(max_length=50)
-
+    province = models.ForeignKey(Province, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        db_table = 'city'
-        verbose_name = 'Citiy'
-        verbose_name_plural = 'Cities'
+        db_table = 'district'
+        verbose_name = 'District'
+        verbose_name_plural = 'Districts'
+
+class Tehsil(CodeNameMixIn,CreateUpdateMixIn,models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    district = models.ForeignKey(District, on_delete=models.CASCADE)
+    urbanity =  models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'tehsil'
+        verbose_name = 'Tehsil'
+        verbose_name_plural = 'Tehsils'
+
+class Player(CreateUpdateMixIn,models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'player'
+        verbose_name = 'Player'
+        verbose_name_plural = 'Players'
+
+class Tag(CreateUpdateMixIn,models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    name =  models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'tag'
+        verbose_name = 'Tag'
+        verbose_name_plural = 'Tags'
+
+class PlayerTag(CreateUpdateMixIn,models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    player = models.ManyToManyField(Player)
+    tag = models.ManyToManyField(Tag)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'player_tag'
+        verbose_name = 'PlayerTag'
+        verbose_name_plural = 'PlayerTags'
+
+class CityVillage(CodeNameMixIn,CreateUpdateMixIn,models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    tehsil = models.ForeignKey(Tehsil, on_delete=models.CASCADE)
+    player_tag = models.ManyToManyField(PlayerTag)
+    rc_cut =  models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'city_village'
+        verbose_name = 'CityVillage'
+        verbose_name_plural = 'CityVillages'
         ordering = ['name']
+
+
 
 class RegionType(CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)

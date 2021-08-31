@@ -4,6 +4,7 @@
 {% endblock stylesheets %}
 {% load crispy_forms_tags %}
 {% block action_buttons %}
+<a href="{% url 'reports:cell-summary-ajax' country_code=global.country_code%}?export=csv" class="btn btn-info btn-lg waves-effect waves-light">Export CSV</a>
 {% endblock action_buttons %}
 {% block content %}
 <div class="row">

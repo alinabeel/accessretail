@@ -11,6 +11,7 @@ urlpatterns = [
 
     # """ Cell Summary """
     # path('<slug:country_code>/cell-summary-list-api-view/', CellSummaryListAPIView.as_view(), name='cell-summary-list-api-view'),
+    # path('<slug:country_code>/cell-summary-ajax/', CellSummaryAJAX.as_view(), name='cell-summary-ajax'),
     path('<slug:country_code>/cell-summary-ajax/', CellSummaryAJAX.as_view(), name='cell-summary-ajax'),
     path('<slug:country_code>/cell-summary-list-view/', CellSummaryListView.as_view(), name='cell-summary-list-view'),
 
@@ -29,5 +30,12 @@ urlpatterns = [
     # """ Cell and Shop Inspection """
     path('<slug:country_code>/cell-shop-inspection-ajax/', CellShopInspectionAJAX.as_view(), name='cell-shop-inspection-ajax'),
     path('<slug:country_code>/cell-shop-inspection-list-view/', CellShopInspectionListView.as_view(), name='cell-shop-inspection-list-view'),
+
+    # """ RBD and Shop Inspection """
+    path('<slug:country_code>/rbd-shop-inspection-ajax/', RBDShopInspectionAJAX.as_view(), name='rbd-shop-inspection-ajax'),
+    path('<slug:country_code>/rbd-shop-inspection-list-view/', RBDShopInspectionListView.as_view(), name='rbd-shop-inspection-list-view'),
+
+    # """ Client Reporting """
+    path('<slug:country_code>/client-reporting-view/', ClientReportingView.as_view(), name='client-reporting-view'),
 
 ]
