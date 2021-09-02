@@ -1,21 +1,11 @@
 from django.db import models
 from django.urls import reverse
 from django.core.exceptions import ValidationError
-from django.db.models import Manager, Q
-from django.utils.text import slugify
-from mptt.models import MPTTModel, TreeForeignKey
 
-from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
-from datetime import date, timezone
-from core.mixinsModels import *
-
-
-# from django.contrib.auth import get_user_model
-# UserModel = get_user_model()
-
+from core.mixinsModels import UpperCaseCharField,CodeNameMixIn,CreateUpdateMixIn
+# from master_data.models import Upload
 
 class User(AbstractUser):
     COUNTRYMANAGER = '1'
@@ -166,5 +156,6 @@ class CountrySetting(CreateUpdateMixIn, models.Model):
         verbose_name = 'Country Setting'
         verbose_name_plural = 'Country Settings'
         ordering = ['country']
+
 
 

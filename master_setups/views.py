@@ -24,7 +24,7 @@ from django.http import (HttpResponseRedirect,
                         JsonResponse)
 from django.views import generic
 
-
+from core.utils import prettyprint_queryset, trace, format_datetime,cdebug
 from core.colors import Colors
 from core.mixinsViews import PassRequestToFormViewMixin
 from master_setups.models import *
@@ -653,6 +653,7 @@ class RegionTypeImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.frommodel = "region_type"
         form_obj.save()
 
+        cdebug(form_obj.pk)
         proc = Popen('python manage.py import_region_type '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         # management.call_command('import_census',self.kwargs["country_code"])
@@ -811,6 +812,7 @@ class RegionImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.frommodel = "region"
         form_obj.save()
 
+        cdebug(form_obj.pk)
         proc = Popen('python manage.py import_region '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         # management.call_command('import_census',self.kwargs["country_code"])
@@ -988,6 +990,7 @@ class MonthImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.frommodel = "month"
         form_obj.save()
 
+        cdebug(form_obj.pk)
         proc = Popen('python manage.py import_month '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         # management.call_command('import_census',self.kwargs["country_code"])
@@ -1141,3 +1144,61 @@ class MonthDeleteView(LoginRequiredMixin, generic.DeleteView):
         return queryset
 
 
+""" ------------------------- CodeFrame ------------------------- """
+
+class CodeFrameImportView(LoginRequiredMixin, generic.CreateView):
+    template_name = "generic_import.html"
+    PAGE_TITLE = "Import CodeFrames"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    form_class = UploadModalForm
+
+    def get_context_data(self, **kwargs):
+        context = super(self.__class__, self).get_context_data(**kwargs)
+        # queryset = Upload.objects.filter(country__code=self.kwargs['country_code'])
+        return context
+
+    def form_valid(self, form):
+
+        country = Country.objects.get(code=self.kwargs["country_code"])
+
+        form_obj = form.save(commit=False)
+        form_obj.is_processing = Upload.PROCESSING
+        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.country = country
+        form_obj.frommodel = "code_frame"
+        form_obj.save()
+
+        cdebug(form_obj.pk)
+        proc = Popen('python manage.py import_code_frame '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+
+        # management.call_command('import_census',self.kwargs["country_code"])
+        return super(self.__class__, self).form_valid(form)
+
+    def get_success_url(self):
+        # return reverse("leads:lead-detail", kwargs={"pk": self.kwargs["pk"]})
+        messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
+
+        return reverse("master-setups:code-frame-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+class CodeFrameListView(LoginRequiredMixin, generic.TemplateView):
+    # template_name = "master_setups/code_frame_list.html"
+    template_name = "master_setups/code_frame_list.html"
+    PAGE_TITLE = "Code Frame"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE,
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super(self.__class__, self).get_context_data(**kwargs)
+        upload = Upload.objects.filter(
+            country__code=self.kwargs['country_code'], frommodel='code_frame'
+        ).last()
+        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
+            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
+
+        return context
