@@ -109,9 +109,19 @@ window.AjaxDatatableViewUtils = (function() {
     */
 
     function getCookie(name) {
+        var cookieValue = null;
         var value = '; ' + document.cookie,
             parts = value.split('; ' + name + '=');
-        if (parts.length == 2) return parts.pop().split(';').shift();
+        if (parts.length == 2) cookieValue = parts.pop().split(';').shift();
+        return cookieValue;
+    }
+
+    function getCSRFToken() {
+        var csrftoken = getCookie('csrftoken');
+        if (csrftoken == null) {
+            csrftoken = $('input[name=csrfmiddlewaretoken]').val();
+        }
+        return csrftoken;
     }
 
     function _setup_column_filters(table, data) {
@@ -197,85 +207,104 @@ window.AjaxDatatableViewUtils = (function() {
     };
 
 
-    // function _bind_row_tools(table, url, full_row_select)
-    // {
-    //     console.log('*** _bind_row_tools()');
+    function _bind_row_tools(table, url, options, extra_data)
+    {
+        //console.log('*** _bind_row_tools()');
 
-    //     if (full_row_select) {
+        if (options.full_row_select) {
 
-    //         // Full row select: when user clicks anywhere in the row,
-    //         // expand it to show further details
-    //         table.api().on('click', 'td', function(event) {
-    //             //event.preventDefault();
-    //             var tr = $(this).closest('tr');
+            // Full row select: when user clicks anywhere in the row,
+            // expand it to show further details
+            table.api().on('click', 'td', function(event) {
+                //event.preventDefault();
+                var tr = $(this).closest('tr');
 
-    //             // Dont' close child when clicking inside child itself,
-    //             // unless clicking on a button with class "btn-close"
-    //             if (tr.hasClass('details') && !$(event.target).hasClass('btn-close')) {
-    //                 return;
-    //             }
+                // Dont' close child when clicking inside child itself,
+                // unless clicking on a button with class "btn-close"
+                if (tr.hasClass('details') && !$(event.target).hasClass('btn-close')) {
+                    return;
+                }
 
-    //             var row = table.api().row(tr);
-    //             if (row.child.isShown()) {
-    //                 row.child.hide();
-    //                 tr.removeClass('shown');
-    //             }
-    //             else {
-    //                 table.find('tr').removeClass('shown');
-    //                 table.api().rows().every(function( rowIdx, tableLoop, rowLoop) {
-    //                     this.child.hide();
-    //                 });
-    //                 if (!tr.hasClass('details')) {
-    //                     row.child(_load_row_details(row.data(), url), 'details').show('slow');
-    //                     tr.addClass('shown');
-    //                 }
-    //             }
-    //         });
-    //     }
-    //     else {
+                var row = table.api().row(tr);
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    table.find('tr').removeClass('shown');
+                    table.api().rows().every(function( rowIdx, tableLoop, rowLoop) {
+                        this.child.hide();
+                    });
+                    if (!tr.hasClass('details')) {
+                        row.child(_load_row_details(row.data(), url, extra_data), 'details').show('slow');
+                        tr.addClass('shown');
+                    }
+                }
+            });
 
-    //         // Use "plus" and "minus" links to toggle row details
-    //         table.api().on('click', 'td.dataTables_row-tools .plus, td.dataTables_row-tools .minus', function(event) {
-    //             event.preventDefault();
-    //             var tr = $(this).closest('tr');
-    //             var row = table.api().row(tr);
-    //             if (row.child.isShown()) {
-    //                 row.child.hide();
-    //                 tr.removeClass('shown');
-    //             }
-    //             else {
-    //                 row.child(_load_row_details(row.data(), url), 'details').show('slow');
-    //                 tr.addClass('shown');
-    //             }
-    //         });
-    //     }
-    // };
+        } else {
 
-    // function _load_row_details(rowData, url) {
-    //     var div = $('<div/>')
-    //         .addClass('row-details-wrapper loading')
-    //         .text('Loading...');
+            // Use "plus" and "minus" links to toggle row details
+            table.api().on('click', 'td.dataTables_row-tools .plus, td.dataTables_row-tools .minus', function(event) {
+                event.preventDefault();
+                var tr = $(this).closest('tr');
+                var row = table.api().row(tr);
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    //row.child(_load_row_details(row.data(), url), 'details').show('slow');
+                    //tr.addClass('shown');
+                    var data = _load_row_details(row.data(), url, extra_data);
+                    if (options.detail_callback) {
+                        options.detail_callback(data, tr);
+                    }
+                    else {
+                        row.child(data, 'details').show('slow');
+                    }
+                    tr.addClass('shown');
+                }
+            });
+        }
+    };
 
-    //     if (rowData !== undefined) {
-    //         $.ajax({
-    //             url: url,
-    //             data: {
-    //                 action: 'details',
-    //                 pk: rowData['pk']
-    //             },
-    //             dataType: 'json',
-    //             success: function(json) {
-    //                 var parent_row_id = json['parent-row-id'];
-    //                 if (parent_row_id !== undefined) {
-    //                     div.attr('data-parent-row-id', parent_row_id);
-    //                 }
-    //                 div.html(json.html).removeClass('loading');
-    //             }
-    //         });
-    //     }
+    function _load_row_details(rowData, url, extra_data) {
 
-    //     return div;
-    // };
+        var div = $('<div/>')
+            .addClass('row-details-wrapper loading')
+            .text('Loading...');
+
+        if (rowData !== undefined) {
+
+            var data = {
+                action: 'details',
+                pk: rowData['pk']
+            };
+            if (extra_data) {
+                Object.assign(data, extra_data);
+            }
+
+            $.ajax({
+                url: url,
+                // data: {
+                //     action: 'details',
+                //     pk: rowData['pk']
+                // },
+                data: data,
+                dataType: 'json',
+                success: function(json) {
+                    var parent_row_id = json['parent-row-id'];
+                    if (parent_row_id !== undefined) {
+                        div.attr('data-parent-row-id', parent_row_id);
+                    }
+                    div.html(json.html).removeClass('loading');
+                }
+            });
+        }
+
+        return div;
+    };
 
 
     function adjust_table_columns() {
@@ -316,9 +345,9 @@ window.AjaxDatatableViewUtils = (function() {
     }
 
 
-    function after_table_initialization(table, data, url, full_row_select) {
-        console.log('*** after_table_initialization()');
-        //_bind_row_tools(table, url, full_row_select);
+    function after_table_initialization(table, data, url, options, extra_data) {
+        //console.log('*** after_table_initialization()');
+        _bind_row_tools(table, url, options, extra_data);
         _setup_column_filters(table, data);
     }
 
@@ -345,7 +374,7 @@ window.AjaxDatatableViewUtils = (function() {
             url: url,
             data: data,
             dataType: 'json',
-            headers: {'X-CSRFToken': getCookie('csrftoken')}
+            headers: {'X-CSRFToken': getCSRFToken()}
         }).done(function(data, textStatus, jqXHR) {
 
             // https://datatables.net/manual/api#Accessing-the-API
@@ -364,6 +393,30 @@ window.AjaxDatatableViewUtils = (function() {
                 dom: '<"toolbar">lrftip',
                 language: _options.language,
                 full_row_select: false,
+                // language: {
+                //     "decimal":        "",
+                //     "emptyTable":     "Nessun dato disponibile per la tabella",
+                //     "info":           "Visualizzate da _START_ a _END_ di _TOTAL_ entries",
+                //     "infoEmpty":      "Visualizzate da 0 a 0 di 0 entries",
+                //     "infoFiltered":   "(filtered from _MAX_ total entries)",
+                //     "infoPostFix":    "",
+                //     "thousands":      ",",
+                //     "lengthMenu":     "Visualizza _MENU_ righe per pagina",
+                //     "loadingRecords": "Caricamento in corso ...",
+                //     "processing":     "Elaborazione in corso ...",
+                //     "search":         "Cerca:",
+                //     "zeroRecords":    "Nessun record trovato",
+                //     "paginate": {
+                //         "first":      "Prima",
+                //         "last":       "Ultima",
+                //         "next":       "Prossima",
+                //         "previous":   "Precedente"
+                //     },
+                //     "aria": {
+                //         "sortAscending":  ": activate to sort column ascending",
+                //         "sortDescending": ": activate to sort column descending"
+                //     }
+                // },
                 ajax: function(data, callback, settings) {
                       var table = $(this);
                       data.date_from = table.data('date_from');
@@ -379,7 +432,7 @@ window.AjaxDatatableViewUtils = (function() {
                           dataType: 'json',
                           cache: false,
                           crossDomain: false,
-                          headers: {'X-CSRFToken': getCookie('csrftoken')}
+                          headers: {'X-CSRFToken': getCSRFToken()}
                       }).done(function(data, textStatus, jqXHR) {
                           console.log('data rx: %o', data);
                           callback(data);
@@ -440,9 +493,7 @@ window.AjaxDatatableViewUtils = (function() {
             var table = element.dataTable(options);
 
             _daterange_widget_initialize(table, data);
-            // _andorfilter_widget_initialize(table, data);
-
-            after_table_initialization(table, data, url, options.full_row_select);
+            after_table_initialization(table, data, url, options, extra_data);
         })
     }
 
@@ -466,7 +517,6 @@ window.AjaxDatatableViewUtils = (function() {
     return {
         init: init,
         initialize_table: initialize_table,
-        after_table_initialization: after_table_initialization,
         adjust_table_columns: adjust_table_columns,
         redraw_all_tables: redraw_all_tables,
         redraw_table: redraw_table

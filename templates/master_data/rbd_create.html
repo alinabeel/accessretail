@@ -11,149 +11,6 @@
                 <form name="frm1" id="frm1" action="" method="POST">
                     {% csrf_token %}
                     {{ form|crispy }}
-                    <div id="accordion">
-                        <div class="card">
-                            <div class="card-header" id="headingOne">
-                                <a class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
-                                    aria-expanded="true" aria-controls="collapseOne">
-                                    <h6 class="mb-0">
-
-                                        Criteria:
-
-                                    </h6>
-                                </a>
-                            </div>
-
-                            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
-                                data-parent="#accordion">
-                                <div class="card-body">
-                                    <div class="clonable-block" data-toggle="cloner" data-options='{"debug":false}'>
-                                        <div class="clonable" data-ss="1">
-                                            <div id="or_group_0" class="clonable-increment-id or_group">
-                                                <div class="clonable-block" data-toggle="cloner">
-                                                    <div class="clonable" data-ss="1">
-                                                        <div class="form-group row" style="margin:10px 0">
-
-                                                            <div class="col">
-                                                                <select class="form-control clonable-increment-name"
-                                                                    data-name="cols" name="field_group[cols]">
-
-                                                                    <option value="">-- Select Column --</option>
-                                                                    {% for i,v in panel_profile_cols.items %}
-                                                                    <option value="{{ i }}">{{ v }}</option>
-                                                                    {% endfor %}
-
-                                                                </select>
-
-                                                            </div>
-                                                            <div class="col">
-                                                                <select class="form-control clonable-increment-name"
-                                                                    data-name="operator" name="field_group[operator]">
-                                                                    <option value="">-- Select Condition --</option>
-                                                                    <option value="iexact">Equals</option>
-                                                                    <option value="istartswith">Starts With</option>
-                                                                    <option value="iendswith">Ends With</option>
-                                                                    <option value="icontains">Contains</option>
-                                                                    <option value="~">Not Equal</option>
-
-                                                                    <option value="isnull">Not Set or Blank</option>
-
-                                                                    <option value="gt">Greater Than</option>
-                                                                    <option value="gte">Greater Than or Equals to
-                                                                    </option>
-                                                                    <option value="lt">Less Than</option>
-                                                                    <option value="lte">Less Than or Equals to</option>
-
-                                                                    {% comment %} <option value="isoneof">is one of
-                                                                    </option>
-                                                                    <option value="isset">is Set or Not Blank</option>
-                                                                    <option value="null">Is Not Set or is blank</option>
-                                                                    <option value="less">before</option>
-                                                                    <option value="lessequal">on or before</option>
-                                                                    <option value="greater">after</option>
-                                                                    <option value="greaterequal">on or after</option>
-                                                                    <option value="between">between</option>
-                                                                    {% endcomment %}
-                                                                </select>
-                                                            </div>
-                                                            <div class="col">
-                                                                <input type="text"
-                                                                    class="form-control clonable-increment-name"
-                                                                    data-name="value" name="field_group[value]" />
-                                                            </div>
-                                                            <div class="col">
-                                                                <button id="a_and"
-                                                                    class="btn btn-primary clonable-button-add and-add"
-                                                                    type="button">AND</button>
-                                                                <button id="r_and" type="button"
-                                                                    class="btn btn-danger clonable-button-close">X</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col" style="margin:10px">
-                                                <label>OR</label>
-                                                <button id="a_or" class="btn btn-primary clonable-button-add or-add"
-                                                    type="button">Add rule group</button>
-                                                <button id="r_or" type="button"
-                                                    class="btn btn-danger clonable-button-close">Delete</button>
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <textarea id="condition_html" name="condition_html" style="visibility: hidden;"></textarea>
-                    <input type="text" id="serialize_str" name="serialize_str" value="" style="visibility: hidden;" />
-
-                    <div class="col-12">
-                        <button class="btn btn-warning btn-block btn-lg waves-effect" type="button"
-                            id="btn_filter">Filter</button>
-                    </div>
-
-                    <section>
-                        <div class="container-fluid">
-                            <div id="result-count" class="text-right">
-                                <span class='font-weight-bold'></span> results found.
-                            </div>
-                            <div class="row properties_table justify-content-center">
-                                <div id="no_results">
-                                    <h5>No results found</h5>
-                                </div>
-                                <div class="table-responsive">
-                                    <table
-                                        class="table datatable table table-striped table-bordered dt-responsive nowrap"
-                                        id="list_data" data-toggle="table"
-                                        url="{% url 'master-data:panel-profile-rbd-list-json'  country_code=global.country_code %}">
-                                        <tbody id="listing">
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="row justify-content-center">
-                                <nav aria-label="navigation">
-                                    <ul class="pagination">
-                                        <li class="page-item">
-                                            <button type="button" class="btn btn-primary page-link"
-                                                id="previous">Previous</button>
-                                        </li>
-                                        <li class="page-item pull-right">
-                                            <button type="button" class="btn btn-primary page-link"
-                                                id="next">Next</button>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
-                    </section>
-
-
-
 
                     <div class="row">
                         <div class="col-6">
@@ -177,7 +34,65 @@
 {% endblock content %}
 
 {% block javascripts %}
-<script src="{% static 'assets/js/rbd.js' %}"></script>
 <script language="javascript">
+
+(function($) {
+
+  // convert a multiple select in a multiple checkbox
+  var mselectTOmcheckbox = function mselectTOmcheckbox(selector) {
+
+    var elements = $(selector);
+
+    elements.each(function(index, item) {
+      var id = $(item).attr('id'),
+          name = $(item).attr('name'),
+          options = $(item).children();
+
+      var mcheckbox_table = $('<table/>', {
+        id: 'mcheckbox-' + id,
+        className: 'table table-striped table-bordered dt-responsive nowrap mcheckbox-table'
+      }).appendTo(
+        mcheckbox_container = $('<div/>', {
+            className: 'mcheckbox-container'
+        })
+      );
+
+      options.each(function(index, option) {
+        var value = $(option).attr('value'),
+            label = $(option).text(),
+            selected = $(option).attr('selected');
+
+        var checkbox_row = $(
+            '<tr>'
+          + '<td><label for="' + name +'_' + value + '" class="mcheckbox-label">' + label + '</td>'
+          + '<td><input type="checkbox" id="' + name + '_' + value + '" name="' + name +'" value="' + value + '" ' + (selected ? 'checked="checked"' : '') + '/></td>'
+          + '</tr>'
+        ).appendTo(mcheckbox_table);
+      })
+
+      mcheckbox_container.insertAfter(item);
+
+      try {
+        mcheckbox_container.resizable({handles: "se"});
+      }
+      catch(e) {
+        // resizing not supported
+        console.log('resizing not supported');
+      }
+
+      $(item).nextAll('.help').hide();
+      $(item).remove();
+
+    })
+
+  };
+
+  // apply the conversion to the desired elements (change the selector)
+  $(document).ready(function() {
+    mselectTOmcheckbox('select[id="id_cell"]');
+  })
+
+})(jQuery)
+
 </script>
 {% endblock javascripts %}

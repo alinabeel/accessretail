@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models import Q
+from django.db.models import Prefetch
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -50,7 +51,7 @@ class AjaxDatatableView(View):
     table_row_id_prefix = 'row-'
     table_row_id_fieldname = 'pk'
     render_row_details_template_name = 'render_row_details.html'
-    search_values_separator = '+' # '+'
+    search_values_separator = '' # '+'
 
     # Set with self.initialize()
     column_specs = []  # used to keep column ording as required
@@ -65,6 +66,7 @@ class AjaxDatatableView(View):
     disable_queryset_optimization = False
     disable_queryset_optimization_only = False
     disable_queryset_optimization_select_related = False
+    disable_queryset_optimization_prefetch_related = False
 
     _id_column_renamed_as_pk = False
 
@@ -100,6 +102,7 @@ class AjaxDatatableView(View):
                 'orderable': False,
                 'visible': True,
                 'foreign_field': None,
+                'm2m_foreign_field': None,
                 'placeholder': False,
                 'className': None,
                 'defaultContent': None,
@@ -265,6 +268,12 @@ class AjaxDatatableView(View):
         if TRACE_COLUMNDEFS:
             trace(json.dumps(self.column_specs, indent=2, cls=DjangoJSONEncoder), prompt='column_specs')
 
+    def get_country(self, request):
+        """
+        Override to customize based of request
+        """
+        return self.kwargs['country_code']
+
     def get_column_defs(self, request):
         """
         Override to customize based of request
@@ -414,35 +423,51 @@ class AjaxDatatableView(View):
             return admin.site._registry[self.model]
         return None
 
-    # def render_row_details(self, pk, request=None):
+    def render_row_details(self, pk, request=None):
 
-    #     obj = self.model.objects.get(pk=pk)
+        #we do some optimization on the request
+        relateds = []
+        if not self.disable_queryset_optimization_only and not self.disable_queryset_optimization_select_related:
+            relateds = [f.name for f in self.model._meta.get_fields() if f.many_to_one and f.concrete]
 
-    #     # Search a custom template for rendering, if available
-    #     try:
-    #         template = loader.select_template([
-    #             'ajax_datatable/%s/%s/%s' % (self.model._meta.app_label, self.model._meta.model_name, self.render_row_details_template_name),
-    #             'ajax_datatable/%s/%s' % (self.model._meta.app_label, self.render_row_details_template_name),
-    #             'ajax_datatable/%s' % (self.render_row_details_template_name, ),
-    #         ])
-    #         html = template.render({
-    #             'model': self.model,
-    #             'model_admin': self.get_model_admin(),
-    #             'object': obj,
-    #         }, request)
+        prefetchs = []
+        if not self.disable_queryset_optimization_only and not self.disable_queryset_optimization_prefetch_related:
+            prefetchs = [f.name for f in self.model._meta.get_fields() if f.many_to_many and f.concrete]
 
-    #     # Failing that, display a simple table with field values
-    #     except TemplateDoesNotExist:
-    #         fields = [f.name for f in self.model._meta.get_fields() if f.concrete]
-    #         html = '<table class="row-details">'
-    #         for field in fields:
-    #             try:
-    #                 value = getattr(obj, field)
-    #                 html += '<tr><td>%s</td><td>%s</td></tr>' % (field, value)
-    #             except:
-    #                 pass
-    #         html += '</table>'
-    #     return html
+        obj = self.model.objects.filter(pk=pk).select_related(*relateds).prefetch_related(*prefetchs).first()
+
+        # Extract "extra_data" from request
+        extra_data = {k:v for k,v in request.GET.items() if k not in ['action', 'pk', ]}
+
+        # Search a custom template for rendering, if available
+        try:
+            template = loader.select_template([
+                'ajax_datatable/%s/%s/%s' % (self.model._meta.app_label, self.model._meta.model_name, self.render_row_details_template_name),
+                'ajax_datatable/%s/%s' % (self.model._meta.app_label, self.render_row_details_template_name),
+                'ajax_datatable/%s' % (self.render_row_details_template_name, ),
+            ])
+            html = template.render({
+                'model': self.model,
+                'model_admin': self.get_model_admin(),
+                'object': obj,
+                'extra_data': extra_data,
+            }, request)
+
+        # Failing that, display a simple table with field values
+        except TemplateDoesNotExist:
+            fields = [f.name for f in self.model._meta.get_fields() if f.concrete]
+            html = '<table class="row-details">'
+            for field in fields:
+                if field in prefetchs:
+                    value = ', '.join([str(x) for x in eval(f'obj.{field}').all()])
+                else:
+                    try:
+                        value = getattr(obj, field)
+                    except:
+                        continue
+                html += '<tr><td>%s</td><td>%s</td></tr>' % (field, value)
+            html += '</table>'
+        return html
 
     @staticmethod
     def render_row_tools_column_def():
@@ -450,7 +475,7 @@ class AjaxDatatableView(View):
             'name': '',
             'visible': True,
             # https://datatables.net/blog/2017-03-31
-            'defaultContent': "",
+            'defaultContent': render_to_string('ajax_datatable/row_tools.html', {'foo': 'bar'}),
             "className": 'dataTables_row-tools',
             'width': 30,
         }
@@ -513,7 +538,7 @@ class AjaxDatatableView(View):
         # Prepare the queryset and apply the search and order filters
         qs = self.get_initial_queryset(request)
         if not DISABLE_QUERYSET_OPTIMIZATION and not self.disable_queryset_optimization:
-            if (self.disable_queryset_optimization_select_related and self.disable_queryset_optimization_only):
+            if (self.disable_queryset_optimization_select_related and self.disable_queryset_optimization_only and self.disable_queryset_optimization_prefetch_related):
                 pass
             else:
                 qs = self.optimize_queryset(qs)
@@ -522,7 +547,12 @@ class AjaxDatatableView(View):
             prettyprint_queryset(qs)
 
         # Slice result
-        paginator = Paginator(qs, params['length'] if params['length'] != -1 else qs.count())
+        #paginator = Paginator(qs, params['length'] if params['length'] != -1 else qs.count())
+        if params['length'] == -1:
+            # fix: prevent ZeroDivisionError
+            paginator = Paginator(qs, max(1,qs.count()))
+        else:
+            paginator = Paginator(qs, params['length'])
         response_dict = self.get_response_dict(request, paginator, params['draw'], params['start'])
         response_dict['footer_message'] = self.footer_message(qs, params)
 
@@ -567,8 +597,8 @@ class AjaxDatatableView(View):
                             column_name,
                             #self.model_columns[column_name],
                             self.column_obj(column_name),
-                            query_dict.get(column_base + '[orderable]'),
                             query_dict.get(column_base + '[searchable]'),
+                            query_dict.get(column_base + '[orderable]'),
                             query_dict.get(column_base + '[search][value]'),
                         )
                     )
@@ -722,11 +752,13 @@ class AjaxDatatableView(View):
         # use sets to remove duplicates
         only = set()
         select_related = set()
+        prefetch_related = set()
 
         # collect values for qs optimizations
-        fields = [f.name for f in self.model._meta.get_fields()]
+        fields = {f.name: f for f in self.model._meta.get_fields()}
         for column in self.column_specs:
             foreign_field = column.get('foreign_field')
+            m2m_foreign_field = column.get('m2m_foreign_field')
             if foreign_field:
 
                 # Examples:
@@ -740,9 +772,18 @@ class AjaxDatatableView(View):
                 #
 
                 only.add(foreign_field)
-                #select_related.add(column.get('name'))
-                #select_related.add(foreign_field.split('__')[0])
                 select_related.add('__'.join(foreign_field.split('__')[0:-1]))
+            elif m2m_foreign_field:
+                split_field = m2m_foreign_field.split('__')
+                if len(split_field) != 2:
+                    raise Exception('m2m_foreign_field should be 2 level max ex : authors__name')
+                m2m_field, m2m_name = split_field
+                model = fields[m2m_field].related_model
+
+                prefetch_related.add(Prefetch(m2m_field,
+                                              queryset=model.objects.only(m2m_name).order_by(m2m_name),
+                                              to_attr=f'{m2m_field}_list',
+                                              ))
             else:
                 [f.name for f in self.model._meta.get_fields()]
                 field = column.get('name')
@@ -758,8 +799,11 @@ class AjaxDatatableView(View):
         # (1) use select_related() to reduce the number of queries
         if select_related and not self.disable_queryset_optimization_select_related:
             qs = qs.select_related(*select_related)
+        # (2) use prefetch_related() to optimize the numbers of queries
+        if prefetch_related and not self.disable_queryset_optimization_prefetch_related:
+            qs = qs.prefetch_related(*prefetch_related)
 
-        # (2) use only() to reduce the number of columns in the resultset
+        # (3) use only() to reduce the number of columns in the resultset
         if only and not self.disable_queryset_optimization_only:
             qs = qs.only(*only)
 

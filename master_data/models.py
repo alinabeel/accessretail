@@ -491,43 +491,10 @@ class ProductAudit(CreateUpdateMixIn,models.Model):
         return self.country
 
 
-class RBD(CreateUpdateMixIn,MPTTModel):
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    name = models.CharField(max_length=500,)
-    code = UpperCaseCharField(max_length=500,validators=[validators.validate_slug])
-    description = models.TextField(null=True, blank=True)
-    condition_html = models.TextField(null=True, blank=True)
-    serialize_str = models.TextField(null=True, blank=True)
-    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True,blank=True, related_name='child')
-
-    cell_acv = models.DecimalField(max_digits=15,decimal_places=6,default=0)
-    num_universe = models.DecimalField(max_digits=15,decimal_places=6,default=0)
-    optimal_panel = models.IntegerField(default=0)
-    # universe = models.BigIntegerField()
-    # universe_turnover = models.DecimalField(max_digits=15,decimal_places=6, null=True, blank=True)
-    # panel_turnover_vol = models.DecimalField(max_digits=15,decimal_places=6, null=True, blank=True)
-    # panel_turnover_val = models.DecimalField(max_digits=15,decimal_places=6, null=True, blank=True)
-    # numaric_factor = models.DecimalField(max_digits=15,decimal_places=6, null=True, blank=True)
-    # weighted_facror = models.DecimalField(max_digits=15,decimal_places=6, null=True, blank=True)
-
-    class Meta:
-        unique_together = (('country','code'))
-        db_table = 'rbd'
-        verbose_name = 'RBD'
-        verbose_name_plural = 'RBDs'
-
-    class MPTTMeta:
-        order_insertion_by = ['name']
-
-    def __str__(self):
-        return self.name
-
-
-
 class Cell(CreateUpdateMixIn,models.Model):
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    rbd = models.ForeignKey(RBD, on_delete=models.CASCADE)
+
     name = models.CharField(max_length=500,)
     code = UpperCaseCharField(max_length=500,validators=[validators.validate_slug])
     description = models.TextField(null=True, blank=True)
@@ -541,7 +508,7 @@ class Cell(CreateUpdateMixIn,models.Model):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = (('country','rbd','code'))
+        unique_together = (('country','code'))
         db_table = 'cell'
         verbose_name = 'Cell'
         verbose_name_plural = 'Cells'
@@ -549,6 +516,21 @@ class Cell(CreateUpdateMixIn,models.Model):
     def __str__(self):
         return self.name
 
+class RBD(CreateUpdateMixIn,models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    name = models.CharField(max_length=500,)
+    code = UpperCaseCharField(max_length=500,validators=[validators.validate_slug])
+    description = models.TextField(null=True, blank=True)
+    cell = models.ManyToManyField(Cell)
+
+    class Meta:
+        unique_together = (('country','code'))
+        db_table = 'rbd'
+        verbose_name = 'RBD'
+        verbose_name_plural = 'RBDs'
+
+    def __str__(self):
+        return self.name
 
 class Province(CodeNameMixIn,CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
@@ -589,51 +571,43 @@ class Tehsil(CodeNameMixIn,CreateUpdateMixIn,models.Model):
         verbose_name = 'Tehsil'
         verbose_name_plural = 'Tehsils'
 
-class Player(CreateUpdateMixIn,models.Model):
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-    def __str__(self):
-        return self.name
 
-    class Meta:
-        unique_together = (('country','name',),)
-        db_table = 'player'
-        verbose_name = 'Player'
-        verbose_name_plural = 'Players'
-
-class Tag(CreateUpdateMixIn,models.Model):
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    name =  models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        unique_together = (('country','name',),)
-        db_table = 'tag'
-        verbose_name = 'Tag'
-        verbose_name_plural = 'Tags'
-
-class PlayerTag(CreateUpdateMixIn,models.Model):
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    player = models.ForeignKey(Player, on_delete=models.CASCADE)
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return str('{0} - {1}'.format(self.player, self.tag))
-
-    class Meta:
-        unique_together = (('country','player','tag',),)
-        db_table = 'player_tag'
-        verbose_name = 'PlayerTag'
-        verbose_name_plural = 'PlayerTags'
 
 class CityVillage(CodeNameMixIn,CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
     tehsil = models.ForeignKey(Tehsil, on_delete=models.CASCADE)
-    rc_cut =  models.CharField(max_length=100)
-    player_tag = models.ManyToManyField(PlayerTag)
+    rc_cut =  models.CharField(max_length=500)
+    extra_1 =  models.CharField(max_length=500)
+    extra_2 =  models.CharField(max_length=500)
+    extra_3 =  models.CharField(max_length=500)
+    extra_4 =  models.CharField(max_length=500)
+    extra_5 =  models.CharField(max_length=500)
+    extra_6 =  models.CharField(max_length=500)
+    extra_7 =  models.CharField(max_length=500)
+    extra_8 =  models.CharField(max_length=500)
+    extra_9 =  models.CharField(max_length=500)
+    extra_10 =  models.CharField(max_length=500)
+    extra_11 =  models.CharField(max_length=500)
+    extra_12 =  models.CharField(max_length=500)
+    extra_13 =  models.CharField(max_length=500)
+    extra_14 =  models.CharField(max_length=500)
+    extra_15 =  models.CharField(max_length=500)
+    extra_16 =  models.CharField(max_length=500)
+    extra_17 =  models.CharField(max_length=500)
+    extra_18 =  models.CharField(max_length=500)
+    extra_19 =  models.CharField(max_length=500)
+    extra_20 =  models.CharField(max_length=500)
+    extra_21 =  models.CharField(max_length=500)
+    extra_22 =  models.CharField(max_length=500)
+    extra_23 =  models.CharField(max_length=500)
+    extra_24 =  models.CharField(max_length=500)
+    extra_25 =  models.CharField(max_length=500)
+    extra_26 =  models.CharField(max_length=500)
+    extra_27 =  models.CharField(max_length=500)
+    extra_28 =  models.CharField(max_length=500)
+    extra_29 =  models.CharField(max_length=500)
+    extra_30 =  models.CharField(max_length=500)
 
     def __str__(self):
         return self.name
@@ -644,3 +618,19 @@ class CityVillage(CodeNameMixIn,CreateUpdateMixIn,models.Model):
         verbose_name = 'CityVillage'
         verbose_name_plural = 'CityVillages'
         ordering = ['name']
+
+
+class ColLabel(CreateUpdateMixIn,models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    model_name = models.CharField(max_length=150)
+    col_name =  models.CharField(max_length=150)
+    col_label =  models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.col_label
+
+    class Meta:
+        unique_together = (('country','model_name','col_name'),)
+        db_table = 'col_label'
+        verbose_name = 'ColLabel'
+        verbose_name_plural = 'ColLabels'

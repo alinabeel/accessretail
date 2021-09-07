@@ -1,3 +1,4 @@
+from core.utils import cdebug
 import json
 import csv
 from django.db.models import Q, Avg, Count, Min,Max, Sum
@@ -47,6 +48,7 @@ def getGroupFilter(new_dic):
             # print(str(group_filter))
 
         group_filter |= Q(temp_group_filter)
+
     return group_filter
 
 

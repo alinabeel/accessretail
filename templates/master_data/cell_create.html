@@ -41,9 +41,47 @@
                                                                     data-name="cols" name="field_group[cols]">
 
                                                                     <option value="">-- Select Column --</option>
-                                                                    {% for i,v in panel_profile_cols.items %}
-                                                                    <option value="{{ i }}">{{ v }}</option>
-                                                                    {% endfor %}
+
+                                                                    <optgroup label="Index">
+                                                                        <option value="index_setup__code">Index Code</option>
+                                                                        <option value="index_setup__name">Index Name</option>
+                                                                    </optgroup>
+
+                                                                    <optgroup label="Category">
+                                                                        <option value="category__code">Category Code</option>
+                                                                        <option value="category__name">Category Name</option>
+                                                                    </optgroup>
+                                                                    <optgroup label="Code Frame">
+                                                                        <option value="province__code">Province Code</option>
+                                                                        <option value="province__name">Province Name</option>
+
+                                                                        <option value="district__code">District Code</option>
+                                                                        <option value="district__name">District Name</option>
+
+                                                                        <option value="tehsil__code">Tehsil Code</option>
+                                                                        <option value="tehsil__name">Tehsil Name</option>
+                                                                        <option value="tehsil__urbanity">Tehsil Urbanity</option>
+
+                                                                        <option value="city_village__code">CityVillage Code</option>
+                                                                        <option value="city_village__name">CityVillage Name</option>
+                                                                        {% for i,v in city_village_cols.items %}
+                                                                        <option value="{{ i }}">{{ v }}</option>
+                                                                        {% endfor %}
+                                                                    </optgroup>
+                                                                    <optgroup label="Outlet">
+                                                                        <option value="outlet__code">Outlet Code</option>
+                                                                    </optgroup>
+                                                                    <optgroup label="Outlet Type">
+                                                                        <option value="outlet_type__code">Outlet Code</option>
+                                                                        <option value="outlet_type__name">Outlet Name</option>
+                                                                        <option value="outlet_type__urbanity">Outlet Urbanity</option>
+                                                                        <option value="outlet_type__description">Outlet Description</option>
+                                                                    </optgroup>
+                                                                    <optgroup label="Panel Profile">
+                                                                        {% for i,v in panel_profile_cols.items %}
+                                                                        <option value="{{ i }}">{{ v }}</option>
+                                                                        {% endfor %}
+                                                                    </optgroup>
 
                                                                 </select>
 
@@ -51,6 +89,7 @@
                                                             <div class="col">
                                                                 <select class="form-control clonable-increment-name"
                                                                     data-name="operator" name="field_group[operator]">
+
                                                                     <option value="">-- Select Condition --</option>
                                                                     <option value="iexact">Equals</option>
                                                                     <option value="istartswith">Starts With</option>

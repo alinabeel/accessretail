@@ -1144,7 +1144,7 @@ class PanelProfileRBDListing(ListAPIView):
         return queryList
 
 
-class RBDListViewAjax(LoginRequiredMixin, generic.View):
+class RBDListViewAjax_BACKUP(LoginRequiredMixin, generic.View):
 
     def get(self, request, *args, **kwargs):
         return_dic = {}
@@ -1262,6 +1262,39 @@ class RBDListViewAjax(LoginRequiredMixin, generic.View):
             ),
             content_type="application/json")
 
+class RBDListViewAjax(AjaxDatatableView):
+    model = RBD
+    title = 'RBD'
+    initial_order = [["code", "asc"], ]
+    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
+    search_values_separator = '+'
+
+
+    column_defs = [
+         AjaxDatatableView.render_row_tools_column_def(),
+        {'name': 'id', 'visible': False, },
+        {'name': 'code',  },
+        {'name': 'name',  },
+        {'name': 'cell','m2m_foreign_field':'cell__code'  },
+        # {'name': 'rbdcode', 'title':'RBD Code', 'foreign_field': 'rbd__code', 'choices': True, 'autofilter': True,},
+        {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
+    ]
+
+    def customize_row(self, row, obj):
+            row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
+                             '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+                    reverse('master-data:rbd-update', args=(self.kwargs['country_code'],obj.id,)),
+                    reverse('master-data:rbd-delete', args=(self.kwargs['country_code'],obj.id,)),
+                )
+                # <a href="{1}" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
+
+
+    def get_initial_queryset(self, request=None):
+
+        queryset = self.model.objects.filter(
+            country__code=self.kwargs['country_code']
+        )
+        return queryset
 
 
 class RBDListView(LoginRequiredMixin, generic.TemplateView):
@@ -1286,7 +1319,7 @@ class RBDCreateView(LoginRequiredMixin, generic.CreateView):
         kwargs = super(self.__class__, self).get_form_kwargs()
         # kwargs['request'] = self.request
         kwargs['country_code'] = self.kwargs["country_code"]
-        kwargs['parent'] = self.request.POST.get("parent")
+        # kwargs['parent'] = self.request.POST.get("parent")
         return kwargs
 
     def form_valid(self,form):
@@ -1297,8 +1330,6 @@ class RBDCreateView(LoginRequiredMixin, generic.CreateView):
             form_obj.name = self.request.POST.get("name")
             form_obj.code = self.request.POST.get("code")
             form_obj.description = self.request.POST.get("description")
-            form_obj.condition_html = self.request.POST.get("condition_html")
-            form_obj.serialize_str = self.request.POST.get("serialize_str")
             form_obj.save()
             return super(self.__class__, self).form_valid(form)
 
@@ -1310,58 +1341,6 @@ class RBDCreateView(LoginRequiredMixin, generic.CreateView):
             messages.add_message(self.request, messages.SUCCESS, "Record saved successfully.")
             return reverse("master-data:rbd-list", kwargs={"country_code": self.kwargs["country_code"]})
 
-    def get_context_data(self, *args, **kwargs):
-        try:
-            #Processing get_context_data request
-            context = super(self.__class__, self).get_context_data(**kwargs)
-            #Finished processing get_context_data request
-
-            skip_cols = ['id','pk','month','country','upload','created','updated',]
-
-            # fields = get_model_fields(cl.model)
-
-            # for f in cl.model._meta.fields:
-            #     if isinstance(f, ForeignKey):
-            #         fields.extend(get_model_fields(f.related_model, f.name))
-            # >>> SubCategory._meta.get_field('category').related_model
-            # >>> <class 'my_app.models.Category'>
-            # >>> SubCategory._meta.get_field('category').related_model._meta.model_name
-            # >>> 'category'
-
-            panel_profile_cols = {}
-            for v in PanelProfile._meta.get_fields():
-                if(v.name not in skip_cols):
-                    if isinstance(v, models.ForeignKey):
-                        # for vr in v.related_model._meta.get_fields():
-                        panel_profile_cols[v.name+'__code'] = v.name.replace("_", " ").capitalize()
-                        # print(v.related_model)
-                    #
-                    #    panel_profile_cols[vr.name] = vr.name.replace("_", " ").capitalize()
-                        # print(v.related_model._meta.model_name)
-                    else:
-                        panel_profile_cols[v.name] = v.name.replace("_", " ").capitalize()
-
-            # for v in IndexSetup._meta.get_fields():
-            #     panel_profile_cols[v.name] = v.name.replace("_", " ").capitalize()
-
-            # for v in Outlet._meta.get_fields():
-            #     panel_profile_cols[v.name] = v.name.replace("_", " ").capitalize()
-
-            # for v in OutletType._meta.get_fields():
-            #     panel_profile_cols[v.name] = v.name.replace("_", " ").capitalize()
-
-            country = Country.objects.only('id','code','name').get(code=self.kwargs['country_code'])
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
-
-        context.update({
-            "panel_profile_cols": panel_profile_cols,
-            "total_in_past30": 2,
-            "converted_in_past30": 3
-        })
-        return context
 
 class RBDUpdateView(LoginRequiredMixin, generic.UpdateView):
     template_name = "master_data/rbd_update.html"
@@ -1377,7 +1356,7 @@ class RBDUpdateView(LoginRequiredMixin, generic.UpdateView):
         kwargs = super(self.__class__, self).get_form_kwargs()
         # kwargs['request'] = self.request
         kwargs['country_code'] = self.kwargs["country_code"]
-        kwargs['parent'] = self.request.POST.get("parent")
+        # kwargs['parent'] = self.request.POST.get("parent")
         return kwargs
 
     def form_valid(self,form):
@@ -1389,8 +1368,6 @@ class RBDUpdateView(LoginRequiredMixin, generic.UpdateView):
             form_obj.name = self.request.POST.get("name")
             form_obj.code = self.request.POST.get("code")
             form_obj.description = self.request.POST.get("description")
-            form_obj.condition_html = self.request.POST.get("condition_html")
-            form_obj.serialize_str = self.request.POST.get("serialize_str")
             form_obj.save()
 
             return super(self.__class__, self).form_valid(form)
@@ -1525,64 +1502,7 @@ class PanelProfileCellListing(ListAPIView):
             group_filter = getGroupFilter(new_dic)
 
 
-            # Get RBD and related filter
-            rbd = self.request.query_params.get('rbd', None)
-            # print('>>>>',rbd,'<<<<')
-            if rbd != None and rbd != '':
-                rbd = RBD.objects.get(pk=rbd)
-                rbd_params = parse_qs((rbd.serialize_str))
-                rbd_list = getDictArray(rbd_params,'field_group[group]')
-                rbd_dic = getDicGroupList(rbd_list)
-                rbd_group_filter = getGroupFilter(rbd_dic)
-
-
-
-                # if rbd != None and rbd != '' and rbd_group_filter != '':
-                #     rbd_group_filter &= Q(group_filter)
-                #     queryList = queryList.filter(rbd_group_filter)
-                # else:
-                #     if(group_filter != ''):
-                #         queryList = queryList.filter(group_filter)
-
-                # Get Cells based on RBD
-                cellrbd_group_filter = None
-                cellrbd = list(Cell.objects.filter(country = country, rbd = rbd) \
-                                .values_list('id','serialize_str'))
-                # cdebug(rbd)
-                # cdebug(cellrbd)
-
-                cellrbd_group_filter = Q()
-                for i in range(len(cellrbd)):
-                    cellrbd_id = cellrbd[i][0]
-                    cellrbd_serialize_str = cellrbd[i][1]
-
-                    if(pk is not None and pk == cellrbd_id):
-                        continue
-
-                    cellrbd_params = parse_qs((cellrbd_serialize_str))
-                    # cdebug(cellrbd_params)
-                    cellrbd_list = getDictArray(cellrbd_params,'field_group[group]')
-                    cellrbd_dic = getDicGroupList(cellrbd_list)
-                    cellrbd_group_filter_temp = getGroupFilter(cellrbd_dic)
-
-
-
-                    cellrbd_group_filter &= ~Q(cellrbd_group_filter_temp)
-
-                    # cellrbd_group_filter &= Q(cellrbd_group_filter_temp)
-
-
-
-                rbd_group_filter &= Q(cellrbd_group_filter)
-
-                rbd_group_filter &= Q(group_filter)
-
-
-
-                queryList = queryList.filter(rbd_group_filter)
-            # prettyprint_queryset(queryList)
-
-
+            queryList = queryList.filter(group_filter)
 
 
             prettyprint_queryset(queryList)
@@ -1608,7 +1528,7 @@ class CellListViewAjax(LoginRequiredMixin, generic.View):
             country = Country.objects.get(code=self.kwargs["country_code"])
 
             #RBD Query List
-            queryList = Cell.objects.all().filter(country = country).order_by('rbd__level','rbd__name')
+            queryList = Cell.objects.all().filter(country = country)
             # prettyprint_queryset(queryList)
             #Calculate Current Month
             audit_date_qs = PanelProfile.objects.all().filter(country = country).aggregate(current_month=Max('month__date'))
@@ -1635,64 +1555,46 @@ class CellListViewAjax(LoginRequiredMixin, generic.View):
             for k in range(0,len(queryList)):
 
                 pk = queryList[k].pk
-                rbd_pk = queryList[k].rbd.pk
-                rbd_serialize_str = queryList[k].rbd.serialize_str
                 cell_serialize_str = queryList[k].serialize_str
 
-                # print(Colors.BOLD_YELLOW,'Processing Cell: ', queryList[k].name,Colors.WHITE)
+                print(Colors.BOLD_YELLOW,'Processing Cell: ', queryList[k].name,Colors.WHITE)
 
-                rbd_group_filter_human = ""
-                if rbd_serialize_str != '':
-                    rbd_params = parse_qs((rbd_serialize_str))
-                    rbd_list = getDictArray(rbd_params,'field_group[group]')
-                    rbd_dic = getDicGroupList(rbd_list)
-                    rbd_group_filter = getGroupFilter(rbd_dic)
-
-                    rbd_group_filter_human = getGroupFilterHuman(rbd_dic)
 
                 cell_group_filter_human = ""
                 if cell_serialize_str != '':
                     cell_params = parse_qs((cell_serialize_str))
                     cell_list = getDictArray(cell_params,'field_group[group]')
-                    # cdebug(cell_list,'cell_list')
                     cell_dic = getDicGroupList(cell_list)
-                    # cdebug(cell_dic,'cell_dic')
+                    cdebug(cell_dic,'cell_dic')
                     cell_group_filter = getGroupFilter(cell_dic)
-
+                    cdebug(cell_group_filter,'cell_group_filter')
                     cell_group_filter_human = getGroupFilterHuman(cell_dic)
 
-                rbd_cell_group_filter = Q(rbd_group_filter) & Q(cell_group_filter)
 
-                filter_human = "RBD(\n{}) \n AND \n Cell( \n {})".format(rbd_group_filter_human, cell_group_filter_human)
 
-                queryListPPAllRBDCell = queryListPPAll.filter(rbd_cell_group_filter)
+                # rbd_cell_group_filter = Q(rbd_group_filter) & Q(cell_group_filter)
+
+                filter_human = "Cell( \n {})".format(cell_group_filter_human)
+
+                # queryListPPAllCell = queryListPPAll.filter(cell_group_filter)
 
                 # prettyprint_queryset(queryListPPAllRBDCell)
 
-                total_outlets_in_rbd = queryListPPAllRBDCell.aggregate(count = Count('outlet__id',distinct=True))
+                # total_outlets_in_cell = queryListPPAllCell.aggregate(count = Count('outlet__id',distinct=True))
 
                 """ Store Cell information with cell conditions """
 
-                # print(Colors.BLUE, queryList[k].rbd.serialize_str,Colors.WHITE)
-                # data-node-id="1.1" data-node-pid="1
-
-                data_node_id = ("%s.%s")%(rbd_pk,counter) if counter != 0 else rbd_pk
-                data_node_pid = ("%s")%(rbd_pk) if rbd_pk == last_rbd_pk else ""
-                counter = 0 if rbd_pk == last_rbd_pk else counter+1
-
-                last_rbd_pk = rbd_pk
                 temp_dic = {
-                    'RBDName' : queryList[k].rbd.name,
-                    'CellName' : queryList[k].name,
                     'CellCode' : queryList[k].code,
+                    'CellName' : queryList[k].name,
                     'CellDescription' : queryList[k].description,
                     'cell_acv' : queryList[k].cell_acv,
                     'num_universe' : queryList[k].num_universe,
                     'optimal_panel' : queryList[k].optimal_panel,
                     'Condition' : "<br />".join(filter_human.split("\n")),
-                    'TotalOutlets' : total_outlets_in_rbd['count'],
-                    'data-node-id' : data_node_id,
-                    'data-node-pid' : data_node_pid,
+                    'TotalOutlets' : 0,
+                    # 'TotalOutlets' : total_outlets_in_cell['count'],
+
 
                     'Actions' : ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
                                 '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
@@ -1750,11 +1652,10 @@ class CellCreateView(LoginRequiredMixin, generic.CreateView):
 
     def form_valid(self,form):
         country = Country.objects.get(code=self.kwargs["country_code"])
-        rbd = RBD.objects.get(pk=self.request.POST.get("rbd"))
+        # rbd = RBD.objects.get(pk=self.request.POST.get("rbd"))
         try:
             form_obj = form.save(commit=False)
             form_obj.country = country
-            form_obj.rbd = rbd
             form_obj.name = self.request.POST.get("name")
             form_obj.code = self.request.POST.get("code")
             form_obj.description = self.request.POST.get("description")
@@ -1774,14 +1675,37 @@ class CellCreateView(LoginRequiredMixin, generic.CreateView):
     def get_context_data(self, *args, **kwargs):
         try:
             context = super(self.__class__, self).get_context_data(**kwargs)
-            skip_cols = ['id','pk','month','country','upload','created','updated',]
+            skip_cols = ['id','pk','month','outlet','outlet_type','country','upload','created','updated',]
             panel_profile_cols = {}
             for v in PanelProfile._meta.get_fields():
-                if(v.name not in skip_cols):
-                    if isinstance(v, models.ForeignKey):
-                        panel_profile_cols[v.name+'__code'] = v.name.replace("_", " ").capitalize()
-                    else:
-                        panel_profile_cols[v.name] = v.name.replace("_", " ").capitalize()
+                if(v.name in skip_cols): continue
+                if isinstance(v, models.ForeignKey):
+                    pass
+                    # panel_profile_cols[v.name+'__code'] = v.name.replace("_", " ").capitalize()
+                else:
+                    panel_profile_cols['panel_profile__'+v.name] = v.name.replace("_", " ").capitalize()
+
+
+            skip_cols = ['id','pk','country','name','code','tehsil','upload','created','updated',]
+            city_village_cols = {}
+            for v in CityVillage._meta.get_fields():
+                if(v.name in skip_cols): continue
+                if('extra' in v.name):
+                    try:
+                        col_label = ColLabel.objects.only("col_label").get(
+                            country__code = self.kwargs['country_code'],
+                            model_name = 'CityVillage',
+                            col_name = v.name
+                        )
+                    except ColLabel.DoesNotExist:
+                        col_label = None
+                    title = col_label.col_label if col_label else v.name
+                    city_village_cols[v.name] = title.replace("_", " ").title()
+                else:
+                    city_village_cols[v.name] = v.name.replace("_", " ").title()
+
+
+
 
             country = Country.objects.only('id','code','name').get(code=self.kwargs['country_code'])
         except Exception as e:
@@ -1791,6 +1715,7 @@ class CellCreateView(LoginRequiredMixin, generic.CreateView):
 
         context.update({
             "panel_profile_cols": panel_profile_cols,
+            "city_village_cols": city_village_cols
         })
         return context
 

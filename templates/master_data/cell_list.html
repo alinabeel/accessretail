@@ -29,7 +29,6 @@
                                         id="list_data" data-toggle="table">
                                         <thead>
                                             <tr>
-                                                <th>RBD name</th>
                                                 <th>Cell name</th>
                                                 <th>Cell code</th>
                                                 <th>Cell description</th>
@@ -98,10 +97,8 @@
             $.each(result["results"], function (a, rdata) {
 
 
-                row = '<tr data-node-id="'+rdata['data-node-id']+'" data-node-pid="'+rdata['data-node-pid']+'" >';
+                row = '<tr>';
 
-
-                row += '<td>' + rdata['RBDName']+'</td>';
                 row += '<td>' + rdata['CellName']+'</td>';
                 row += '<td>' + rdata['CellCode']+'</td>';
                 row += '<td>' + rdata['CellDescription']+'</td>';
@@ -129,8 +126,6 @@
                 $("#listing").append(row);
             });
 
-
-            treeTable();
         }
         else{
             // if no result found for the given filter, then display no result
@@ -235,12 +230,7 @@
         });
     });
 
-    function treeTable(){
-        $('#list_data').simpleTreeTable({
-            store: 'session',
-            storeKey: 'simple-tree-table-basic'
-        });
-    }
+
 
 
 </script>
