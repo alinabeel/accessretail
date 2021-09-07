@@ -1,0 +1,1358 @@
+[
+{
+    "model": "master_setups.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$150000$ipZ8h5PRtCRv$vjL9ron8s3dY49pxgM1ewPcG0nSpxqkR1ue7pSYN3nQ=",
+        "last_login": "2021-09-06T17:27:16.668Z",
+        "is_superuser": true,
+        "first_name": "Admin",
+        "last_name": "Access Retail",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2021-06-10T19:35:28.915Z",
+        "role": "1",
+        "username": "admin@accessretailpk.com",
+        "email": "admin@accessretailpk.com",
+        "city": null,
+        "state": null,
+        "zip": null,
+        "country": null,
+        "phone_no": null,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "master_setups.user",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$150000$zBGKlNJ1iEqL$bvug8vuSjzoiT04l2e1qx3I0ITjx7I8Dln90My8I+/E=",
+        "last_login": "2021-06-12T06:41:39.078Z",
+        "is_superuser": true,
+        "first_name": "Usman",
+        "last_name": "Sikandar",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2021-06-12T06:27:31.505Z",
+        "role": "1",
+        "username": null,
+        "email": "usman.sikander@accessretailpk.com",
+        "city": "Lahore",
+        "state": "Pakistan",
+        "zip": "54000",
+        "country": "Pakistan",
+        "phone_no": "+923479788882",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "master_setups.user",
+    "pk": 3,
+    "fields": {
+        "password": "pbkdf2_sha256$150000$M6xcRR0ubh6v$nk4ueGDT2TgYXphGfduuzP1nynT9hCSYJFAHuO9ZpRA=",
+        "last_login": null,
+        "is_superuser": true,
+        "first_name": "Asad",
+        "last_name": "Ali khan",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2021-06-12T06:31:04.030Z",
+        "role": "2",
+        "username": null,
+        "email": "asad.ali.khan@accessretailpk.com",
+        "city": "Lahore",
+        "state": "Pakistan",
+        "zip": "54000",
+        "country": "Pakistan",
+        "phone_no": null,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "master_setups.user",
+    "pk": 4,
+    "fields": {
+        "password": "pbkdf2_sha256$150000$ijCWUtM9znB2$1DJ8aP41I2eP14iHYxp+xpXPYQURAfkW/nDA7/c4rbQ=",
+        "last_login": null,
+        "is_superuser": true,
+        "first_name": "Irfan",
+        "last_name": "Butt",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2021-06-12T06:32:37.880Z",
+        "role": "1",
+        "username": null,
+        "email": "irfan.butt@accessretailpk.com",
+        "city": "Lahore",
+        "state": "Pakistan",
+        "zip": "54000",
+        "country": "Pakistan",
+        "phone_no": null,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 1,
+    "fields": {
+        "created": "2021-06-10T19:54:22.079Z",
+        "updated": "2021-06-10T19:54:22.079Z",
+        "name": "Pakistan",
+        "code": "PK"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 2,
+    "fields": {
+        "created": "2021-06-12T06:39:28.597Z",
+        "updated": "2021-06-12T06:43:15.599Z",
+        "name": "SAUDIA ARABIA",
+        "code": "KSA"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 3,
+    "fields": {
+        "created": "2021-06-12T06:39:46.092Z",
+        "updated": "2021-06-12T06:39:46.101Z",
+        "name": "AUSTRALIA",
+        "code": "AUS"
+    }
+},
+{
+    "model": "master_setups.usercountry",
+    "pk": 1,
+    "fields": {
+        "created": "2021-06-10T19:55:26.475Z",
+        "updated": "2021-06-12T06:35:12.790Z",
+        "country": 1,
+        "user": [
+            1,
+            2,
+            3,
+            4
+        ]
+    }
+},
+{
+    "model": "master_setups.regiontype",
+    "pk": 26,
+    "fields": {
+        "created": "2021-06-24T17:02:31.591Z",
+        "updated": "2021-06-24T17:02:31.605Z",
+        "country": 1,
+        "name": "STANDARD REGIONS"
+    }
+},
+{
+    "model": "master_setups.regiontype",
+    "pk": 27,
+    "fields": {
+        "created": "2021-06-24T17:02:41.928Z",
+        "updated": "2021-06-24T17:02:41.944Z",
+        "country": 1,
+        "name": "UNILEVER REGIONS"
+    }
+},
+{
+    "model": "master_setups.regiontype",
+    "pk": 28,
+    "fields": {
+        "created": "2021-06-24T17:02:51.280Z",
+        "updated": "2021-06-24T17:02:51.300Z",
+        "country": 1,
+        "name": "BAT AREAS"
+    }
+},
+{
+    "model": "master_setups.regiontype",
+    "pk": 29,
+    "fields": {
+        "created": "2021-06-24T17:03:01.742Z",
+        "updated": "2021-06-24T17:03:01.773Z",
+        "country": 1,
+        "name": "BAT REGIONS"
+    }
+},
+{
+    "model": "master_setups.regiontype",
+    "pk": 30,
+    "fields": {
+        "created": "2021-06-24T17:03:10.795Z",
+        "updated": "2021-06-24T17:03:10.827Z",
+        "country": 1,
+        "name": "PMI AREAS"
+    }
+},
+{
+    "model": "master_setups.regiontype",
+    "pk": 31,
+    "fields": {
+        "created": "2021-06-24T17:03:19.855Z",
+        "updated": "2021-06-24T17:03:19.870Z",
+        "country": 1,
+        "name": "PMI ZONES"
+    }
+},
+{
+    "model": "master_setups.regiontype",
+    "pk": 32,
+    "fields": {
+        "created": "2021-06-24T17:03:30.284Z",
+        "updated": "2021-06-24T17:03:30.300Z",
+        "country": 1,
+        "name": "DALDA REGIONS"
+    }
+},
+{
+    "model": "master_setups.regiontype",
+    "pk": 33,
+    "fields": {
+        "created": "2021-06-24T17:03:47.439Z",
+        "updated": "2021-06-24T17:03:47.452Z",
+        "country": 1,
+        "name": "ZONG REPORTING DISTRICTS"
+    }
+},
+{
+    "model": "master_setups.regiontype",
+    "pk": 34,
+    "fields": {
+        "created": "2021-06-24T17:04:01.312Z",
+        "updated": "2021-06-24T17:04:01.330Z",
+        "country": 1,
+        "name": "UFONE REPORTING DISTRICTS"
+    }
+},
+{
+    "model": "master_setups.regiontype",
+    "pk": 35,
+    "fields": {
+        "created": "2021-06-24T17:04:13.769Z",
+        "updated": "2021-06-24T17:04:13.788Z",
+        "country": 1,
+        "name": "PEPSI FRANCHISES"
+    }
+},
+{
+    "model": "master_setups.regiontype",
+    "pk": 36,
+    "fields": {
+        "created": "2021-06-24T17:04:28.751Z",
+        "updated": "2021-06-24T17:04:28.771Z",
+        "country": 1,
+        "name": "KO REGIONS"
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 1,
+    "fields": {
+        "name": "NATIONAL PAKISTAN",
+        "code": "001",
+        "created": "2021-06-24T17:17:12.603Z",
+        "updated": "2021-06-24T17:17:12.622Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 4,
+        "tree_id": 11,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 2,
+    "fields": {
+        "name": "NATIONAL URBAN",
+        "code": "002",
+        "created": "2021-06-24T17:17:42.410Z",
+        "updated": "2021-06-24T17:17:42.425Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 15,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 3,
+    "fields": {
+        "name": "NATIONAL RURAL",
+        "code": "003",
+        "created": "2021-06-24T17:18:10.434Z",
+        "updated": "2021-06-24T17:18:10.451Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 13,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 4,
+    "fields": {
+        "name": "NATIONAL PUNJAB",
+        "code": "004",
+        "created": "2021-06-24T17:18:35.505Z",
+        "updated": "2021-06-29T09:40:49.374Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": 1,
+        "description": "",
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 11,
+        "level": 1
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 5,
+    "fields": {
+        "name": "URBAN PUNJAB",
+        "code": "005",
+        "created": "2021-06-24T17:18:58.407Z",
+        "updated": "2021-06-24T17:18:58.424Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 26,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 6,
+    "fields": {
+        "name": "RURAL PUNJAB",
+        "code": "006",
+        "created": "2021-06-24T17:19:23.841Z",
+        "updated": "2021-06-24T17:19:23.861Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 21,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 7,
+    "fields": {
+        "name": "NATIONAL SIND",
+        "code": "007",
+        "created": "2021-06-24T17:37:10.434Z",
+        "updated": "2021-06-24T17:37:10.452Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 14,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 8,
+    "fields": {
+        "name": "URBAN SIND",
+        "code": "008",
+        "created": "2021-06-24T17:37:33.461Z",
+        "updated": "2021-06-24T17:37:33.486Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 27,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 9,
+    "fields": {
+        "name": "RURAL SIND",
+        "code": "009",
+        "created": "2021-06-24T17:37:52.460Z",
+        "updated": "2021-06-24T17:37:52.475Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 22,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 10,
+    "fields": {
+        "name": "NATIONAL KPK",
+        "code": "010",
+        "created": "2021-06-24T17:38:20.089Z",
+        "updated": "2021-06-24T17:38:20.105Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 10,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 11,
+    "fields": {
+        "name": "URBAN KPK",
+        "code": "011",
+        "created": "2021-06-24T17:38:37.158Z",
+        "updated": "2021-06-24T17:38:37.176Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 25,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 12,
+    "fields": {
+        "name": "RURAL KPK",
+        "code": "012",
+        "created": "2021-06-24T17:38:54.396Z",
+        "updated": "2021-06-24T17:38:54.413Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 20,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 13,
+    "fields": {
+        "name": "NATIONAL BALOCHISTAN",
+        "code": "013",
+        "created": "2021-06-24T17:39:36.406Z",
+        "updated": "2021-06-24T17:39:36.423Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 9,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 14,
+    "fields": {
+        "name": "URBAN BALOCHISTAN",
+        "code": "014",
+        "created": "2021-06-24T17:39:54.976Z",
+        "updated": "2021-06-24T17:39:54.993Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 24,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 15,
+    "fields": {
+        "name": "RURAL BALOCHISTAN",
+        "code": "015",
+        "created": "2021-06-24T17:40:16.194Z",
+        "updated": "2021-06-24T17:40:16.226Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 19,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 16,
+    "fields": {
+        "name": "TOP 10 CITIES",
+        "code": "016",
+        "created": "2021-06-24T17:41:00.474Z",
+        "updated": "2021-06-24T17:41:00.491Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 23,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 17,
+    "fields": {
+        "name": "KARACHI",
+        "code": "017",
+        "created": "2021-06-24T17:41:21.697Z",
+        "updated": "2021-06-24T17:41:21.713Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 6,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 18,
+    "fields": {
+        "name": "LAHORE",
+        "code": "018",
+        "created": "2021-06-24T17:41:49.496Z",
+        "updated": "2021-06-24T17:41:49.517Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 7,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 19,
+    "fields": {
+        "name": "ISLAMABAD",
+        "code": "019",
+        "created": "2021-06-24T17:42:42.484Z",
+        "updated": "2021-06-24T17:42:42.502Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 4,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 20,
+    "fields": {
+        "name": "RAWALPINDI",
+        "code": "020",
+        "created": "2021-06-24T17:43:01.477Z",
+        "updated": "2021-06-24T17:43:01.494Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 18,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 21,
+    "fields": {
+        "name": "ISLAMABAD & RAWALPINDI",
+        "code": "021",
+        "created": "2021-06-24T17:43:40.978Z",
+        "updated": "2021-06-24T17:43:40.994Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 5,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 22,
+    "fields": {
+        "name": "FAISALABAD",
+        "code": "022",
+        "created": "2021-06-24T17:44:19.544Z",
+        "updated": "2021-06-24T17:44:19.559Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 1,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 23,
+    "fields": {
+        "name": "MULTAN",
+        "code": "023",
+        "created": "2021-06-24T17:44:33.679Z",
+        "updated": "2021-06-24T17:44:33.696Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 8,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 24,
+    "fields": {
+        "name": "GUJRANWALA",
+        "code": "024",
+        "created": "2021-06-24T17:44:50.803Z",
+        "updated": "2021-06-24T17:44:50.817Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 2,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 25,
+    "fields": {
+        "name": "HYDERABAD",
+        "code": "025",
+        "created": "2021-06-24T17:45:27.630Z",
+        "updated": "2021-06-24T17:45:27.647Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 3,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 26,
+    "fields": {
+        "name": "PESHAWAR",
+        "code": "026",
+        "created": "2021-06-24T17:45:40.410Z",
+        "updated": "2021-06-24T17:45:40.427Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 16,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.region",
+    "pk": 27,
+    "fields": {
+        "name": "QUETTA",
+        "code": "027",
+        "created": "2021-06-24T17:46:08.052Z",
+        "updated": "2021-06-24T17:46:08.075Z",
+        "country": 1,
+        "upload": null,
+        "region_type": 26,
+        "parent": null,
+        "description": "",
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 17,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 1,
+    "fields": {
+        "name": "BISCUITS AND CAKES",
+        "code": "BIS",
+        "created": "2021-06-24T16:21:06.252Z",
+        "updated": "2021-06-24T16:21:06.269Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "BISCUITS AND CAKES",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 1,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 2,
+    "fields": {
+        "name": "CHOCOLATES",
+        "code": "CHO",
+        "created": "2021-06-24T16:21:29.387Z",
+        "updated": "2021-06-24T16:21:29.403Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "CHOCOLATES CATEGORY",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 2,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 3,
+    "fields": {
+        "name": "INFANT MILK",
+        "code": "INF",
+        "created": "2021-06-24T16:21:54.447Z",
+        "updated": "2021-06-24T16:21:54.465Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "INFANT MILK",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 3,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 4,
+    "fields": {
+        "name": "MILK AND MILK PRODUCTS",
+        "code": "MILK",
+        "created": "2021-06-24T16:22:53.269Z",
+        "updated": "2021-06-24T16:22:53.285Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "UHT LIQUID MILK, POWDER MILK, TEA WHITENERS (LIQ + POW), DAIRY CREAM AND FLAVORED MILK",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 4,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 5,
+    "fields": {
+        "name": "NOODLES AND PASTA",
+        "code": "NOO",
+        "created": "2021-06-24T16:23:28.838Z",
+        "updated": "2021-06-24T16:23:28.857Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "INSTANT NOODLES, PASTA, MACRONI, LASAGNIA ETC.",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 5,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 6,
+    "fields": {
+        "name": "OIL AND GHEE",
+        "code": "OIL",
+        "created": "2021-06-24T16:24:27.984Z",
+        "updated": "2021-06-24T16:24:28.000Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "COOKING OIL, VANASPATI GHEE AND DESI GHEE",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 6,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 7,
+    "fields": {
+        "name": "POWDERED BEVERAGES",
+        "code": "POWD",
+        "created": "2021-06-24T16:25:07.127Z",
+        "updated": "2021-06-24T16:25:07.159Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "POWDERED MAKE TO DRINK BEVERAGES LIKE ENERGILE, TANG ETC.",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 7,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 8,
+    "fields": {
+        "name": "RED SYRUPS AND SQUASHES",
+        "code": "RSY",
+        "created": "2021-06-24T16:25:37.188Z",
+        "updated": "2021-06-24T16:25:37.223Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "RED SYRUPS AND SQUASHES",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 8,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 9,
+    "fields": {
+        "name": "SALTED SNACKS",
+        "code": "SNA",
+        "created": "2021-06-24T16:26:39.815Z",
+        "updated": "2021-06-24T16:26:39.834Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "SALTED SNACKS INCLUDING POTATO CHIPS, EXTRUDED, NIMKO, SEV AND DRY FRUITS",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 9,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 10,
+    "fields": {
+        "name": "SPICES AND RECIPE MIXES",
+        "code": "SPICE",
+        "created": "2021-06-24T16:27:28.554Z",
+        "updated": "2021-06-24T16:27:28.575Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "SPICES INCLUDING SALT, CHINESE SALT AND, RECIPE MIXES",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 10,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 11,
+    "fields": {
+        "name": "TEA",
+        "code": "TEA",
+        "created": "2021-06-24T16:27:55.236Z",
+        "updated": "2021-06-24T16:27:55.253Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "BLACK TEA AND GREEN TEA",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 11,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 12,
+    "fields": {
+        "name": "LAUNDRY DETERGENT",
+        "code": "DET",
+        "created": "2021-06-24T16:28:45.394Z",
+        "updated": "2021-06-24T16:28:45.411Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "LAUNDRY DETERGENT POWDER, BARS, SWAYIAN, LIQUID DETERGENT ETC.",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 12,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 13,
+    "fields": {
+        "name": "HAIR SHAMPOO",
+        "code": "SHAM",
+        "created": "2021-06-24T16:29:11.607Z",
+        "updated": "2021-06-24T16:29:11.628Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "HAIR SHAMPOO AND HAIR CONDITIONERS",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 13,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 14,
+    "fields": {
+        "name": "TOILET SOAPS",
+        "code": "TOI",
+        "created": "2021-06-24T16:29:44.847Z",
+        "updated": "2021-06-24T16:29:44.866Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "TOILET SOAPS AND LIQUID HANDWASH",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 14,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 15,
+    "fields": {
+        "name": "TOOTH PASTE",
+        "code": "TOO",
+        "created": "2021-06-24T16:30:06.356Z",
+        "updated": "2021-06-24T16:30:06.392Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "TOOTH PASTE",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 15,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 16,
+    "fields": {
+        "name": "SOFT DRINKS",
+        "code": "CSD",
+        "created": "2021-06-24T16:31:44.611Z",
+        "updated": "2021-06-24T16:31:44.629Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "SOFT DRINKS CATEGORY",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 16,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 17,
+    "fields": {
+        "name": "JUICES",
+        "code": "JNSD",
+        "created": "2021-06-24T16:33:01.991Z",
+        "updated": "2021-06-24T16:33:02.009Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "JUICES, NECTORS AND STILL DRINKS",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 17,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 18,
+    "fields": {
+        "name": "MINERAL WATER",
+        "code": "WATER",
+        "created": "2021-06-24T16:33:55.979Z",
+        "updated": "2021-06-24T16:33:55.996Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "MINERAL WATER",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 18,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 19,
+    "fields": {
+        "name": "ENERGY DRINK",
+        "code": "ED",
+        "created": "2021-06-24T16:37:58.760Z",
+        "updated": "2021-06-24T16:37:58.775Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "ENERGY DRINKS AND STIMULANTS (READY TO DRINK)",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 19,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 20,
+    "fields": {
+        "name": "CIGARETTES",
+        "code": "CIG",
+        "created": "2021-06-24T16:38:24.744Z",
+        "updated": "2021-06-24T16:38:24.765Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "CIGARETTES",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 20,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.category",
+    "pk": 21,
+    "fields": {
+        "name": "RET TELECOM",
+        "code": "RET",
+        "created": "2021-06-24T16:38:51.407Z",
+        "updated": "2021-06-24T16:38:51.422Z",
+        "country": 1,
+        "upload": null,
+        "parent": null,
+        "description": "RETAIL EXECUTION TRACKER",
+        "is_active": true,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 21,
+        "level": 0
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 1,
+    "fields": {
+        "name": "FMCG FOOD Index",
+        "code": "FOOD",
+        "created": "2021-06-24T16:17:34.770Z",
+        "updated": "2021-06-24T16:17:34.787Z",
+        "country": 1,
+        "description": "FMCG Food Index Consisting of Food Categories",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 2,
+    "fields": {
+        "name": "CHEMICAL INDEX",
+        "code": "DRUG",
+        "created": "2021-06-24T16:18:24.969Z",
+        "updated": "2021-06-24T16:18:24.983Z",
+        "country": 1,
+        "description": "FMCG INDEX OF CHEMICAL CATEGORIES",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 3,
+    "fields": {
+        "name": "TOBACCO INDEX",
+        "code": "CIG",
+        "created": "2021-06-24T16:18:44.501Z",
+        "updated": "2021-06-24T16:18:44.550Z",
+        "country": 1,
+        "description": "TOBACCO INDEX",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 4,
+    "fields": {
+        "name": "BEVERAGES INDEX",
+        "code": "BEV",
+        "created": "2021-06-24T16:19:07.813Z",
+        "updated": "2021-06-24T16:19:07.830Z",
+        "country": 1,
+        "description": "INDEX OF FOUR BEVERAGES CATEGORIES",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 5,
+    "fields": {
+        "name": "RET UFONE",
+        "code": "RETU",
+        "created": "2021-06-24T16:39:36.074Z",
+        "updated": "2021-06-24T16:39:36.102Z",
+        "country": 1,
+        "description": "RET FOR UFONE (HANDLER + NONHANDLER PANEL)",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 6,
+    "fields": {
+        "name": "RET ZONG",
+        "code": "RETZ",
+        "created": "2021-06-24T16:39:55.850Z",
+        "updated": "2021-06-24T16:39:55.871Z",
+        "country": 1,
+        "description": "RET FOR ZONG (HANDLER PANEL)",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexcategory",
+    "pk": 1,
+    "fields": {
+        "created": "2021-06-24T16:30:38.780Z",
+        "updated": "2021-06-24T16:30:38.800Z",
+        "country": 1,
+        "index_setup": 1,
+        "category": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+        ]
+    }
+},
+{
+    "model": "master_setups.indexcategory",
+    "pk": 2,
+    "fields": {
+        "created": "2021-06-24T16:30:57.014Z",
+        "updated": "2021-06-24T16:30:57.034Z",
+        "country": 1,
+        "index_setup": 2,
+        "category": [
+            12,
+            13,
+            14,
+            15
+        ]
+    }
+},
+{
+    "model": "master_setups.indexcategory",
+    "pk": 3,
+    "fields": {
+        "created": "2021-06-24T16:40:24.989Z",
+        "updated": "2021-06-24T16:40:25.010Z",
+        "country": 1,
+        "index_setup": 3,
+        "category": [
+            20
+        ]
+    }
+},
+{
+    "model": "master_setups.indexcategory",
+    "pk": 4,
+    "fields": {
+        "created": "2021-06-24T16:40:38.951Z",
+        "updated": "2021-06-24T16:40:38.968Z",
+        "country": 1,
+        "index_setup": 5,
+        "category": [
+            21
+        ]
+    }
+},
+{
+    "model": "master_setups.indexcategory",
+    "pk": 5,
+    "fields": {
+        "created": "2021-06-24T16:40:52.009Z",
+        "updated": "2021-06-24T16:40:52.030Z",
+        "country": 1,
+        "index_setup": 6,
+        "category": [
+            21
+        ]
+    }
+},
+{
+    "model": "master_setups.userindex",
+    "pk": 1,
+    "fields": {
+        "created": "2021-07-09T10:44:45.019Z",
+        "updated": "2021-07-09T10:44:45.019Z",
+        "country": 3,
+        "user": 1,
+        "user_index": [
+            4,
+            2,
+            1,
+            5,
+            6,
+            3
+        ]
+    }
+},
+{
+    "model": "master_setups.threshold",
+    "pk": 1,
+    "fields": {
+        "created": "2021-06-24T17:48:16.064Z",
+        "updated": "2021-06-24T17:48:16.083Z",
+        "country": 1,
+        "audited_data_purchase_min": "-20.00",
+        "audited_data_purchase_max": "20.00",
+        "audited_data_stock_min": "-20.00",
+        "audited_data_stock_max": "20.00",
+        "audited_data_price_min": "-15.00",
+        "audited_data_price_max": "15.00",
+        "audited_data_sales_min": "-15.00",
+        "audited_data_sales_max": "15.00",
+        "outlet_factor_numaric_min": "1.00",
+        "outlet_factor_numaric_max": "200.00"
+    }
+}
+]
