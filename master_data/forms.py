@@ -98,7 +98,7 @@ class RBDModelForm(forms.ModelForm):
 
     def __init__(self,*args,**kwargs):
         self.country_code = kwargs.pop('country_code')
-        self.parent = kwargs.pop('parent')
+        # self.parent = kwargs.pop('parent')
         super (self.__class__,self ).__init__(*args,**kwargs) # populates the post
 
     def clean(self):
@@ -109,11 +109,11 @@ class RBDModelForm(forms.ModelForm):
         if (code == '' or name == ''):
             raise forms.ValidationError('This field cannot be left blank')
 
-        if self.parent != '' and int(self.parent) >= 0:
-            level = list(RBD.objects.filter(country__code = self.country_code, pk = self.parent).values_list('level', flat=True))
+        # if self.parent != '' and int(self.parent) >= 0:
+        #     level = list(RBD.objects.filter(country__code = self.country_code, pk = self.parent).values_list('level', flat=True))
 
-            if level[0] >= self.MAX_TREE_DEPTH:
-                raise ValidationError({'parent': 'RBD can only be nested '+str(self.MAX_TREE_DEPTH)+' levels deep'})
+        #     if level[0] >= self.MAX_TREE_DEPTH:
+        #         raise ValidationError({'parent': 'RBD can only be nested '+str(self.MAX_TREE_DEPTH)+' levels deep'})
 
         #TODO: Fix  Later
         # level = list(RBD.objects.filter(country__code = self.country_code, pk = self.parent).values_list('level', flat=True))
@@ -138,7 +138,7 @@ class RBDModelForm(forms.ModelForm):
 
     class Meta:
         model = RBD
-        fields = ('name','code', 'parent','description','cell_acv','num_universe','optimal_panel')
+        fields = ('name','code', 'description','cell')
 
 
 class CellModelForm(forms.ModelForm):
@@ -147,8 +147,8 @@ class CellModelForm(forms.ModelForm):
         self.request = kwargs.pop('request')
         self.country_code = kwargs.pop('country_code')
         super (self.__class__,self ).__init__(*args,**kwargs) # populates the post
-        qs_rbd = RBD.objects.filter(country__code = self.country_code, parent_id=None)
-        self.fields['rbd'].queryset = qs_rbd
+        # qs_rbd = RBD.objects.filter(country__code = self.country_code, parent_id=None)
+        # self.fields['rbd'].queryset = qs_rbd
 
 
 
@@ -177,7 +177,7 @@ class CellModelForm(forms.ModelForm):
 
     class Meta:
         model = Cell
-        fields = ('rbd','name','code', 'description','cell_acv', 'num_universe', 'optimal_panel',)
+        fields = ('name','code', 'description','cell_acv', 'num_universe', 'optimal_panel',)
 
 class UsableOutletModelForm(forms.ModelForm):
     class Meta:

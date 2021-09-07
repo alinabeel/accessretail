@@ -14,7 +14,7 @@ urlpatterns = [
 
 """ Code Frame"""
 urlpatterns += [
-    # path('<slug:country_code>/region-type-list-ajax/', RegionTypeListViewAjax.as_view(), name='region-type-list-ajax'),
+    path('<slug:country_code>/code-frame-list-ajax/', CodeFrameListViewAjax.as_view(), name='code-frame-list-ajax'),
     path('<slug:country_code>/code-frame-list/', CodeFrameListView.as_view(), name='code-frame-list'),
     # path('<slug:country_code>/region-type-create/', RegionTypeCreateView.as_view(), name='region-type-create'),
     # path('<slug:country_code>/region-type-update/<int:pk>', RegionTypeUpdateView.as_view(), name='region-type-update'),

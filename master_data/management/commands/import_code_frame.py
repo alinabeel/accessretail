@@ -6,7 +6,7 @@ import dateutil.parser
 from django.utils.dateparse import parse_date
 from django.core.management.base import BaseCommand
 from csv import DictReader
-from master_data.models import Upload,Province,District,Tehsil,CityVillage,Player,Tag,PlayerTag
+from master_data.models import Upload,Province,District,Tehsil,CityVillage,ColLabel
 from master_setups.models import Country,IndexSetup
 import json
 from collections import OrderedDict
@@ -42,8 +42,11 @@ class Command(BaseCommand):
         log = ""
 
         # TODO: Add refresh functionality
-        # if(upload.import_mode == Upload.REFRESH):
-        #     Product.objects.filter(country=upload.country).delete()
+        if(upload.import_mode == Upload.REFRESH):
+            Province.objects.filter(country=upload.country).delete()
+            District.objects.filter(country=upload.country).delete()
+            Tehsil.objects.filter(country=upload.country).delete()
+            CityVillage.objects.filter(country=upload.country).delete()
 
         # printr(Colors.BRIGHT_PURPLE,form_obj.file)
         try:
@@ -56,10 +59,9 @@ class Command(BaseCommand):
 
                 for row in csv_reader:
                     n+=1
-                    if n<5300: continue
+                    city_village_row = dict()
                     print(n,end=' ',flush=True)
                     row = {csvHeadClean(k): cleanTemp(v) for (k, v) in row.items()}
-
 
                     province_code = row['province_code']
                     province_name = row['province_name']
@@ -68,26 +70,61 @@ class Command(BaseCommand):
                     tehsil_code = row['tehsil_code']
                     tehsil_name = row['tehsil_name']
                     urbanity = row['urbanity'] if row['urbanity'] else ''
-                    city_village_code = row['city_village_code']
-                    city_village_name = row['city_village_name']
-                    rc_cut = row['rc_cut']
+
+                    city_village_row['code'] = row['city_village_code']
+                    city_village_row['name'] = row['city_village_name']
+                    city_village_row['rc_cut'] = row['rc_cut']
+                    city_village_row['upload'] = upload
 
 
 
                     # print(province_name,district_name,tehsil_name,rc_cut)
                     # row["upload"] = upload
-                    if(province_code != '' and province_name != '' and
-                        district_code != '' and district_name != '' and
-                        tehsil_code != '' and tehsil_name != '' and
-                        city_village_code != '' and city_village_name != ''):
+                    if(province_code == '' or
+                        province_name == '' or
+                        district_code == '' or
+                        district_name == '' or
+                        tehsil_code == '' or
+                        tehsil_name == '' or
+                        city_village_row['code'] == '' or
+                        city_village_row['name'] == ''):
 
                         log += ('mising information, ignore csv row: '+ str(n))
+                        skiped_records+=1
+                        print(log)
+                        print(province_code)
+                        exit()
+                        continue
+
+                    # Handle Col head one time only
+
+                    player_count = 1
+                    max_player = 30
+                    for v in row:
+                        if('player' in v and player_count <= max_player):
+                            player  = v.replace('player_','')
+                            player  = player.replace('_', ' ')
+                            player  = player.title()
+                            tag  = row[v]
+
+                            col_name = 'extra_'+str(player_count)
+
+                            city_village_row[col_name] = tag
+                            if n==1:
+                                col_label_qs, created = ColLabel.objects.update_or_create(
+                                    country=upload.country, model_name='CityVillage',col_name=col_name,
+                                    defaults={'col_label':player},
+                                )
+
+                            player_count += 1
 
                     # Get / Add Province
                     province_qs = None
-                    # Get / Add Distric
 
+                    # Get / Add Distric
                     district_qs = None
+
+                    ## Handle APPEND and REFRESH
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
                         province_qs, created = Province.objects.get_or_create(
                             country=upload.country, code=province_code,
@@ -106,16 +143,14 @@ class Command(BaseCommand):
                                     'name' : tehsil_name}
                         )
 
+                        city_village_row['tehsil'] = tehsil_qs
+
                         city_village_qs, created = CityVillage.objects.get_or_create(
-                            defaults={'name' : city_village_name,
-                                    'rc_cut' : rc_cut,
-                                    'tehsil' : tehsil_qs,
-                                    'upload':upload}
+                            country=upload.country, code = city_village_row['code'],
+                            defaults = city_village_row
                         )
 
-
-
-
+                    ## Handle APPENDUPDATE
                     if(upload.import_mode == Upload.APPENDUPDATE ):
                         province_qs, created = Province.objects.update_or_create(
                             country=upload.country, code=province_code,
@@ -135,66 +170,52 @@ class Command(BaseCommand):
                                     'district' : district_qs,
                                     'name' : tehsil_name}
                         )
+                        city_village_row['tehsil'] = tehsil_qs
+
 
                         # Get / Add CityVillage
                         city_village_qs, created = CityVillage.objects.update_or_create(
-                            country=upload.country, code=city_village_code,
-                            defaults={'name' : city_village_name,
-                                    'rc_cut' : rc_cut,
-                                    'tehsil' : tehsil_qs,
-                                    'upload':upload}
+                            country=upload.country, code = city_village_row['code'],
+                            defaults = city_village_row
                         )
 
 
-                    for v in row:
-                        if('player' in v):
-                            player  = v.replace('player_','')
-                            player  = player.replace('_', ' ')
-                            player  = player.title()
-                            tag  = row[v]
+                    # for v in row:
+                    #     if('player' in v):
+                    #         player  = v.replace('player_','')
+                    #         player  = player.replace('_', ' ')
+                    #         player  = player.title()
+                    #         tag  = row[v]
 
 
-                            if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
-                                if(player != ''):
-                                    player_qs, created = Player.objects.get_or_create(
-                                        country=upload.country, name=player,
-                                    )
-                                if(tag != ''):
-                                    tag_qs, created = Tag.objects.get_or_create(
-                                        country=upload.country, name=tag,
-                                    )
+                    #         if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
+                    #             if(player != ''):
+                    #                 player_qs, created = Player.objects.get_or_create(
+                    #                     country=upload.country, name=player,
+                    #                 )
+                    #             if(tag != ''):
+                    #                 tag_qs, created = Tag.objects.get_or_create(
+                    #                     country=upload.country, name=tag,
+                    #                 )
+                    #             if(tag != '' and player != ''):
+                    #                 pt,created  = PlayerTag.objects.get_or_create(country = upload.country,player=player_qs,tag=tag_qs)
+                    #                 city_village_qs.player_tag.add(pt)
 
-                            if(upload.import_mode == Upload.APPENDUPDATE ):
-                                if(player != ''):
-                                    player_qs, created = Player.objects.update_or_create(
-                                        country=upload.country, name=player,
-                                    )
-                                    # print('player:',player_qs, player_qs.id)
-                                if(tag != ''):
-                                    tag_qs, created = Tag.objects.update_or_create(
-                                        country=upload.country, name=tag,
-                                    )
-                                    # print('tag:',tag_qs, tag_qs.id)
-                                if(tag != '' and player != ''):
-                                    pt,created  = PlayerTag.objects.get_or_create(country = upload.country,player=player_qs,tag=tag_qs)
-                                    city_village_qs.player_tag.add(pt)
-                                    # cv_obj = CityVillage.objects.get(pk=city_village_qs.id)
-                                    # print(pt)
-                                    # print(city_village_qs)
+                    #         if(upload.import_mode == Upload.APPENDUPDATE ):
+                    #             if(player != ''):
+                    #                 player_qs, created = Player.objects.update_or_create(
+                    #                     country=upload.country, name=player,
+                    #                 )
+                    #                 # print('player:',player_qs, player_qs.id)
+                    #             if(tag != ''):
+                    #                 tag_qs, created = Tag.objects.update_or_create(
+                    #                     country=upload.country, name=tag,
+                    #                 )
+                    #                 # print('tag:',tag_qs, tag_qs.id)
+                    #             if(tag != '' and player != ''):
+                    #                 pt,created  = PlayerTag.objects.update_or_create(country = upload.country,player=player_qs,tag=tag_qs)
+                    #                 city_village_qs.player_tag.add(pt)
 
-                                    # cv_obj.save()
-
-                                    # print('city_village_qs:',city_village_qs)
-                                    # city_village_qs.player_tag.add('1')
-                                    # city_village_qs.save()
-
-                                    # city_village_qs.player_tag = pt
-                                    # city_village_qs.save()
-
-                                    # player_tag_qs, created = PlayerTag.objects.update_or_create(
-                                    #     country=upload.country, player=player_qs,tag=tag_qs
-                                    # )
-                                    # print('player_tag_qs:',pt)
 
                     # user = Users.objects.get_or_create(name='test_user')
                     # user.tags.add(tag_1)

@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from datetime import datetime
 import time, os, signal,logging,json
 from time import strptime
@@ -27,10 +28,18 @@ from django.views import generic
 from core.utils import prettyprint_queryset, trace, format_datetime,cdebug
 from core.colors import Colors
 from core.mixinsViews import PassRequestToFormViewMixin
-from master_setups.models import *
-from master_setups.forms import *
-from master_data.forms import *
+from master_setups.models import User,Country,UserCountry,IndexSetup,UserIndex,Threshold,CountrySetting
+from master_setups.forms import UserCreateModelForm,UserChangeModelForm,CountryModelForm,IndexSetupModelForm, \
+                                IndexCategoryModelForm,UserCountryModelForm,ThresholdModelForm, \
+                                RegionTypeModelForm,RegionModelForm,MonthModelForm
+
+from master_data.models import Upload,RegionType,Region,Category,IndexCategory,OutletType,Outlet, \
+                                CensusManager,Census,Month,UsableOutlet,PanelProfile,Product,ProductAudit, \
+                                RBD,Cell,Province,District,Tehsil,CityVillage,ColLabel
+from master_data.forms import UploadCensusForm,CensusForm,UploadModalForm,UploadFormUpdate,CategoryListFormHelper, \
+                                CategoryModelForm,OutletTypeModelForm,RBDModelForm,CellModelForm,UsableOutletModelForm
 from ajax_datatable.views import AjaxDatatableView
+
 
 logger = logging.getLogger(__name__)
 
@@ -1185,7 +1194,6 @@ class CodeFrameImportView(LoginRequiredMixin, generic.CreateView):
         return reverse("master-setups:code-frame-list", kwargs={"country_code": self.kwargs["country_code"]})
 
 class CodeFrameListView(LoginRequiredMixin, generic.TemplateView):
-    # template_name = "master_setups/code_frame_list.html"
     template_name = "master_setups/code_frame_list.html"
     PAGE_TITLE = "Code Frame"
     extra_context = {
@@ -1202,3 +1210,61 @@ class CodeFrameListView(LoginRequiredMixin, generic.TemplateView):
             messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
 
         return context
+
+class CodeFrameListViewAjax(AjaxDatatableView):
+    model = CityVillage
+    title = 'Code Frame'
+    initial_order = [["code", "asc"], ]
+    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
+    search_values_separator = '+'
+
+
+    # abc = AjaxDatatableView.get_country
+    # cdebug(abc)
+
+    def get_column_defs(self, request):
+        """
+        Override to customize based of request
+        """
+        self.column_defs = [
+            AjaxDatatableView.render_row_tools_column_def(),
+            {'name': 'id', 'visible': False, },
+
+            {'name': 'Province Code', 'foreign_field': 'tehsil__district__province__code', },
+            {'name': 'Province Name', 'foreign_field': 'tehsil__district__province__name', 'choices': True, 'autofilter': True,},
+            {'name': 'District Code', 'foreign_field': 'tehsil__district__code',},
+            {'name': 'District Name', 'foreign_field': 'tehsil__district__name', 'choices': True, 'autofilter': True,},
+
+            {'name': 'Tehsil Code', 'foreign_field': 'tehsil__code',},
+            {'name': 'Tehsil Name', 'foreign_field': 'tehsil__name', 'choices': True, 'autofilter': True,},
+            {'name': 'Urbanity', 'foreign_field': 'tehsil__urbanity', 'choices': True, 'autofilter': True,},
+
+            {'name': 'code', 'title':'City Code',},
+            {'name': 'name', 'title':'City Name', },
+            {'name': 'rc_cut', 'choices': True, 'autofilter': True,},
+        ]
+
+        for v in self.__class__.model._meta.get_fields():
+            if('extra' in v.name):
+                try:
+                    col_label = ColLabel.objects.only("col_label").get(
+                        country__code = self.kwargs['country_code'],
+                        model_name = 'CityVillage',
+                        col_name = v.name
+                    )
+                except ColLabel.DoesNotExist:
+                    col_label = None
+
+                title = col_label.col_label if col_label else v.name
+                self.column_defs.append({'name': v.name,'title':title, 'choices': True, 'autofilter': True, })
+        return self.column_defs
+
+    def get_initial_queryset(self, request=None):
+
+
+
+
+        queryset = self.model.objects.filter(
+            country__code=self.kwargs['country_code']
+        )
+        return queryset

@@ -23,7 +23,7 @@
 {% block javascripts %}
 <script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
 <script language="javascript">
-    var dt_ajax_url = '{% url "master-setups:region-type-list-ajax" country_code=global.country_code %}';
+    var dt_ajax_url = '{% url "master-setups:code-frame-list-ajax" country_code=global.country_code %}';
     $(document).ready(function() {
         AjaxDatatableViewUtils.initialize_table(
             $('#ajax_datatable'),
