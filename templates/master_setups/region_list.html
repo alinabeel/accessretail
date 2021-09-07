@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block action_buttons %}
+{% block action_buttons %}<a href="{% url 'master-setups:region-import' country_code=global.country_code%}" class="btn btn-info btn-lg waves-effect waves-light">Import Regions</a>
 <a href="{% url 'master-setups:region-create' country_code=global.country_code %}" class="btn btn-info btn-lg waves-effect waves-light">Add New Region</a>
 {% endblock action_buttons %}
 

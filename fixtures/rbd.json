@@ -1,0 +1,118 @@
+[
+{
+    "model": "master_data.rbd",
+    "pk": 1,
+    "fields": {
+        "created": "2021-06-12T11:31:57.753Z",
+        "updated": "2021-06-12T11:31:58.554Z",
+        "country": 3,
+        "name": "BHAKTAPUR Handler",
+        "code": "BKH",
+        "description": "BHAKTAPUR",
+    }
+},
+{
+    "model": "master_data.rbd",
+    "pk": 2,
+    "fields": {
+        "created": "2021-06-12T11:37:13.174Z",
+        "updated": "2021-06-12T11:37:13.602Z",
+        "country": 3,
+        "name": "DAMAK Handler",
+        "code": "DH",
+        "description": "DH",
+    }
+},
+{
+    "model": "master_data.rbd",
+    "pk": 3,
+    "fields": {
+        "created": "2021-06-12T18:15:55.049Z",
+        "updated": "2021-06-12T18:15:55.072Z",
+        "country": 3,
+        "name": "DHARAN",
+        "code": "DHA",
+        "description": "DHARAN",
+    }
+},
+{
+    "model": "master_data.rbd",
+    "pk": 4,
+    "fields": {
+        "created": "2021-06-13T05:20:41.322Z",
+        "updated": "2021-06-18T20:41:30.451Z",
+        "country": 3,
+        "name": "LALITPUR",
+        "code": "LLT",
+        "description": "",
+    }
+},
+{
+    "model": "master_data.cell",
+    "pk": 1,
+    "fields": {
+        "created": "2021-06-12T11:33:44.869Z",
+        "updated": "2021-06-22T20:16:54.185Z",
+        "country": 3,
+        "rbd": 1,
+        "name": "BHAKTAPUR SMS",
+        "code": "BKH-SMS",
+        "description": "BKHGS",
+        "cell_acv": "1245.000000",
+        "num_universe": "10000.000000",
+        "optimal_panel": 10000,
+        "is_active": true
+    }
+},
+{
+    "model": "master_data.cell",
+    "pk": 2,
+    "fields": {
+        "created": "2021-06-12T11:38:12.194Z",
+        "updated": "2021-06-20T19:49:10.502Z",
+        "country": 3,
+        "rbd": 2,
+        "name": "DAMAK Grocery ",
+        "code": "DHG",
+        "description": "DHG",
+        "cell_acv": "10000.000000",
+        "num_universe": "10000.000000",
+        "optimal_panel": 10000,
+        "is_active": true
+    }
+},
+{
+    "model": "master_data.cell",
+    "pk": 3,
+    "fields": {
+        "created": "2021-06-12T18:16:43.042Z",
+        "updated": "2021-06-20T19:49:21.544Z",
+        "country": 3,
+        "rbd": 3,
+        "name": "DHARAN KS",
+        "code": "DKS",
+        "description": "",
+        "cell_acv": "10000.000000",
+        "num_universe": "10000.000000",
+        "optimal_panel": 10000,
+        "is_active": true
+    }
+},
+{
+    "model": "master_data.cell",
+    "pk": 7,
+    "fields": {
+        "created": "2021-06-20T17:14:26.933Z",
+        "updated": "2021-06-22T20:16:39.376Z",
+        "country": 3,
+        "rbd": 1,
+        "name": "BHAKTAPUR-MGS",
+        "code": "BKH-MGS",
+        "description": "",
+        "cell_acv": "10000.000000",
+        "num_universe": "10000.000000",
+        "optimal_panel": 10000,
+        "is_active": true
+    }
+}
+]

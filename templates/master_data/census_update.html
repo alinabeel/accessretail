@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Census Delete{% endblock title %}
+{% block page_title %}Import Census{% endblock page_title %}
+{% block action_buttons %}<a href="{% url 'master-data:census-import'%}" class="btn btn-info btn-lg waves-effect waves-light">Import Census</a>{% endblock action_buttons %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.0.3/jsoneditor.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.0.3/jsoneditor.min.js"></script>
+
+    <link href="/static/assets/plugins/dropzone/dist/dropzone.css" rel="stylesheet" type="text/css">
+{% endblock stylesheets %}
+{% block content %}
+<form method="post">
+{% csrf_token %}
+{{ form }}
+<input type="submit" value="Save">
+</form>
+
+
+
+{% endblock content %}
+{% block javascripts %}{% endblock javascripts %}
+
+

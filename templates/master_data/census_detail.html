@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Census Detail{% endblock title %}
+{% block page_title %}Census Detail{% endblock page_title %}
+{% block action_buttons %}<a href="{% url 'master-data:census-import'%}" class="btn btn-info btn-lg waves-effect waves-light">Import Census</a>{% endblock action_buttons %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.0.3/jsoneditor.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.0.3/jsoneditor.min.js"></script>
+
+    <link href="/static/assets/plugins/dropzone/dist/dropzone.css" rel="stylesheet" type="text/css">
+{% endblock stylesheets %}
+{% block content %}
+<h1>Census Detail</h1>
+    <ul>
+
+            <li>{{ object.country }}</li>
+             <li>{{ object.data }}</li>
+   </ul>
+
+             {% if object.data %}
+   <hr>
+{% for key1,value1 in object.data.items %}
+    <div class="section">
+
+        <table class="table table-condensed">
+
+                {{ key1 }}: {{ value1 }}<br>
+
+        </table>
+    </div>
+
+{% endfor %}
+<hr>
+{% endif %}
+
+
+
+
+{% endblock content %}
+{% block javascripts %}{% endblock javascripts %}
+
+

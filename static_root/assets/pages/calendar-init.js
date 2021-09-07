@@ -1,6 +1,6 @@
 
 /*
- Template Name: WisdomSol - Responsive Bootstrap 4 Admin Dashboard
+ Template Name: Insights Lab - Responsive Bootstrap 4 Admin Dashboard
  Author: Themesdesign
  Website: www.themesdesign.in
  File: Calendar init js

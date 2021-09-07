@@ -5,12 +5,6 @@ from django.contrib.sessions.models import Session
 import core.settings as settings
 from pprint import pprint
 
-
-
-
-
-
-
 def global_context(request,*args):
     context = {}
     user = request.session.get('_user', None)
@@ -20,7 +14,7 @@ def global_context(request,*args):
     # country_code = Country.objects.only('name').get(code=args['country_code']).code
 
     context['app_name'] = settings.APP_NAME
-    context['app_env'] = settings.DEVELOPMENT
+    context['app_env'] = settings.ENVIROMENT
 
 
     context["usercountries"] = usercountries

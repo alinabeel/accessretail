@@ -131,3 +131,18 @@ def parse_date(formatted_date):
     if not parsed_date:
         raise ValueError
     return parsed_date.date()
+
+def cdebug(message,title='Debug'):
+    termcolor.cprint('---------'+title+'--------','red', 'on_white', ['blink','bold'])
+    text = pprint.pformat(message)
+    termcolor.cprint(text, color='cyan', on_color=None, attrs=None)
+
+def csvHeadClean(c):
+    c = str(c.lower())
+    c = c.strip()
+    c = c.replace(' ','_')
+    return c
+
+def printr(str):
+    print(str)
+    return str+"\n"

@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% load static %}
+{% block action_buttons %}
+<a href="{% url 'master-data:rbd-create' country_code=global.country_code %}"
+    class="btn btn-info btn-lg waves-effect waves-light">
+    Create New RBD</a>
+{% endblock action_buttons %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card m-b-30">
+            <div class="card-body">
+                <form name="frm1" id="frm1" action="" method="POST">
+                    {% csrf_token %}
+
+                    <section>
+                        <div class="container-fluid">
+                            <div id="result-count" class="text-right">
+                                <span class='font-weight-bold'></span> results found.
+                            </div>
+                            <div class="row properties_table justify-content-center">
+                                <div id="no_results">
+                                    <h5>No results found</h5>
+                                </div>
+                                <div class="table-responsive">
+                                    <table
+                                        class="table datatable table table-striped table-bordered dt-responsive nowrap"
+                                        url="{% url 'master-data:rbd-list-ajax'  country_code=global.country_code %}"
+                                        id="list_data" data-toggle="table">
+                                        <thead>
+                                            <tr>
+                                                <th>RBD name</th>
+                                                <th>RBD code</th>
+                                                <th>RBD description</th>
+                                                <th>Condition</th>
+                                                <th>Total Outlets</th>
+                                                <th>Actions</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody id="listing">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row justify-content-center">
+                                <nav aria-label="navigation">
+                                    <ul class="pagination">
+                                        <li class="page-item">
+                                            <button type="button" class="btn btn-primary page-link"
+                                                id="previous">Previous</button>
+                                        </li>
+                                        <li class="page-item pull-right">
+                                            <button type="button" class="btn btn-primary page-link"
+                                                id="next">Next</button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </section>
+
+
+                </form>
+
+
+
+
+            </div>
+        </div>
+    </div> <!-- end col -->
+</div> <!-- end row -->
+{% endblock content %}
+
+{% block javascripts %}
+<script language="javascript">
+
+    var send_data = {}
+    $(document).ready(function() {
+        getAPIData();
+
+    });
+
+    function putTableData(result) {
+        // creating table row for each result and
+        // pushing to the html cntent of table body of listing table
+        let row;
+        if(result["results"].length > 0){
+            $("#no_results").hide();
+            $("#list_data").show();
+            $("#listing").html("");
+            let tr_index = 0;
+            $.each(result["results"], function (a, rdata) {
+
+
+                row = '<tr data-node-id="'+rdata['data-node-id']+'" data-node-pid="'+rdata['data-node-pid']+'" >';
+
+                row += '<td>' + rdata['RBDName']+'</td>';
+                row += '<td>' + rdata['RBDCode']+'</td>';
+                row += '<td>' + rdata['RBDDescription']+'</td>';
+                row += '<td>' + rdata['Condition']+'</td>';
+                row += '<td>' + rdata['TotalOutlets']+'</td>';
+                row += '<td>' + rdata['Actions']+'</td>';
+                /*$.each(b, function (aa, bb) {
+
+                    if(isObject(bb)){
+                        value = (bb.code)?bb.code:bb;
+                    }else{
+                        value = bb
+                    }
+                    value = stripSlashes(value);
+                    row += "<td>" + value + "</td>";
+
+                });*/
+
+                row += '</td>';
+                tr_index++;
+                $("#listing").append(row);
+            });
+
+
+            treeTable();
+        }
+        else{
+            // if no result found for the given filter, then display no result
+            $("#no_results h5").html("No results found");
+            $("#list_data").hide();
+            $("#no_results").show();
+        }
+        // setting previous and next page url for the given result
+
+        $("#prevmonthname").html(result["previous_month"]);
+        $("#currmonthname").html(result["current_month"]);
+        let prev_url = result["previous"];
+        let next_url = result["next"];
+        // disabling-enabling button depending on existence of next/prev page.
+        if (prev_url === null) {
+            $("#previous").addClass("disabled");
+            $("#previous").prop('disabled', true);
+        } else {
+            $("#previous").removeClass("disabled");
+            $("#previous").prop('disabled', false);
+        }
+        if (next_url === null) {
+            $("#next").addClass("disabled");
+            $("#next").prop('disabled', true);
+        } else {
+            $("#next").removeClass("disabled");
+            $("#next").prop('disabled', false);
+        }
+        // setting the url
+        $("#previous").attr("url", result["previous"]);
+        $("#next").attr("url", result["next"]);
+        // displaying result count
+        $("#result-count span").html(result["count"]);
+
+
+
+
+        //var table = $('#list_data').DataTable({
+        //    "paging": false,//Dont want paging
+        //    "bPaginate": false,//Dont want paging
+        //});
+
+    }
+
+    function getAPIData() {
+        let url = $('#list_data').attr("url")
+        var datastring = $("#frm1").serialize();
+
+        $.ajax({
+            method: 'GET',
+            url: url,
+            data: datastring,
+            beforeSend: function(){
+                $("#no_results h5").html("Loading data...");
+            },
+            success: function (result) {
+                putTableData(result);
+            },
+            error: function (response) {
+                $("#no_results h5").html("Something went wrong");
+                $("#list_data").hide();
+            }
+        });
+
+
+
+    }
+
+    $("#next").click(function () {
+        let url = $(this).attr("url");
+        if (!url)
+            $(this).prop('all', true);
+
+        $(this).prop('all', false);
+        $.ajax({
+            method: 'GET',
+            url: url,
+            success: function (result) {
+                putTableData(result);
+            },
+            error: function(response){
+                console.log(response)
+            }
+        });
+    });
+
+    $("#previous").click(function () {
+        let url = $(this).attr("url");
+        if (!url)
+            $(this).prop('all', true);
+
+        $(this).prop('all', false);
+        $.ajax({
+            method: 'GET',
+            url: url,
+            success: function (result) {
+                putTableData(result);
+            },
+            error: function(response){
+                console.log(response)
+            }
+        });
+    });
+
+    function treeTable(){
+        $('#list_data').simpleTreeTable({
+            store: 'session',
+            storeKey: 'simple-tree-table-basic'
+        });
+    }
+
+
+</script>
+{% endblock javascripts %}

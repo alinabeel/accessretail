@@ -1,0 +1,3892 @@
+[
+{
+    "model": "admin_interface.theme",
+    "pk": 1,
+    "fields": {
+        "name": "Django",
+        "active": false,
+        "title": "Django administration",
+        "title_color": "#F5DD5D",
+        "title_visible": true,
+        "logo": "",
+        "logo_color": "#FFFFFF",
+        "logo_visible": true,
+        "favicon": "",
+        "env_name": "",
+        "env_color": "#E74C3C",
+        "env_visible_in_header": true,
+        "env_visible_in_favicon": true,
+        "language_chooser_active": true,
+        "language_chooser_display": "code",
+        "css_header_background_color": "#0C4B33",
+        "css_header_text_color": "#44B78B",
+        "css_header_link_color": "#FFFFFF",
+        "css_header_link_hover_color": "#C9F0DD",
+        "css_module_background_color": "#44B78B",
+        "css_module_text_color": "#FFFFFF",
+        "css_module_link_color": "#FFFFFF",
+        "css_module_link_hover_color": "#C9F0DD",
+        "css_module_rounded_corners": true,
+        "css_generic_link_color": "#0C3C26",
+        "css_generic_link_hover_color": "#156641",
+        "css_save_button_background_color": "#0C4B33",
+        "css_save_button_background_hover_color": "#0C3C26",
+        "css_save_button_text_color": "#FFFFFF",
+        "css_delete_button_background_color": "#BA2121",
+        "css_delete_button_background_hover_color": "#A41515",
+        "css_delete_button_text_color": "#FFFFFF",
+        "css": "",
+        "related_modal_active": true,
+        "related_modal_background_color": "#000000",
+        "related_modal_background_opacity": "0.3",
+        "related_modal_rounded_corners": true,
+        "related_modal_close_button_visible": true,
+        "list_filter_dropdown": true,
+        "list_filter_sticky": true,
+        "recent_actions_visible": true,
+        "form_submit_sticky": false,
+        "form_pagination_sticky": false
+    }
+},
+{
+    "model": "admin_interface.theme",
+    "pk": 2,
+    "fields": {
+        "name": "Insights Labz",
+        "active": true,
+        "title": "Administration",
+        "title_color": "#F5DD5D",
+        "title_visible": true,
+        "logo": "admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "logo_color": "#FFFFFF",
+        "logo_visible": true,
+        "favicon": "",
+        "env_name": "",
+        "env_color": "#E74C3C",
+        "env_visible_in_header": false,
+        "env_visible_in_favicon": false,
+        "language_chooser_active": false,
+        "language_chooser_display": "code",
+        "css_header_background_color": "#44B78B",
+        "css_header_text_color": "#000000",
+        "css_header_link_color": "#FFFFFF",
+        "css_header_link_hover_color": "#C9F0DD",
+        "css_module_background_color": "#44B78B",
+        "css_module_text_color": "#FFFFFF",
+        "css_module_link_color": "#FFFFFF",
+        "css_module_link_hover_color": "#C9F0DD",
+        "css_module_rounded_corners": true,
+        "css_generic_link_color": "#0C3C26",
+        "css_generic_link_hover_color": "#156641",
+        "css_save_button_background_color": "#0C4B33",
+        "css_save_button_background_hover_color": "#0C3C26",
+        "css_save_button_text_color": "#FFFFFF",
+        "css_delete_button_background_color": "#BA2121",
+        "css_delete_button_background_hover_color": "#A41515",
+        "css_delete_button_text_color": "#FFFFFF",
+        "css": "",
+        "related_modal_active": true,
+        "related_modal_background_color": "#000000",
+        "related_modal_background_opacity": "0.3",
+        "related_modal_rounded_corners": true,
+        "related_modal_close_button_visible": true,
+        "list_filter_dropdown": true,
+        "list_filter_sticky": true,
+        "recent_actions_visible": true,
+        "form_submit_sticky": false,
+        "form_pagination_sticky": false
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "czikscamg35j0rx5hcycr9sx5i3o456w",
+    "fields": {
+        "session_data": "YTMyYzMyNmNlYjkwMjQ1MjY4ZDEyYjZhOGM5ODgyYzFhNTE0ZDRiMTp7Il9hdXRoX3VzZXJfaWQiOiIxIiwiX2F1dGhfdXNlcl9iYWNrZW5kIjoiZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5kcy5Nb2RlbEJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiIwNTY3NWI5NTFjZTRlMTVlNTc3ZTZjOTk1NGJjYWM4NGRiZWZlNmZiIiwiX3VzZXIiOjEsImNvdW50cnlfaWQiOjIsImNvdW50cnlfY29kZSI6IlBLIiwiY291bnRyeV9uYW1lIjoiUGFraXN0YW4ifQ==",
+        "expire_date": "2021-05-11T11:54:52.326Z"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 1,
+    "fields": {
+        "created": "2021-04-27T11:13:30.072Z",
+        "updated": "2021-04-27T11:13:30.072Z",
+        "name": "India",
+        "code": "IND"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 2,
+    "fields": {
+        "created": "2021-04-27T11:13:30.874Z",
+        "updated": "2021-04-27T11:13:30.874Z",
+        "name": "Pakistan",
+        "code": "PK"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 3,
+    "fields": {
+        "created": "2021-04-27T11:13:30.625Z",
+        "updated": "2021-04-27T11:13:30.625Z",
+        "name": "Nepal",
+        "code": "NP"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 4,
+    "fields": {
+        "created": "2021-04-27T11:13:32.246Z",
+        "updated": "2021-04-27T11:13:32.246Z",
+        "name": "United State of America",
+        "code": "USA"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 5,
+    "fields": {
+        "created": "2021-04-27T11:13:32.054Z",
+        "updated": "2021-04-27T11:13:32.054Z",
+        "name": "United Arab Emarates",
+        "code": "UAE"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 6,
+    "fields": {
+        "created": "2021-04-27T11:13:31.426Z",
+        "updated": "2021-04-27T11:13:31.426Z",
+        "name": "SAUDIA ARABIA",
+        "code": "KSA"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 7,
+    "fields": {
+        "created": "2021-04-27T11:13:30.440Z",
+        "updated": "2021-04-27T11:13:30.440Z",
+        "name": "JAPAN",
+        "code": "JAP"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 8,
+    "fields": {
+        "created": "2021-04-27T11:13:29.683Z",
+        "updated": "2021-04-27T11:13:29.683Z",
+        "name": "CHINA",
+        "code": "CHN"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 9,
+    "fields": {
+        "created": "2021-04-27T11:13:31.238Z",
+        "updated": "2021-04-27T11:13:31.239Z",
+        "name": "RUSSIA",
+        "code": "RUS"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 10,
+    "fields": {
+        "created": "2021-04-27T11:13:30.256Z",
+        "updated": "2021-04-27T11:13:30.256Z",
+        "name": "IRAN",
+        "code": "IRA"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 11,
+    "fields": {
+        "created": "2021-04-27T11:13:29.225Z",
+        "updated": "2021-04-27T11:13:29.225Z",
+        "name": "AFGHANISTAN",
+        "code": "AFG"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 13,
+    "fields": {
+        "created": "2021-04-27T11:13:31.055Z",
+        "updated": "2021-04-27T11:13:31.055Z",
+        "name": "QATAR",
+        "code": "QAT"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 14,
+    "fields": {
+        "created": "2021-04-27T11:13:29.398Z",
+        "updated": "2021-04-27T11:13:29.398Z",
+        "name": "AUSTRALIA",
+        "code": "AUS"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 15,
+    "fields": {
+        "created": "2021-04-27T11:13:29.876Z",
+        "updated": "2021-04-27T11:13:29.876Z",
+        "name": "GERMANY",
+        "code": "GER"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 16,
+    "fields": {
+        "created": "2021-04-27T11:13:31.599Z",
+        "updated": "2021-04-27T11:13:31.599Z",
+        "name": "SOUTH AFRICA",
+        "code": "SAF"
+    }
+},
+{
+    "model": "master_setups.country",
+    "pk": 17,
+    "fields": {
+        "created": "2021-04-27T11:13:31.789Z",
+        "updated": "2021-04-27T11:13:31.789Z",
+        "name": "UKRAIN",
+        "code": "UKR"
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 1,
+    "fields": {
+        "name": "FAST MOVING CONSUMER GOODS (FMCG)",
+        "code": "FMCG",
+        "created": "2021-04-27T11:37:33.897Z",
+        "updated": "2021-04-27T11:37:33.897Z",
+        "country": 3,
+        "description": "Contains all households categories",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 5,
+    "fields": {
+        "name": "TOBACCO",
+        "code": "CIG",
+        "created": "2021-04-27T11:37:35.420Z",
+        "updated": "2021-04-27T11:37:35.420Z",
+        "country": 3,
+        "description": "CIGARETTE",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 6,
+    "fields": {
+        "name": "LUBRICANT",
+        "code": "LUB",
+        "created": "2021-04-27T11:37:34.709Z",
+        "updated": "2021-04-27T11:37:34.709Z",
+        "country": 3,
+        "description": "LUBRICANT",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 7,
+    "fields": {
+        "name": "FERTILIZER",
+        "code": "FERT",
+        "created": "2021-04-27T11:37:34.097Z",
+        "updated": "2021-04-27T11:37:34.097Z",
+        "country": 3,
+        "description": "FERTILIZER",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 8,
+    "fields": {
+        "name": "BEVERAGES",
+        "code": "BEV",
+        "created": "2021-04-27T11:37:33.639Z",
+        "updated": "2021-04-27T11:37:33.639Z",
+        "country": 3,
+        "description": "BEVERAGES",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 9,
+    "fields": {
+        "name": "NATIONAL",
+        "code": "NAT",
+        "created": "2021-04-27T11:37:35.209Z",
+        "updated": "2021-04-27T11:37:35.209Z",
+        "country": 3,
+        "description": "ALL FMCG+BEVERAGES+FERTILIZER+TOBACCO",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 10,
+    "fields": {
+        "name": "HIGH SALES VOLUMES",
+        "code": "HSV",
+        "created": "2021-04-27T11:37:34.297Z",
+        "updated": "2021-04-27T11:37:34.297Z",
+        "country": 3,
+        "description": "HIGH SALES VOLUMES",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 11,
+    "fields": {
+        "name": "INFANTS",
+        "code": "INF",
+        "created": "2021-04-27T11:37:34.497Z",
+        "updated": "2021-04-27T11:37:34.497Z",
+        "country": 3,
+        "description": "INFANTS",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.indexsetup",
+    "pk": 12,
+    "fields": {
+        "name": "MILKS",
+        "code": "MLK",
+        "created": "2021-04-27T11:37:34.996Z",
+        "updated": "2021-04-27T11:37:34.996Z",
+        "country": 3,
+        "description": "PESTEURIZED, LIQUID, NON-INFANTS",
+        "is_active": true
+    }
+},
+{
+    "model": "master_setups.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$150000$OrdhIVo5gOaE$Hv4kUm415vlaCRPQtTUhzaBz8GqShwf/8uDOZfopNX8=",
+        "last_login": "2021-04-27T11:54:07.791Z",
+        "is_superuser": true,
+        "first_name": "admin",
+        "last_name": "dev",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2021-04-27T11:00:04.394Z",
+        "role": "1",
+        "username": "admin@dev.com",
+        "email": "admin@dev.com",
+        "city": null,
+        "state": null,
+        "zip": null,
+        "country": null,
+        "phone_no": null,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "master_setups.user",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$150000$fFw1u2wZEXH5$jZgYV0bwWN30ZhdZHUn1w5skcf9Scv3gdzRwzVnTBw4=",
+        "last_login": null,
+        "is_superuser": false,
+        "first_name": "",
+        "last_name": "",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2021-04-27T11:17:15.589Z",
+        "role": "1",
+        "username": null,
+        "email": "countrymanager@dev.com",
+        "city": null,
+        "state": null,
+        "zip": null,
+        "country": null,
+        "phone_no": null,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "master_setups.user",
+    "pk": 3,
+    "fields": {
+        "password": "pbkdf2_sha256$150000$oDrp8LkPDYqQ$f9KVLwjZiIN5etkdtKGYxFTyqIj3tH271R9VhljnQ3s=",
+        "last_login": "2021-04-27T11:30:22.437Z",
+        "is_superuser": false,
+        "first_name": "",
+        "last_name": "",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2021-04-27T11:17:57.253Z",
+        "role": "2",
+        "username": null,
+        "email": "manager@dev.com",
+        "city": null,
+        "state": null,
+        "zip": null,
+        "country": null,
+        "phone_no": null,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "master_setups.usercountry",
+    "pk": 1,
+    "fields": {
+        "created": "2021-04-27T11:21:17.063Z",
+        "updated": "2021-04-27T11:21:17.063Z",
+        "country": 3,
+        "user": [
+            1,
+            2,
+            3
+        ]
+    }
+},
+{
+    "model": "master_setups.usercountry",
+    "pk": 2,
+    "fields": {
+        "created": "2021-04-27T11:21:16.569Z",
+        "updated": "2021-04-27T11:21:16.569Z",
+        "country": 3,
+        "user": [
+            1
+        ]
+    }
+},
+{
+    "model": "master_setups.userindex",
+    "pk": 1,
+    "fields": {
+        "created": "2021-04-27T11:49:13.802Z",
+        "updated": "2021-04-27T11:49:13.802Z",
+        "country": 3,
+        "user": 1,
+        "user_index": [
+            8,
+            1,
+            7,
+            10,
+            11,
+            6,
+            12,
+            9,
+            5
+        ]
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 1,
+    "fields": {
+        "url": "/superadmin/master_data/category/",
+        "method": "GET",
+        "query_string": "",
+        "user": null,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:00:35.838Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 2,
+    "fields": {
+        "url": "/superadmin/login/",
+        "method": "GET",
+        "query_string": "next=/superadmin/master_data/category/",
+        "user": null,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:00:36.243Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 3,
+    "fields": {
+        "url": "/superadmin/login/",
+        "method": "POST",
+        "query_string": "next=/superadmin/master_data/category/",
+        "user": null,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:00:38.458Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 4,
+    "fields": {
+        "url": "/superadmin/master_data/category/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:00:39.204Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 5,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:00:39.968Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 6,
+    "fields": {
+        "url": "/superadmin/master_data/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:00:46.692Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 7,
+    "fields": {
+        "url": "/superadmin/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:00:47.580Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 8,
+    "fields": {
+        "url": "/superadmin/admin_interface/theme/add/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:00:50.195Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 9,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:00:50.801Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 10,
+    "fields": {
+        "url": "/superadmin/admin_interface/theme/add/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:05:54.554Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 11,
+    "fields": {
+        "url": "/superadmin/admin_interface/theme/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:05:55.309Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 12,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:05:56.149Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 13,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:05:56.173Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 14,
+    "fields": {
+        "url": "/superadmin/admin_interface/theme/2/change/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:06:00.335Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 15,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:06:00.918Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 16,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:06:00.939Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 17,
+    "fields": {
+        "url": "/superadmin/admin_interface/theme/2/change/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:06:30.746Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 18,
+    "fields": {
+        "url": "/superadmin/admin_interface/theme/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:06:31.403Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 19,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:06:32.205Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 20,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:06:32.222Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 21,
+    "fields": {
+        "url": "/superadmin/admin_interface/theme/2/change/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:06:39.051Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 22,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:06:39.811Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 23,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:06:39.822Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 24,
+    "fields": {
+        "url": "/superadmin/admin_interface/theme/2/change/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:07:07.352Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 25,
+    "fields": {
+        "url": "/superadmin/admin_interface/theme/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:07:08.110Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 26,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:07:08.979Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 27,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:07:09.006Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 28,
+    "fields": {
+        "url": "/superadmin/admin_interface/theme/2/change/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:07:15.877Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 29,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:07:16.604Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 30,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:07:16.608Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 31,
+    "fields": {
+        "url": "/superadmin/admin_interface/theme/2/change/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:07:48.628Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 32,
+    "fields": {
+        "url": "/superadmin/admin_interface/theme/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:07:49.408Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 33,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:07:50.322Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 34,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:07:50.335Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 35,
+    "fields": {
+        "url": "/superadmin/admin_interface/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:08:01.858Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 36,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:08:02.621Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 37,
+    "fields": {
+        "url": "/superadmin/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:08:04.352Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 38,
+    "fields": {
+        "url": "/superadmin/master_setups/country/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:08:08.074Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 39,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:08:08.967Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 40,
+    "fields": {
+        "url": "/superadmin/master_setups/country/import/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:08:12.681Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 41,
+    "fields": {
+        "url": "/superadmin/master_setups/country/import/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:13:18.034Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 42,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:13:25.222Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 43,
+    "fields": {
+        "url": "/superadmin/master_setups/country/process_import/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:13:29.030Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 44,
+    "fields": {
+        "url": "/superadmin/master_setups/country/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:13:35.775Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 45,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:13:36.621Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 46,
+    "fields": {
+        "url": "/superadmin/master_setups/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:13:40.638Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 47,
+    "fields": {
+        "url": "/superadmin/master_setups/user/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:14:18.571Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 48,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:14:19.837Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 49,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:14:19.883Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 50,
+    "fields": {
+        "url": "/superadmin/master_setups/user/import/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:14:22.723Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 51,
+    "fields": {
+        "url": "/superadmin/master_setups/user/import/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:14:36.422Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 52,
+    "fields": {
+        "url": "/superadmin/master_setups/user/import/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:15:21.075Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 53,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:15:23.174Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 54,
+    "fields": {
+        "url": "/superadmin/master_setups/user/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:15:30.332Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 55,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:15:31.864Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 56,
+    "fields": {
+        "url": "/superadmin/master_setups/user/import/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:15:35.706Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 57,
+    "fields": {
+        "url": "/superadmin/master_setups/user/import/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:15:56.189Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 58,
+    "fields": {
+        "url": "/superadmin/master_setups/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:16:11.036Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 59,
+    "fields": {
+        "url": "/superadmin/master_setups/user/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:16:15.658Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 60,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:16:17.232Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 61,
+    "fields": {
+        "url": "/superadmin/master_setups/user/add/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:16:45.232Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 62,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:16:46.246Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 63,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:16:46.302Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 64,
+    "fields": {
+        "url": "/superadmin/master_setups/user/add/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:17:15.525Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 65,
+    "fields": {
+        "url": "/superadmin/master_setups/user/2/change/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:17:16.331Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 66,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:17:17.489Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 67,
+    "fields": {
+        "url": "/superadmin/master_setups/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:17:29.882Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 68,
+    "fields": {
+        "url": "/superadmin/master_setups/user/add/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:17:33.127Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 69,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:17:33.854Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 70,
+    "fields": {
+        "url": "/superadmin/master_setups/user/add/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:17:57.189Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 71,
+    "fields": {
+        "url": "/superadmin/master_setups/user/3/change/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:17:57.932Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 72,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:17:58.895Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 73,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:17:58.935Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 74,
+    "fields": {
+        "url": "/superadmin/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:20:12.133Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 75,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:20:13.085Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 76,
+    "fields": {
+        "url": "/superadmin/master_setups/usercountry/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:20:43.690Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 77,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:20:44.937Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 78,
+    "fields": {
+        "url": "/superadmin/master_setups/usercountry/import/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:20:47.134Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 79,
+    "fields": {
+        "url": "/superadmin/master_setups/usercountry/import/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:20:58.757Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 80,
+    "fields": {
+        "url": "/superadmin/master_setups/usercountry/process_import/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:21:16.332Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 81,
+    "fields": {
+        "url": "/superadmin/master_setups/usercountry/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:21:18.360Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 82,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:21:19.492Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 83,
+    "fields": {
+        "url": "/superadmin/master_setups/usercountry/1/change/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:21:25.708Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 84,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:21:26.692Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 85,
+    "fields": {
+        "url": "/superadmin/master_setups/usercountry/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:21:28.249Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 86,
+    "fields": {
+        "url": "/superadmin/master_setups/usercountry/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:21:32.593Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 87,
+    "fields": {
+        "url": "/master-data/NPL/category-list/",
+        "method": "GET",
+        "query_string": "name=SHAMPOO&submit=Filter",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:29:48.547Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 88,
+    "fields": {
+        "url": "/master-data/NPL/category-list/",
+        "method": "GET",
+        "query_string": "name=SHAMPOO&submit=Filter",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:29:51.469Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 89,
+    "fields": {
+        "url": "/master-setups/country-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:29:56.394Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 90,
+    "fields": {
+        "url": "/master-setups/None/usercountry-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:29:58.595Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 91,
+    "fields": {
+        "url": "/master-setups/None/usercountry-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:30:07.609Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 92,
+    "fields": {
+        "url": "/logout/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:30:19.907Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 93,
+    "fields": {
+        "url": "/",
+        "method": "GET",
+        "query_string": "",
+        "user": null,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:30:20.241Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 94,
+    "fields": {
+        "url": "/login/",
+        "method": "GET",
+        "query_string": "",
+        "user": null,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:30:20.301Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 95,
+    "fields": {
+        "url": "/admin_login_process/",
+        "method": "POST",
+        "query_string": "",
+        "user": null,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:30:22.218Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 96,
+    "fields": {
+        "url": "/home/",
+        "method": "GET",
+        "query_string": "",
+        "user": 3,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:30:23.091Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 97,
+    "fields": {
+        "url": "/PK/dashboard/",
+        "method": "GET",
+        "query_string": "",
+        "user": 3,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:30:25.195Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 98,
+    "fields": {
+        "url": "/master-setups/country-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 3,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:34:52.190Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 99,
+    "fields": {
+        "url": "/master-setups/PK/usercountry-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 3,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:34:54.947Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 100,
+    "fields": {
+        "url": "/master-setups/PK/indexsetup-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 3,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:34:58.902Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 101,
+    "fields": {
+        "url": "/superadmin/master_setups/",
+        "method": "GET",
+        "query_string": "",
+        "user": 3,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:06.411Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 102,
+    "fields": {
+        "url": "/superadmin/login/",
+        "method": "GET",
+        "query_string": "next=/superadmin/master_setups/",
+        "user": 3,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:06.531Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 103,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 3,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:07.577Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 104,
+    "fields": {
+        "url": "/superadmin/login/",
+        "method": "POST",
+        "query_string": "next=/superadmin/master_setups/",
+        "user": 3,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:25.303Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 105,
+    "fields": {
+        "url": "/superadmin/master_setups/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:26.059Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 106,
+    "fields": {
+        "url": "/superadmin/master_setups/countrysetting/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:31.527Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 107,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:32.532Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 108,
+    "fields": {
+        "url": "/superadmin/master_setups/countrysetting/add/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:35.401Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 109,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:36.398Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 110,
+    "fields": {
+        "url": "/superadmin/master_setups/countrysetting/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:40.296Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 111,
+    "fields": {
+        "url": "/superadmin/master_setups/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:42.096Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 112,
+    "fields": {
+        "url": "/superadmin/master_setups/indexsetup/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:44.693Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 113,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:45.755Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 114,
+    "fields": {
+        "url": "/superadmin/master_setups/indexsetup/export/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:37:13.698Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 115,
+    "fields": {
+        "url": "/superadmin/master_setups/indexsetup/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:37:15.554Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 116,
+    "fields": {
+        "url": "/superadmin/master_setups/indexsetup/import/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:37:18.642Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 117,
+    "fields": {
+        "url": "/superadmin/master_setups/indexsetup/import/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:37:26.903Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 118,
+    "fields": {
+        "url": "/superadmin/master_setups/indexsetup/process_import/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:37:33.392Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 119,
+    "fields": {
+        "url": "/superadmin/master_setups/indexsetup/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:37:37.663Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 120,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:37:38.763Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 121,
+    "fields": {
+        "url": "/superadmin/master_setups/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:48:44.058Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 122,
+    "fields": {
+        "url": "/media/admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:48:45.079Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 123,
+    "fields": {
+        "url": "/superadmin/master_setups/userindex/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:48:48.316Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 124,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:48:49.362Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 125,
+    "fields": {
+        "url": "/superadmin/master_setups/userindex/add/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:48:53.978Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 126,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:48:54.903Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 127,
+    "fields": {
+        "url": "/superadmin/master_setups/userindex/add/",
+        "method": "POST",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:49:13.606Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 128,
+    "fields": {
+        "url": "/superadmin/master_setups/userindex/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:49:14.664Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 129,
+    "fields": {
+        "url": "/superadmin/jsi18n/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:49:15.948Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 130,
+    "fields": {
+        "url": "/master-setups/PK/indexsetup-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:53:36.572Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 131,
+    "fields": {
+        "url": "/master-setups/None/indexsetup-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:53:47.009Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 132,
+    "fields": {
+        "url": "/master-setups/None/indexsetup-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:53:50.678Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 133,
+    "fields": {
+        "url": "/logout/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:54:05.178Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 134,
+    "fields": {
+        "url": "/",
+        "method": "GET",
+        "query_string": "",
+        "user": null,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:54:05.468Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 135,
+    "fields": {
+        "url": "/login/",
+        "method": "GET",
+        "query_string": "",
+        "user": null,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:54:05.521Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 136,
+    "fields": {
+        "url": "/admin_login_process/",
+        "method": "POST",
+        "query_string": "",
+        "user": null,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:54:07.625Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 137,
+    "fields": {
+        "url": "/home/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:54:08.269Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 138,
+    "fields": {
+        "url": "/PK/dashboard/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:54:11.197Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 139,
+    "fields": {
+        "url": "/master-setups/PK/usercountry-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:54:31.555Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 140,
+    "fields": {
+        "url": "/master-setups/PK/indexsetup-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:54:32.753Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 141,
+    "fields": {
+        "url": "/NP/dashboard/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:54:44.693Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 142,
+    "fields": {
+        "url": "/master-setups/NP/indexsetup-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:54:47.529Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 143,
+    "fields": {
+        "url": "/PK/dashboard/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:54:52.112Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 144,
+    "fields": {
+        "url": "/master-setups/PK/indexsetup-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T12:23:16.329Z"
+    }
+},
+{
+    "model": "easyaudit.requestevent",
+    "pk": 145,
+    "fields": {
+        "url": "/master-data/PK/category-list/",
+        "method": "GET",
+        "query_string": "",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T12:23:20.123Z"
+    }
+},
+{
+    "model": "easyaudit.loginevent",
+    "pk": 1,
+    "fields": {
+        "login_type": 0,
+        "username": "admin@dev.com",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:00:38.918Z"
+    }
+},
+{
+    "model": "easyaudit.loginevent",
+    "pk": 2,
+    "fields": {
+        "login_type": 1,
+        "username": "admin@dev.com",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:30:19.976Z"
+    }
+},
+{
+    "model": "easyaudit.loginevent",
+    "pk": 3,
+    "fields": {
+        "login_type": 0,
+        "username": "manager@dev.com",
+        "user": 3,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:30:22.801Z"
+    }
+},
+{
+    "model": "easyaudit.loginevent",
+    "pk": 4,
+    "fields": {
+        "login_type": 0,
+        "username": "admin@dev.com",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:35:25.760Z"
+    }
+},
+{
+    "model": "easyaudit.loginevent",
+    "pk": 5,
+    "fields": {
+        "login_type": 1,
+        "username": "admin@dev.com",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:54:05.241Z"
+    }
+},
+{
+    "model": "easyaudit.loginevent",
+    "pk": 6,
+    "fields": {
+        "login_type": 0,
+        "username": "admin@dev.com",
+        "user": 1,
+        "remote_ip": "127.0.0.1",
+        "datetime": "2021-04-27T11:54:07.999Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 1,
+    "fields": {
+        "event_type": 1,
+        "object_id": "1",
+        "content_type": 1,
+        "object_repr": "Django",
+        "object_json_repr": "[{\"model\": \"admin_interface.theme\", \"pk\": 1, \"fields\": {\"name\": \"Django\", \"active\": true, \"title\": \"Django administration\", \"title_color\": \"#F5DD5D\", \"title_visible\": true, \"logo\": \"\", \"logo_color\": \"#FFFFFF\", \"logo_visible\": true, \"favicon\": \"\", \"env_name\": \"\", \"env_color\": \"#E74C3C\", \"env_visible_in_header\": true, \"env_visible_in_favicon\": true, \"language_chooser_active\": true, \"language_chooser_display\": \"code\", \"css_header_background_color\": \"#0C4B33\", \"css_header_text_color\": \"#44B78B\", \"css_header_link_color\": \"#FFFFFF\", \"css_header_link_hover_color\": \"#C9F0DD\", \"css_module_background_color\": \"#44B78B\", \"css_module_text_color\": \"#FFFFFF\", \"css_module_link_color\": \"#FFFFFF\", \"css_module_link_hover_color\": \"#C9F0DD\", \"css_module_rounded_corners\": true, \"css_generic_link_color\": \"#0C3C26\", \"css_generic_link_hover_color\": \"#156641\", \"css_save_button_background_color\": \"#0C4B33\", \"css_save_button_background_hover_color\": \"#0C3C26\", \"css_save_button_text_color\": \"#FFFFFF\", \"css_delete_button_background_color\": \"#BA2121\", \"css_delete_button_background_hover_color\": \"#A41515\", \"css_delete_button_text_color\": \"#FFFFFF\", \"css\": \"\", \"related_modal_active\": true, \"related_modal_background_color\": \"#000000\", \"related_modal_background_opacity\": \"0.3\", \"related_modal_rounded_corners\": true, \"related_modal_close_button_visible\": true, \"list_filter_dropdown\": true, \"list_filter_sticky\": true, \"recent_actions_visible\": true, \"form_submit_sticky\": false, \"form_pagination_sticky\": false}}]",
+        "changed_fields": null,
+        "user": null,
+        "user_pk_as_string": null,
+        "datetime": "2021-04-27T10:51:25.941Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 2,
+    "fields": {
+        "event_type": 1,
+        "object_id": "1",
+        "content_type": 22,
+        "object_repr": "admin dev(admin@dev.com)",
+        "object_json_repr": "[{\"model\": \"master_setups.user\", \"pk\": 1, \"fields\": {\"password\": \"pbkdf2_sha256$150000$OrdhIVo5gOaE$Hv4kUm415vlaCRPQtTUhzaBz8GqShwf/8uDOZfopNX8=\", \"last_login\": null, \"is_superuser\": true, \"first_name\": \"admin\", \"last_name\": \"dev\", \"is_staff\": true, \"is_active\": true, \"date_joined\": \"2021-04-27T11:00:04.394Z\", \"role\": \"1\", \"username\": \"admin@dev.com\", \"email\": \"admin@dev.com\", \"city\": null, \"state\": null, \"zip\": null, \"country\": null, \"phone_no\": null, \"groups\": [], \"user_permissions\": []}}]",
+        "changed_fields": null,
+        "user": null,
+        "user_pk_as_string": null,
+        "datetime": "2021-04-27T11:00:04.511Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 3,
+    "fields": {
+        "event_type": 2,
+        "object_id": "1",
+        "content_type": 22,
+        "object_repr": "admin dev(admin@dev.com)",
+        "object_json_repr": "[{\"model\": \"master_setups.user\", \"pk\": 1, \"fields\": {\"password\": \"pbkdf2_sha256$150000$OrdhIVo5gOaE$Hv4kUm415vlaCRPQtTUhzaBz8GqShwf/8uDOZfopNX8=\", \"last_login\": \"2021-04-27T11:00:38.652Z\", \"is_superuser\": true, \"first_name\": \"admin\", \"last_name\": \"dev\", \"is_staff\": true, \"is_active\": true, \"date_joined\": \"2021-04-27T11:00:04.394Z\", \"role\": \"1\", \"username\": \"admin@dev.com\", \"email\": \"admin@dev.com\", \"city\": null, \"state\": null, \"zip\": null, \"country\": null, \"phone_no\": null, \"groups\": [], \"user_permissions\": []}}]",
+        "changed_fields": "{\"last_login\": [\"None\", \"2021-04-27 11:00:38.652429\"]}",
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:00:38.780Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 4,
+    "fields": {
+        "event_type": 1,
+        "object_id": "2",
+        "content_type": 1,
+        "object_repr": "Insights Labz",
+        "object_json_repr": "[{\"model\": \"admin_interface.theme\", \"pk\": 2, \"fields\": {\"name\": \"Insights Labz\", \"active\": true, \"title\": \"Django administration\", \"title_color\": \"#F5DD5D\", \"title_visible\": true, \"logo\": \"admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png\", \"logo_color\": \"#FFFFFF\", \"logo_visible\": true, \"favicon\": \"\", \"env_name\": \"\", \"env_color\": \"#E74C3C\", \"env_visible_in_header\": false, \"env_visible_in_favicon\": false, \"language_chooser_active\": false, \"language_chooser_display\": \"code\", \"css_header_background_color\": \"#0C4B33\", \"css_header_text_color\": \"#44B78B\", \"css_header_link_color\": \"#FFFFFF\", \"css_header_link_hover_color\": \"#C9F0DD\", \"css_module_background_color\": \"#44B78B\", \"css_module_text_color\": \"#FFFFFF\", \"css_module_link_color\": \"#FFFFFF\", \"css_module_link_hover_color\": \"#C9F0DD\", \"css_module_rounded_corners\": true, \"css_generic_link_color\": \"#0C3C26\", \"css_generic_link_hover_color\": \"#156641\", \"css_save_button_background_color\": \"#0C4B33\", \"css_save_button_background_hover_color\": \"#0C3C26\", \"css_save_button_text_color\": \"#FFFFFF\", \"css_delete_button_background_color\": \"#BA2121\", \"css_delete_button_background_hover_color\": \"#A41515\", \"css_delete_button_text_color\": \"#FFFFFF\", \"css\": \"\", \"related_modal_active\": true, \"related_modal_background_color\": \"#000000\", \"related_modal_background_opacity\": \"0.3\", \"related_modal_rounded_corners\": true, \"related_modal_close_button_visible\": true, \"list_filter_dropdown\": true, \"list_filter_sticky\": true, \"recent_actions_visible\": true, \"form_submit_sticky\": false, \"form_pagination_sticky\": false}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:05:54.893Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 5,
+    "fields": {
+        "event_type": 2,
+        "object_id": "2",
+        "content_type": 1,
+        "object_repr": "Insights Labz",
+        "object_json_repr": "[{\"model\": \"admin_interface.theme\", \"pk\": 2, \"fields\": {\"name\": \"Insights Labz\", \"active\": true, \"title\": \"administration\", \"title_color\": \"#F5DD5D\", \"title_visible\": true, \"logo\": \"admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png\", \"logo_color\": \"#FFFFFF\", \"logo_visible\": true, \"favicon\": \"\", \"env_name\": \"\", \"env_color\": \"#E74C3C\", \"env_visible_in_header\": false, \"env_visible_in_favicon\": false, \"language_chooser_active\": false, \"language_chooser_display\": \"code\", \"css_header_background_color\": \"#0C4B33\", \"css_header_text_color\": \"#44B78B\", \"css_header_link_color\": \"#FFFFFF\", \"css_header_link_hover_color\": \"#C9F0DD\", \"css_module_background_color\": \"#44B78B\", \"css_module_text_color\": \"#FFFFFF\", \"css_module_link_color\": \"#FFFFFF\", \"css_module_link_hover_color\": \"#C9F0DD\", \"css_module_rounded_corners\": true, \"css_generic_link_color\": \"#0C3C26\", \"css_generic_link_hover_color\": \"#156641\", \"css_save_button_background_color\": \"#0C4B33\", \"css_save_button_background_hover_color\": \"#0C3C26\", \"css_save_button_text_color\": \"#FFFFFF\", \"css_delete_button_background_color\": \"#BA2121\", \"css_delete_button_background_hover_color\": \"#A41515\", \"css_delete_button_text_color\": \"#FFFFFF\", \"css\": \"\", \"related_modal_active\": true, \"related_modal_background_color\": \"#000000\", \"related_modal_background_opacity\": \"0.3\", \"related_modal_rounded_corners\": true, \"related_modal_close_button_visible\": true, \"list_filter_dropdown\": true, \"list_filter_sticky\": true, \"recent_actions_visible\": true, \"form_submit_sticky\": false, \"form_pagination_sticky\": false}}]",
+        "changed_fields": "{\"title\": [\"Django administration\", \"administration\"]}",
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:06:31.082Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 6,
+    "fields": {
+        "event_type": 2,
+        "object_id": "2",
+        "content_type": 1,
+        "object_repr": "Insights Labz",
+        "object_json_repr": "[{\"model\": \"admin_interface.theme\", \"pk\": 2, \"fields\": {\"name\": \"Insights Labz\", \"active\": true, \"title\": \"Administration\", \"title_color\": \"#F5DD5D\", \"title_visible\": true, \"logo\": \"admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png\", \"logo_color\": \"#FFFFFF\", \"logo_visible\": true, \"favicon\": \"\", \"env_name\": \"\", \"env_color\": \"#E74C3C\", \"env_visible_in_header\": false, \"env_visible_in_favicon\": false, \"language_chooser_active\": false, \"language_chooser_display\": \"code\", \"css_header_background_color\": \"#25E99E\", \"css_header_text_color\": \"#44B78B\", \"css_header_link_color\": \"#FFFFFF\", \"css_header_link_hover_color\": \"#C9F0DD\", \"css_module_background_color\": \"#44B78B\", \"css_module_text_color\": \"#FFFFFF\", \"css_module_link_color\": \"#FFFFFF\", \"css_module_link_hover_color\": \"#C9F0DD\", \"css_module_rounded_corners\": true, \"css_generic_link_color\": \"#0C3C26\", \"css_generic_link_hover_color\": \"#156641\", \"css_save_button_background_color\": \"#0C4B33\", \"css_save_button_background_hover_color\": \"#0C3C26\", \"css_save_button_text_color\": \"#FFFFFF\", \"css_delete_button_background_color\": \"#BA2121\", \"css_delete_button_background_hover_color\": \"#A41515\", \"css_delete_button_text_color\": \"#FFFFFF\", \"css\": \"\", \"related_modal_active\": true, \"related_modal_background_color\": \"#000000\", \"related_modal_background_opacity\": \"0.3\", \"related_modal_rounded_corners\": true, \"related_modal_close_button_visible\": true, \"list_filter_dropdown\": true, \"list_filter_sticky\": true, \"recent_actions_visible\": true, \"form_submit_sticky\": false, \"form_pagination_sticky\": false}}]",
+        "changed_fields": "{\"title\": [\"administration\", \"Administration\"], \"css_header_background_color\": [\"#0C4B33\", \"#25E99E\"]}",
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:07:07.808Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 7,
+    "fields": {
+        "event_type": 2,
+        "object_id": "2",
+        "content_type": 1,
+        "object_repr": "Insights Labz",
+        "object_json_repr": "[{\"model\": \"admin_interface.theme\", \"pk\": 2, \"fields\": {\"name\": \"Insights Labz\", \"active\": true, \"title\": \"Administration\", \"title_color\": \"#F5DD5D\", \"title_visible\": true, \"logo\": \"admin-interface/logo/insightslabz_logo_L34HksW_E4z6Zoo.png\", \"logo_color\": \"#FFFFFF\", \"logo_visible\": true, \"favicon\": \"\", \"env_name\": \"\", \"env_color\": \"#E74C3C\", \"env_visible_in_header\": false, \"env_visible_in_favicon\": false, \"language_chooser_active\": false, \"language_chooser_display\": \"code\", \"css_header_background_color\": \"#44B78B\", \"css_header_text_color\": \"#000000\", \"css_header_link_color\": \"#FFFFFF\", \"css_header_link_hover_color\": \"#C9F0DD\", \"css_module_background_color\": \"#44B78B\", \"css_module_text_color\": \"#FFFFFF\", \"css_module_link_color\": \"#FFFFFF\", \"css_module_link_hover_color\": \"#C9F0DD\", \"css_module_rounded_corners\": true, \"css_generic_link_color\": \"#0C3C26\", \"css_generic_link_hover_color\": \"#156641\", \"css_save_button_background_color\": \"#0C4B33\", \"css_save_button_background_hover_color\": \"#0C3C26\", \"css_save_button_text_color\": \"#FFFFFF\", \"css_delete_button_background_color\": \"#BA2121\", \"css_delete_button_background_hover_color\": \"#A41515\", \"css_delete_button_text_color\": \"#FFFFFF\", \"css\": \"\", \"related_modal_active\": true, \"related_modal_background_color\": \"#000000\", \"related_modal_background_opacity\": \"0.3\", \"related_modal_rounded_corners\": true, \"related_modal_close_button_visible\": true, \"list_filter_dropdown\": true, \"list_filter_sticky\": true, \"recent_actions_visible\": true, \"form_submit_sticky\": false, \"form_pagination_sticky\": false}}]",
+        "changed_fields": "{\"css_header_background_color\": [\"#25E99E\", \"#44B78B\"], \"css_header_text_color\": [\"#44B78B\", \"#000000\"]}",
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:07:49.094Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 8,
+    "fields": {
+        "event_type": 1,
+        "object_id": "11",
+        "content_type": 23,
+        "object_repr": "AFG, AFGHANISTAN",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 11, \"fields\": {\"created\": \"2021-04-27T11:13:18.226Z\", \"updated\": \"2021-04-27T11:13:18.226Z\", \"name\": \"AFGHANISTAN\", \"code\": \"AFG\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:21.640Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 9,
+    "fields": {
+        "event_type": 1,
+        "object_id": "14",
+        "content_type": 23,
+        "object_repr": "AUS, AUSTRALIA",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 14, \"fields\": {\"created\": \"2021-04-27T11:13:18.444Z\", \"updated\": \"2021-04-27T11:13:18.444Z\", \"name\": \"AUSTRALIA\", \"code\": \"AUS\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:21.744Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 10,
+    "fields": {
+        "event_type": 1,
+        "object_id": "8",
+        "content_type": 23,
+        "object_repr": "CHN, CHINA",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 8, \"fields\": {\"created\": \"2021-04-27T11:13:18.647Z\", \"updated\": \"2021-04-27T11:13:18.647Z\", \"name\": \"CHINA\", \"code\": \"CHN\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:21.838Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 11,
+    "fields": {
+        "event_type": 1,
+        "object_id": "15",
+        "content_type": 23,
+        "object_repr": "GER, GERMANY",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 15, \"fields\": {\"created\": \"2021-04-27T11:13:19.010Z\", \"updated\": \"2021-04-27T11:13:19.010Z\", \"name\": \"GERMANY\", \"code\": \"GER\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:21.926Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 12,
+    "fields": {
+        "event_type": 1,
+        "object_id": "1",
+        "content_type": 23,
+        "object_repr": "IND, India",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 1, \"fields\": {\"created\": \"2021-04-27T11:13:19.325Z\", \"updated\": \"2021-04-27T11:13:19.325Z\", \"name\": \"India\", \"code\": \"IND\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:21.997Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 13,
+    "fields": {
+        "event_type": 1,
+        "object_id": "10",
+        "content_type": 23,
+        "object_repr": "IRA, IRAN",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 10, \"fields\": {\"created\": \"2021-04-27T11:13:19.495Z\", \"updated\": \"2021-04-27T11:13:19.495Z\", \"name\": \"IRAN\", \"code\": \"IRA\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:22.091Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 14,
+    "fields": {
+        "event_type": 1,
+        "object_id": "7",
+        "content_type": 23,
+        "object_repr": "JAP, JAPAN",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 7, \"fields\": {\"created\": \"2021-04-27T11:13:19.685Z\", \"updated\": \"2021-04-27T11:13:19.686Z\", \"name\": \"JAPAN\", \"code\": \"JAP\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:22.174Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 15,
+    "fields": {
+        "event_type": 1,
+        "object_id": "3",
+        "content_type": 23,
+        "object_repr": "NP, Nepal",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 3, \"fields\": {\"created\": \"2021-04-27T11:13:19.875Z\", \"updated\": \"2021-04-27T11:13:19.875Z\", \"name\": \"Nepal\", \"code\": \"NP\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:22.276Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 16,
+    "fields": {
+        "event_type": 1,
+        "object_id": "2",
+        "content_type": 23,
+        "object_repr": "PK, Pakistan",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 2, \"fields\": {\"created\": \"2021-04-27T11:13:20.047Z\", \"updated\": \"2021-04-27T11:13:20.047Z\", \"name\": \"Pakistan\", \"code\": \"PK\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:22.375Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 17,
+    "fields": {
+        "event_type": 1,
+        "object_id": "13",
+        "content_type": 23,
+        "object_repr": "QAT, QATAR",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 13, \"fields\": {\"created\": \"2021-04-27T11:13:20.234Z\", \"updated\": \"2021-04-27T11:13:20.234Z\", \"name\": \"QATAR\", \"code\": \"QAT\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:22.454Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 18,
+    "fields": {
+        "event_type": 1,
+        "object_id": "9",
+        "content_type": 23,
+        "object_repr": "RUS, RUSSIA",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 9, \"fields\": {\"created\": \"2021-04-27T11:13:20.515Z\", \"updated\": \"2021-04-27T11:13:20.515Z\", \"name\": \"RUSSIA\", \"code\": \"RUS\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:22.541Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 19,
+    "fields": {
+        "event_type": 1,
+        "object_id": "6",
+        "content_type": 23,
+        "object_repr": "KSA, SAUDIA ARABIA",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 6, \"fields\": {\"created\": \"2021-04-27T11:13:20.691Z\", \"updated\": \"2021-04-27T11:13:20.691Z\", \"name\": \"SAUDIA ARABIA\", \"code\": \"KSA\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:22.626Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 20,
+    "fields": {
+        "event_type": 1,
+        "object_id": "16",
+        "content_type": 23,
+        "object_repr": "SAF, SOUTH AFRICA",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 16, \"fields\": {\"created\": \"2021-04-27T11:13:20.874Z\", \"updated\": \"2021-04-27T11:13:20.874Z\", \"name\": \"SOUTH AFRICA\", \"code\": \"SAF\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:22.698Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 21,
+    "fields": {
+        "event_type": 1,
+        "object_id": "17",
+        "content_type": 23,
+        "object_repr": "UKR, UKRAIN",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 17, \"fields\": {\"created\": \"2021-04-27T11:13:21.048Z\", \"updated\": \"2021-04-27T11:13:21.048Z\", \"name\": \"UKRAIN\", \"code\": \"UKR\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:22.832Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 22,
+    "fields": {
+        "event_type": 1,
+        "object_id": "5",
+        "content_type": 23,
+        "object_repr": "UAE, United Arab Emarates",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 5, \"fields\": {\"created\": \"2021-04-27T11:13:21.234Z\", \"updated\": \"2021-04-27T11:13:21.234Z\", \"name\": \"United Arab Emarates\", \"code\": \"UAE\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:22.949Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 23,
+    "fields": {
+        "event_type": 1,
+        "object_id": "4",
+        "content_type": 23,
+        "object_repr": "USA, United State of America",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 4, \"fields\": {\"created\": \"2021-04-27T11:13:21.424Z\", \"updated\": \"2021-04-27T11:13:21.424Z\", \"name\": \"United State of America\", \"code\": \"USA\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:23.039Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 24,
+    "fields": {
+        "event_type": 1,
+        "object_id": "11",
+        "content_type": 23,
+        "object_repr": "AFG, AFGHANISTAN",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 11, \"fields\": {\"created\": \"2021-04-27T11:13:29.225Z\", \"updated\": \"2021-04-27T11:13:29.225Z\", \"name\": \"AFGHANISTAN\", \"code\": \"AFG\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:32.478Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 25,
+    "fields": {
+        "event_type": 1,
+        "object_id": "14",
+        "content_type": 23,
+        "object_repr": "AUS, AUSTRALIA",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 14, \"fields\": {\"created\": \"2021-04-27T11:13:29.398Z\", \"updated\": \"2021-04-27T11:13:29.398Z\", \"name\": \"AUSTRALIA\", \"code\": \"AUS\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:32.573Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 26,
+    "fields": {
+        "event_type": 1,
+        "object_id": "8",
+        "content_type": 23,
+        "object_repr": "CHN, CHINA",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 8, \"fields\": {\"created\": \"2021-04-27T11:13:29.683Z\", \"updated\": \"2021-04-27T11:13:29.683Z\", \"name\": \"CHINA\", \"code\": \"CHN\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:32.649Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 27,
+    "fields": {
+        "event_type": 1,
+        "object_id": "15",
+        "content_type": 23,
+        "object_repr": "GER, GERMANY",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 15, \"fields\": {\"created\": \"2021-04-27T11:13:29.876Z\", \"updated\": \"2021-04-27T11:13:29.876Z\", \"name\": \"GERMANY\", \"code\": \"GER\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:32.751Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 28,
+    "fields": {
+        "event_type": 1,
+        "object_id": "1",
+        "content_type": 23,
+        "object_repr": "IND, India",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 1, \"fields\": {\"created\": \"2021-04-27T11:13:30.072Z\", \"updated\": \"2021-04-27T11:13:30.072Z\", \"name\": \"India\", \"code\": \"IND\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:32.836Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 29,
+    "fields": {
+        "event_type": 1,
+        "object_id": "10",
+        "content_type": 23,
+        "object_repr": "IRA, IRAN",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 10, \"fields\": {\"created\": \"2021-04-27T11:13:30.256Z\", \"updated\": \"2021-04-27T11:13:30.256Z\", \"name\": \"IRAN\", \"code\": \"IRA\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:32.925Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 30,
+    "fields": {
+        "event_type": 1,
+        "object_id": "7",
+        "content_type": 23,
+        "object_repr": "JAP, JAPAN",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 7, \"fields\": {\"created\": \"2021-04-27T11:13:30.440Z\", \"updated\": \"2021-04-27T11:13:30.440Z\", \"name\": \"JAPAN\", \"code\": \"JAP\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:33.023Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 31,
+    "fields": {
+        "event_type": 1,
+        "object_id": "3",
+        "content_type": 23,
+        "object_repr": "NP, Nepal",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 3, \"fields\": {\"created\": \"2021-04-27T11:13:30.625Z\", \"updated\": \"2021-04-27T11:13:30.625Z\", \"name\": \"Nepal\", \"code\": \"NP\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:33.144Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 32,
+    "fields": {
+        "event_type": 1,
+        "object_id": "2",
+        "content_type": 23,
+        "object_repr": "PK, Pakistan",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 2, \"fields\": {\"created\": \"2021-04-27T11:13:30.874Z\", \"updated\": \"2021-04-27T11:13:30.874Z\", \"name\": \"Pakistan\", \"code\": \"PK\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:33.272Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 33,
+    "fields": {
+        "event_type": 1,
+        "object_id": "13",
+        "content_type": 23,
+        "object_repr": "QAT, QATAR",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 13, \"fields\": {\"created\": \"2021-04-27T11:13:31.055Z\", \"updated\": \"2021-04-27T11:13:31.055Z\", \"name\": \"QATAR\", \"code\": \"QAT\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:33.347Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 34,
+    "fields": {
+        "event_type": 1,
+        "object_id": "9",
+        "content_type": 23,
+        "object_repr": "RUS, RUSSIA",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 9, \"fields\": {\"created\": \"2021-04-27T11:13:31.238Z\", \"updated\": \"2021-04-27T11:13:31.239Z\", \"name\": \"RUSSIA\", \"code\": \"RUS\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:33.437Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 35,
+    "fields": {
+        "event_type": 1,
+        "object_id": "6",
+        "content_type": 23,
+        "object_repr": "KSA, SAUDIA ARABIA",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 6, \"fields\": {\"created\": \"2021-04-27T11:13:31.426Z\", \"updated\": \"2021-04-27T11:13:31.426Z\", \"name\": \"SAUDIA ARABIA\", \"code\": \"KSA\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:33.525Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 36,
+    "fields": {
+        "event_type": 1,
+        "object_id": "16",
+        "content_type": 23,
+        "object_repr": "SAF, SOUTH AFRICA",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 16, \"fields\": {\"created\": \"2021-04-27T11:13:31.599Z\", \"updated\": \"2021-04-27T11:13:31.599Z\", \"name\": \"SOUTH AFRICA\", \"code\": \"SAF\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:33.607Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 37,
+    "fields": {
+        "event_type": 1,
+        "object_id": "17",
+        "content_type": 23,
+        "object_repr": "UKR, UKRAIN",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 17, \"fields\": {\"created\": \"2021-04-27T11:13:31.789Z\", \"updated\": \"2021-04-27T11:13:31.789Z\", \"name\": \"UKRAIN\", \"code\": \"UKR\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:33.691Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 38,
+    "fields": {
+        "event_type": 1,
+        "object_id": "5",
+        "content_type": 23,
+        "object_repr": "UAE, United Arab Emarates",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 5, \"fields\": {\"created\": \"2021-04-27T11:13:32.054Z\", \"updated\": \"2021-04-27T11:13:32.054Z\", \"name\": \"United Arab Emarates\", \"code\": \"UAE\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:33.777Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 39,
+    "fields": {
+        "event_type": 1,
+        "object_id": "4",
+        "content_type": 23,
+        "object_repr": "USA, United State of America",
+        "object_json_repr": "[{\"model\": \"master_setups.country\", \"pk\": 4, \"fields\": {\"created\": \"2021-04-27T11:13:32.246Z\", \"updated\": \"2021-04-27T11:13:32.246Z\", \"name\": \"United State of America\", \"code\": \"USA\"}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:13:33.853Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 40,
+    "fields": {
+        "event_type": 2,
+        "object_id": "1",
+        "content_type": 22,
+        "object_repr": "admin dev(admin@dev.com)",
+        "object_json_repr": "[{\"model\": \"master_setups.user\", \"pk\": 1, \"fields\": {\"password\": \"pbkdf2_sha256$150000$M96cCtnoKgxP$jZ/gm+eujd+eqhnpLORuIOiVui+BZ+kNpzYShuMDUxg=\", \"last_login\": \"2021-04-20T21:22:20Z\", \"is_superuser\": true, \"first_name\": \"admin\", \"last_name\": \"dev\", \"is_staff\": true, \"is_active\": true, \"date_joined\": \"2021-04-20T10:38:16Z\", \"role\": \"1\", \"username\": \"admin@dev.com\", \"email\": \"admin@dev.com\", \"city\": \"\", \"state\": \"\", \"zip\": \"\", \"country\": \"\", \"phone_no\": \"\", \"groups\": [], \"user_permissions\": []}}]",
+        "changed_fields": "{\"password\": [\"pbkdf2_sha256$150000$OrdhIVo5gOaE$Hv4kUm415vlaCRPQtTUhzaBz8GqShwf/8uDOZfopNX8=\", \"pbkdf2_sha256$150000$M96cCtnoKgxP$jZ/gm+eujd+eqhnpLORuIOiVui+BZ+kNpzYShuMDUxg=\"], \"last_login\": [\"2021-04-27 11:00:38.652429\", \"2021-04-20 21:22:20\"], \"date_joined\": [\"2021-04-27 11:00:04.394589\", \"2021-04-20 10:38:16\"], \"city\": [\"None\", \"\"], \"state\": [\"None\", \"\"], \"zip\": [\"None\", \"\"], \"country\": [\"None\", \"\"], \"phone_no\": [\"None\", \"\"]}",
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:14:37.605Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 41,
+    "fields": {
+        "event_type": 1,
+        "object_id": "2",
+        "content_type": 22,
+        "object_repr": "Country Manager(countrymanager@dev.com)",
+        "object_json_repr": "[{\"model\": \"master_setups.user\", \"pk\": 2, \"fields\": {\"password\": \"pbkdf2_sha256$150000$YfgCz8a4lBiY$GNEYmagObRtP9GAYAIHQb2UpQZvXjzKPCTTM6JOWGiU=\", \"last_login\": null, \"is_superuser\": false, \"first_name\": \"Country\", \"last_name\": \"Manager\", \"is_staff\": false, \"is_active\": true, \"date_joined\": \"2021-04-20T16:24:54Z\", \"role\": \"1\", \"username\": \"\", \"email\": \"countrymanager@dev.com\", \"city\": \"\", \"state\": \"\", \"zip\": \"\", \"country\": \"\", \"phone_no\": \"\", \"groups\": [], \"user_permissions\": []}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:14:37.691Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 42,
+    "fields": {
+        "event_type": 1,
+        "object_id": "2",
+        "content_type": 22,
+        "object_repr": "Country Manager(countrymanager@dev.com)",
+        "object_json_repr": "[{\"model\": \"master_setups.user\", \"pk\": 2, \"fields\": {\"password\": \"pbkdf2_sha256$150000$YfgCz8a4lBiY$GNEYmagObRtP9GAYAIHQb2UpQZvXjzKPCTTM6JOWGiU=\", \"last_login\": null, \"is_superuser\": false, \"first_name\": \"Country\", \"last_name\": \"Manager\", \"is_staff\": false, \"is_active\": true, \"date_joined\": \"2021-04-20T16:24:54Z\", \"role\": \"1\", \"username\": \"\", \"email\": \"countrymanager@dev.com\", \"city\": \"\", \"state\": \"\", \"zip\": \"\", \"country\": \"\", \"phone_no\": \"\", \"groups\": [], \"user_permissions\": []}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:15:21.809Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 43,
+    "fields": {
+        "event_type": 1,
+        "object_id": "2",
+        "content_type": 22,
+        "object_repr": "Country Manager(countrymanager@dev.com)",
+        "object_json_repr": "[{\"model\": \"master_setups.user\", \"pk\": 2, \"fields\": {\"password\": \"pbkdf2_sha256$150000$YfgCz8a4lBiY$GNEYmagObRtP9GAYAIHQb2UpQZvXjzKPCTTM6JOWGiU=\", \"last_login\": null, \"is_superuser\": false, \"first_name\": \"Country\", \"last_name\": \"Manager\", \"is_staff\": false, \"is_active\": true, \"date_joined\": \"2021-04-20T16:24:54Z\", \"role\": \"1\", \"username\": \"\", \"email\": \"countrymanager@dev.com\", \"city\": \"\", \"state\": \"\", \"zip\": \"\", \"country\": \"\", \"phone_no\": \"\", \"groups\": [], \"user_permissions\": []}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:15:56.913Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 44,
+    "fields": {
+        "event_type": 1,
+        "object_id": "2",
+        "content_type": 22,
+        "object_repr": " (countrymanager@dev.com)",
+        "object_json_repr": "[{\"model\": \"master_setups.user\", \"pk\": 2, \"fields\": {\"password\": \"pbkdf2_sha256$150000$fFw1u2wZEXH5$jZgYV0bwWN30ZhdZHUn1w5skcf9Scv3gdzRwzVnTBw4=\", \"last_login\": null, \"is_superuser\": false, \"first_name\": \"\", \"last_name\": \"\", \"is_staff\": false, \"is_active\": true, \"date_joined\": \"2021-04-27T11:17:15.589Z\", \"role\": \"1\", \"username\": null, \"email\": \"countrymanager@dev.com\", \"city\": null, \"state\": null, \"zip\": null, \"country\": null, \"phone_no\": null, \"groups\": [], \"user_permissions\": []}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:17:16.059Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 45,
+    "fields": {
+        "event_type": 1,
+        "object_id": "3",
+        "content_type": 22,
+        "object_repr": " (manager@dev.com)",
+        "object_json_repr": "[{\"model\": \"master_setups.user\", \"pk\": 3, \"fields\": {\"password\": \"pbkdf2_sha256$150000$oDrp8LkPDYqQ$f9KVLwjZiIN5etkdtKGYxFTyqIj3tH271R9VhljnQ3s=\", \"last_login\": null, \"is_superuser\": false, \"first_name\": \"\", \"last_name\": \"\", \"is_staff\": false, \"is_active\": true, \"date_joined\": \"2021-04-27T11:17:57.253Z\", \"role\": \"2\", \"username\": null, \"email\": \"manager@dev.com\", \"city\": null, \"state\": null, \"zip\": null, \"country\": null, \"phone_no\": null, \"groups\": [], \"user_permissions\": []}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:17:57.690Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 46,
+    "fields": {
+        "event_type": 1,
+        "object_id": "2",
+        "content_type": 25,
+        "object_repr": "user from Nepal",
+        "object_json_repr": "[{\"model\": \"master_setups.usercountry\", \"pk\": 2, \"fields\": {\"created\": \"2021-04-27T11:20:59.010Z\", \"updated\": \"2021-04-27T11:20:59.010Z\", \"country\": 3, \"user\": []}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:21:00.018Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 47,
+    "fields": {
+        "event_type": 4,
+        "object_id": "2",
+        "content_type": 25,
+        "object_repr": "user from Nepal",
+        "object_json_repr": "[{\"model\": \"master_setups.usercountry\", \"pk\": 2, \"fields\": {\"created\": \"2021-04-27T11:20:59.010Z\", \"updated\": \"2021-04-27T11:20:59.010Z\", \"country\": 3, \"user\": [1]}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:21:00.139Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 48,
+    "fields": {
+        "event_type": 1,
+        "object_id": "1",
+        "content_type": 25,
+        "object_repr": "user from Pakistan",
+        "object_json_repr": "[{\"model\": \"master_setups.usercountry\", \"pk\": 1, \"fields\": {\"created\": \"2021-04-27T11:20:59.589Z\", \"updated\": \"2021-04-27T11:20:59.589Z\", \"country\": 2, \"user\": []}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:21:00.222Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 49,
+    "fields": {
+        "event_type": 4,
+        "object_id": "1",
+        "content_type": 25,
+        "object_repr": "user from Pakistan",
+        "object_json_repr": "[{\"model\": \"master_setups.usercountry\", \"pk\": 1, \"fields\": {\"created\": \"2021-04-27T11:20:59.589Z\", \"updated\": \"2021-04-27T11:20:59.589Z\", \"country\": 2, \"user\": [1, 2, 3]}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:21:00.308Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 50,
+    "fields": {
+        "event_type": 1,
+        "object_id": "2",
+        "content_type": 25,
+        "object_repr": "user from Nepal",
+        "object_json_repr": "[{\"model\": \"master_setups.usercountry\", \"pk\": 2, \"fields\": {\"created\": \"2021-04-27T11:21:16.569Z\", \"updated\": \"2021-04-27T11:21:16.569Z\", \"country\": 3, \"user\": []}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:21:17.457Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 51,
+    "fields": {
+        "event_type": 4,
+        "object_id": "2",
+        "content_type": 25,
+        "object_repr": "user from Nepal",
+        "object_json_repr": "[{\"model\": \"master_setups.usercountry\", \"pk\": 2, \"fields\": {\"created\": \"2021-04-27T11:21:16.569Z\", \"updated\": \"2021-04-27T11:21:16.569Z\", \"country\": 3, \"user\": [1]}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:21:17.543Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 52,
+    "fields": {
+        "event_type": 1,
+        "object_id": "1",
+        "content_type": 25,
+        "object_repr": "user from Pakistan",
+        "object_json_repr": "[{\"model\": \"master_setups.usercountry\", \"pk\": 1, \"fields\": {\"created\": \"2021-04-27T11:21:17.063Z\", \"updated\": \"2021-04-27T11:21:17.063Z\", \"country\": 2, \"user\": []}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:21:17.618Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 53,
+    "fields": {
+        "event_type": 4,
+        "object_id": "1",
+        "content_type": 25,
+        "object_repr": "user from Pakistan",
+        "object_json_repr": "[{\"model\": \"master_setups.usercountry\", \"pk\": 1, \"fields\": {\"created\": \"2021-04-27T11:21:17.063Z\", \"updated\": \"2021-04-27T11:21:17.063Z\", \"country\": 2, \"user\": [1, 2, 3]}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:21:17.706Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 54,
+    "fields": {
+        "event_type": 2,
+        "object_id": "3",
+        "content_type": 22,
+        "object_repr": " (manager@dev.com)",
+        "object_json_repr": "[{\"model\": \"master_setups.user\", \"pk\": 3, \"fields\": {\"password\": \"pbkdf2_sha256$150000$oDrp8LkPDYqQ$f9KVLwjZiIN5etkdtKGYxFTyqIj3tH271R9VhljnQ3s=\", \"last_login\": \"2021-04-27T11:30:22.437Z\", \"is_superuser\": false, \"first_name\": \"\", \"last_name\": \"\", \"is_staff\": false, \"is_active\": true, \"date_joined\": \"2021-04-27T11:17:57.253Z\", \"role\": \"2\", \"username\": null, \"email\": \"manager@dev.com\", \"city\": null, \"state\": null, \"zip\": null, \"country\": null, \"phone_no\": null, \"groups\": [], \"user_permissions\": []}}]",
+        "changed_fields": "{\"last_login\": [\"None\", \"2021-04-27 11:30:22.437288\"]}",
+        "user": 3,
+        "user_pk_as_string": "3",
+        "datetime": "2021-04-27T11:30:22.587Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 55,
+    "fields": {
+        "event_type": 2,
+        "object_id": "1",
+        "content_type": 22,
+        "object_repr": "admin dev(admin@dev.com)",
+        "object_json_repr": "[{\"model\": \"master_setups.user\", \"pk\": 1, \"fields\": {\"password\": \"pbkdf2_sha256$150000$OrdhIVo5gOaE$Hv4kUm415vlaCRPQtTUhzaBz8GqShwf/8uDOZfopNX8=\", \"last_login\": \"2021-04-27T11:35:25.514Z\", \"is_superuser\": true, \"first_name\": \"admin\", \"last_name\": \"dev\", \"is_staff\": true, \"is_active\": true, \"date_joined\": \"2021-04-27T11:00:04.394Z\", \"role\": \"1\", \"username\": \"admin@dev.com\", \"email\": \"admin@dev.com\", \"city\": null, \"state\": null, \"zip\": null, \"country\": null, \"phone_no\": null, \"groups\": [], \"user_permissions\": []}}]",
+        "changed_fields": "{\"last_login\": [\"2021-04-27 11:00:38.652429\", \"2021-04-27 11:35:25.514338\"]}",
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:35:25.610Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 56,
+    "fields": {
+        "event_type": 1,
+        "object_id": "8",
+        "content_type": 24,
+        "object_repr": "BEVERAGES(BEV)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 8, \"fields\": {\"name\": \"BEVERAGES\", \"code\": \"BEV\", \"created\": \"2021-04-27T11:37:27.135Z\", \"updated\": \"2021-04-27T11:37:27.135Z\", \"country\": 2, \"description\": \"BEVERAGES\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:29.062Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 57,
+    "fields": {
+        "event_type": 1,
+        "object_id": "1",
+        "content_type": 24,
+        "object_repr": "FAST MOVING CONSUMER GOODS (FMCG)(FMCG)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 1, \"fields\": {\"name\": \"FAST MOVING CONSUMER GOODS (FMCG)\", \"code\": \"FMCG\", \"created\": \"2021-04-27T11:37:27.398Z\", \"updated\": \"2021-04-27T11:37:27.398Z\", \"country\": 2, \"description\": \"Contains all households categories\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:29.147Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 58,
+    "fields": {
+        "event_type": 1,
+        "object_id": "7",
+        "content_type": 24,
+        "object_repr": "FERTILIZER(FERT)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 7, \"fields\": {\"name\": \"FERTILIZER\", \"code\": \"FERT\", \"created\": \"2021-04-27T11:37:27.598Z\", \"updated\": \"2021-04-27T11:37:27.598Z\", \"country\": 2, \"description\": \"FERTILIZER\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:29.230Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 59,
+    "fields": {
+        "event_type": 1,
+        "object_id": "10",
+        "content_type": 24,
+        "object_repr": "HIGH SALES VOLUMES(HSV)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 10, \"fields\": {\"name\": \"HIGH SALES VOLUMES\", \"code\": \"HSV\", \"created\": \"2021-04-27T11:37:27.800Z\", \"updated\": \"2021-04-27T11:37:27.800Z\", \"country\": 2, \"description\": \"HIGH SALES VOLUMES\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:29.314Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 60,
+    "fields": {
+        "event_type": 1,
+        "object_id": "11",
+        "content_type": 24,
+        "object_repr": "INFANTS(INF)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 11, \"fields\": {\"name\": \"INFANTS\", \"code\": \"INF\", \"created\": \"2021-04-27T11:37:27.998Z\", \"updated\": \"2021-04-27T11:37:27.998Z\", \"country\": 2, \"description\": \"INFANTS\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:29.398Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 61,
+    "fields": {
+        "event_type": 1,
+        "object_id": "6",
+        "content_type": 24,
+        "object_repr": "LUBRICANT(LUB)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 6, \"fields\": {\"name\": \"LUBRICANT\", \"code\": \"LUB\", \"created\": \"2021-04-27T11:37:28.199Z\", \"updated\": \"2021-04-27T11:37:28.199Z\", \"country\": 2, \"description\": \"LUBRICANT\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:29.471Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 62,
+    "fields": {
+        "event_type": 1,
+        "object_id": "12",
+        "content_type": 24,
+        "object_repr": "MILKS(MLK)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 12, \"fields\": {\"name\": \"MILKS\", \"code\": \"MLK\", \"created\": \"2021-04-27T11:37:28.476Z\", \"updated\": \"2021-04-27T11:37:28.476Z\", \"country\": 2, \"description\": \"PESTEURIZED, LIQUID, NON-INFANTS\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:29.650Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 63,
+    "fields": {
+        "event_type": 1,
+        "object_id": "9",
+        "content_type": 24,
+        "object_repr": "NATIONAL(NAT)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 9, \"fields\": {\"name\": \"NATIONAL\", \"code\": \"NAT\", \"created\": \"2021-04-27T11:37:28.698Z\", \"updated\": \"2021-04-27T11:37:28.698Z\", \"country\": 2, \"description\": \"ALL FMCG+BEVERAGES+FERTILIZER+TOBACCO\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:29.748Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 64,
+    "fields": {
+        "event_type": 1,
+        "object_id": "5",
+        "content_type": 24,
+        "object_repr": "TOBACCO(CIG)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 5, \"fields\": {\"name\": \"TOBACCO\", \"code\": \"CIG\", \"created\": \"2021-04-27T11:37:28.899Z\", \"updated\": \"2021-04-27T11:37:28.899Z\", \"country\": 2, \"description\": \"CIGARETTE\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:29.828Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 65,
+    "fields": {
+        "event_type": 1,
+        "object_id": "8",
+        "content_type": 24,
+        "object_repr": "BEVERAGES(BEV)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 8, \"fields\": {\"name\": \"BEVERAGES\", \"code\": \"BEV\", \"created\": \"2021-04-27T11:37:33.639Z\", \"updated\": \"2021-04-27T11:37:33.639Z\", \"country\": 2, \"description\": \"BEVERAGES\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:35.611Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 66,
+    "fields": {
+        "event_type": 1,
+        "object_id": "1",
+        "content_type": 24,
+        "object_repr": "FAST MOVING CONSUMER GOODS (FMCG)(FMCG)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 1, \"fields\": {\"name\": \"FAST MOVING CONSUMER GOODS (FMCG)\", \"code\": \"FMCG\", \"created\": \"2021-04-27T11:37:33.897Z\", \"updated\": \"2021-04-27T11:37:33.897Z\", \"country\": 2, \"description\": \"Contains all households categories\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:35.710Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 67,
+    "fields": {
+        "event_type": 1,
+        "object_id": "7",
+        "content_type": 24,
+        "object_repr": "FERTILIZER(FERT)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 7, \"fields\": {\"name\": \"FERTILIZER\", \"code\": \"FERT\", \"created\": \"2021-04-27T11:37:34.097Z\", \"updated\": \"2021-04-27T11:37:34.097Z\", \"country\": 2, \"description\": \"FERTILIZER\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:35.813Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 68,
+    "fields": {
+        "event_type": 1,
+        "object_id": "10",
+        "content_type": 24,
+        "object_repr": "HIGH SALES VOLUMES(HSV)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 10, \"fields\": {\"name\": \"HIGH SALES VOLUMES\", \"code\": \"HSV\", \"created\": \"2021-04-27T11:37:34.297Z\", \"updated\": \"2021-04-27T11:37:34.297Z\", \"country\": 2, \"description\": \"HIGH SALES VOLUMES\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:35.898Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 69,
+    "fields": {
+        "event_type": 1,
+        "object_id": "11",
+        "content_type": 24,
+        "object_repr": "INFANTS(INF)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 11, \"fields\": {\"name\": \"INFANTS\", \"code\": \"INF\", \"created\": \"2021-04-27T11:37:34.497Z\", \"updated\": \"2021-04-27T11:37:34.497Z\", \"country\": 2, \"description\": \"INFANTS\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:36.012Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 70,
+    "fields": {
+        "event_type": 1,
+        "object_id": "6",
+        "content_type": 24,
+        "object_repr": "LUBRICANT(LUB)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 6, \"fields\": {\"name\": \"LUBRICANT\", \"code\": \"LUB\", \"created\": \"2021-04-27T11:37:34.709Z\", \"updated\": \"2021-04-27T11:37:34.709Z\", \"country\": 2, \"description\": \"LUBRICANT\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:36.140Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 71,
+    "fields": {
+        "event_type": 1,
+        "object_id": "12",
+        "content_type": 24,
+        "object_repr": "MILKS(MLK)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 12, \"fields\": {\"name\": \"MILKS\", \"code\": \"MLK\", \"created\": \"2021-04-27T11:37:34.996Z\", \"updated\": \"2021-04-27T11:37:34.996Z\", \"country\": 2, \"description\": \"PESTEURIZED, LIQUID, NON-INFANTS\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:36.222Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 72,
+    "fields": {
+        "event_type": 1,
+        "object_id": "9",
+        "content_type": 24,
+        "object_repr": "NATIONAL(NAT)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 9, \"fields\": {\"name\": \"NATIONAL\", \"code\": \"NAT\", \"created\": \"2021-04-27T11:37:35.209Z\", \"updated\": \"2021-04-27T11:37:35.209Z\", \"country\": 2, \"description\": \"ALL FMCG+BEVERAGES+FERTILIZER+TOBACCO\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:36.317Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 73,
+    "fields": {
+        "event_type": 1,
+        "object_id": "5",
+        "content_type": 24,
+        "object_repr": "TOBACCO(CIG)",
+        "object_json_repr": "[{\"model\": \"master_setups.indexsetup\", \"pk\": 5, \"fields\": {\"name\": \"TOBACCO\", \"code\": \"CIG\", \"created\": \"2021-04-27T11:37:35.420Z\", \"updated\": \"2021-04-27T11:37:35.420Z\", \"country\": 2, \"description\": \"CIGARETTE\", \"is_active\": true}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:37:36.415Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 74,
+    "fields": {
+        "event_type": 1,
+        "object_id": "1",
+        "content_type": 28,
+        "object_repr": "PK, Pakistan :: admin@dev.com",
+        "object_json_repr": "[{\"model\": \"master_setups.userindex\", \"pk\": 1, \"fields\": {\"created\": \"2021-04-27T11:49:13.802Z\", \"updated\": \"2021-04-27T11:49:13.802Z\", \"country\": 2, \"user\": 1, \"user_index\": []}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:49:14.232Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 75,
+    "fields": {
+        "event_type": 4,
+        "object_id": "1",
+        "content_type": 28,
+        "object_repr": "PK, Pakistan :: admin@dev.com",
+        "object_json_repr": "[{\"model\": \"master_setups.userindex\", \"pk\": 1, \"fields\": {\"created\": \"2021-04-27T11:49:13.802Z\", \"updated\": \"2021-04-27T11:49:13.802Z\", \"country\": 2, \"user\": 1, \"user_index\": [8, 1, 7, 10, 11, 6, 12, 9, 5]}}]",
+        "changed_fields": null,
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:49:14.325Z"
+    }
+},
+{
+    "model": "easyaudit.crudevent",
+    "pk": 76,
+    "fields": {
+        "event_type": 2,
+        "object_id": "1",
+        "content_type": 22,
+        "object_repr": "admin dev(admin@dev.com)",
+        "object_json_repr": "[{\"model\": \"master_setups.user\", \"pk\": 1, \"fields\": {\"password\": \"pbkdf2_sha256$150000$OrdhIVo5gOaE$Hv4kUm415vlaCRPQtTUhzaBz8GqShwf/8uDOZfopNX8=\", \"last_login\": \"2021-04-27T11:54:07.791Z\", \"is_superuser\": true, \"first_name\": \"admin\", \"last_name\": \"dev\", \"is_staff\": true, \"is_active\": true, \"date_joined\": \"2021-04-27T11:00:04.394Z\", \"role\": \"1\", \"username\": \"admin@dev.com\", \"email\": \"admin@dev.com\", \"city\": null, \"state\": null, \"zip\": null, \"country\": null, \"phone_no\": null, \"groups\": [], \"user_permissions\": []}}]",
+        "changed_fields": "{\"last_login\": [\"2021-04-27 11:35:25.514338\", \"2021-04-27 11:54:07.791308\"]}",
+        "user": 1,
+        "user_pk_as_string": "1",
+        "datetime": "2021-04-27T11:54:07.879Z"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 1,
+    "fields": {
+        "action_time": "2021-04-27T11:05:54.794Z",
+        "user": 1,
+        "content_type": 1,
+        "object_id": "2",
+        "object_repr": "Insights Labz",
+        "action_flag": 1,
+        "change_message": "[{\"added\": {}}]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 2,
+    "fields": {
+        "action_time": "2021-04-27T11:06:30.980Z",
+        "user": 1,
+        "content_type": 1,
+        "object_id": "2",
+        "object_repr": "Insights Labz",
+        "action_flag": 2,
+        "change_message": "[{\"changed\": {\"fields\": [\"title\"]}}]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 3,
+    "fields": {
+        "action_time": "2021-04-27T11:07:07.708Z",
+        "user": 1,
+        "content_type": 1,
+        "object_id": "2",
+        "object_repr": "Insights Labz",
+        "action_flag": 2,
+        "change_message": "[{\"changed\": {\"fields\": [\"title\", \"css_header_background_color\"]}}]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 4,
+    "fields": {
+        "action_time": "2021-04-27T11:07:48.979Z",
+        "user": 1,
+        "content_type": 1,
+        "object_id": "2",
+        "object_repr": "Insights Labz",
+        "action_flag": 2,
+        "change_message": "[{\"changed\": {\"fields\": [\"css_header_background_color\", \"css_header_text_color\"]}}]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 5,
+    "fields": {
+        "action_time": "2021-04-27T11:13:33.911Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "11",
+        "object_repr": "AFG, AFGHANISTAN",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 6,
+    "fields": {
+        "action_time": "2021-04-27T11:13:33.929Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "14",
+        "object_repr": "AUS, AUSTRALIA",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 7,
+    "fields": {
+        "action_time": "2021-04-27T11:13:33.944Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "8",
+        "object_repr": "CHN, CHINA",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 8,
+    "fields": {
+        "action_time": "2021-04-27T11:13:33.977Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "15",
+        "object_repr": "GER, GERMANY",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 9,
+    "fields": {
+        "action_time": "2021-04-27T11:13:33.990Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "1",
+        "object_repr": "IND, India",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 10,
+    "fields": {
+        "action_time": "2021-04-27T11:13:34.003Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "10",
+        "object_repr": "IRA, IRAN",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 11,
+    "fields": {
+        "action_time": "2021-04-27T11:13:34.027Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "7",
+        "object_repr": "JAP, JAPAN",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 12,
+    "fields": {
+        "action_time": "2021-04-27T11:13:34.042Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "3",
+        "object_repr": "NP, Nepal",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 13,
+    "fields": {
+        "action_time": "2021-04-27T11:13:34.055Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "2",
+        "object_repr": "PK, Pakistan",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 14,
+    "fields": {
+        "action_time": "2021-04-27T11:13:34.074Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "13",
+        "object_repr": "QAT, QATAR",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 15,
+    "fields": {
+        "action_time": "2021-04-27T11:13:34.087Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "9",
+        "object_repr": "RUS, RUSSIA",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 16,
+    "fields": {
+        "action_time": "2021-04-27T11:13:34.100Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "6",
+        "object_repr": "KSA, SAUDIA ARABIA",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 17,
+    "fields": {
+        "action_time": "2021-04-27T11:13:34.128Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "16",
+        "object_repr": "SAF, SOUTH AFRICA",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 18,
+    "fields": {
+        "action_time": "2021-04-27T11:13:34.143Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "17",
+        "object_repr": "UKR, UKRAIN",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 19,
+    "fields": {
+        "action_time": "2021-04-27T11:13:34.176Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "5",
+        "object_repr": "UAE, United Arab Emarates",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 20,
+    "fields": {
+        "action_time": "2021-04-27T11:13:34.189Z",
+        "user": 1,
+        "content_type": 23,
+        "object_id": "4",
+        "object_repr": "USA, United State of America",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 21,
+    "fields": {
+        "action_time": "2021-04-27T11:17:15.859Z",
+        "user": 1,
+        "content_type": 22,
+        "object_id": "2",
+        "object_repr": " (countrymanager@dev.com)",
+        "action_flag": 1,
+        "change_message": "[{\"added\": {}}]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 22,
+    "fields": {
+        "action_time": "2021-04-27T11:17:57.540Z",
+        "user": 1,
+        "content_type": 22,
+        "object_id": "3",
+        "object_repr": " (manager@dev.com)",
+        "action_flag": 1,
+        "change_message": "[{\"added\": {}}]"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 23,
+    "fields": {
+        "action_time": "2021-04-27T11:21:17.760Z",
+        "user": 1,
+        "content_type": 25,
+        "object_id": "2",
+        "object_repr": "user from Nepal",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 24,
+    "fields": {
+        "action_time": "2021-04-27T11:21:17.795Z",
+        "user": 1,
+        "content_type": 25,
+        "object_id": "1",
+        "object_repr": "user from Pakistan",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 25,
+    "fields": {
+        "action_time": "2021-04-27T11:37:36.461Z",
+        "user": 1,
+        "content_type": 24,
+        "object_id": "8",
+        "object_repr": "BEVERAGES(BEV)",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 26,
+    "fields": {
+        "action_time": "2021-04-27T11:37:36.473Z",
+        "user": 1,
+        "content_type": 24,
+        "object_id": "1",
+        "object_repr": "FAST MOVING CONSUMER GOODS (FMCG)(FMCG)",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 27,
+    "fields": {
+        "action_time": "2021-04-27T11:37:36.504Z",
+        "user": 1,
+        "content_type": 24,
+        "object_id": "7",
+        "object_repr": "FERTILIZER(FERT)",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 28,
+    "fields": {
+        "action_time": "2021-04-27T11:37:36.518Z",
+        "user": 1,
+        "content_type": 24,
+        "object_id": "10",
+        "object_repr": "HIGH SALES VOLUMES(HSV)",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 29,
+    "fields": {
+        "action_time": "2021-04-27T11:37:36.547Z",
+        "user": 1,
+        "content_type": 24,
+        "object_id": "11",
+        "object_repr": "INFANTS(INF)",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 30,
+    "fields": {
+        "action_time": "2021-04-27T11:37:36.559Z",
+        "user": 1,
+        "content_type": 24,
+        "object_id": "6",
+        "object_repr": "LUBRICANT(LUB)",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 31,
+    "fields": {
+        "action_time": "2021-04-27T11:37:36.571Z",
+        "user": 1,
+        "content_type": 24,
+        "object_id": "12",
+        "object_repr": "MILKS(MLK)",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 32,
+    "fields": {
+        "action_time": "2021-04-27T11:37:36.600Z",
+        "user": 1,
+        "content_type": 24,
+        "object_id": "9",
+        "object_repr": "NATIONAL(NAT)",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 33,
+    "fields": {
+        "action_time": "2021-04-27T11:37:36.613Z",
+        "user": 1,
+        "content_type": 24,
+        "object_id": "5",
+        "object_repr": "TOBACCO(CIG)",
+        "action_flag": 1,
+        "change_message": "new through import_export"
+    }
+},
+{
+    "model": "admin.logentry",
+    "pk": 34,
+    "fields": {
+        "action_time": "2021-04-27T11:49:14.111Z",
+        "user": 1,
+        "content_type": 28,
+        "object_id": "1",
+        "object_repr": "PK, Pakistan :: admin@dev.com",
+        "action_flag": 1,
+        "change_message": "[{\"added\": {}}]"
+    }
+}
+]

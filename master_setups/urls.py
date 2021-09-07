@@ -12,6 +12,17 @@ urlpatterns = [
 
 ]
 
+""" Code Frame"""
+urlpatterns += [
+    # path('<slug:country_code>/region-type-list-ajax/', RegionTypeListViewAjax.as_view(), name='region-type-list-ajax'),
+    path('<slug:country_code>/code-frame-list/', CodeFrameListView.as_view(), name='code-frame-list'),
+    # path('<slug:country_code>/region-type-create/', RegionTypeCreateView.as_view(), name='region-type-create'),
+    # path('<slug:country_code>/region-type-update/<int:pk>', RegionTypeUpdateView.as_view(), name='region-type-update'),
+    # path('<slug:country_code>/region-type-delete/<int:pk>', RegionTypeDeleteView.as_view(), name='region-type-delete'),
+    path('<slug:country_code>/code-frame-import/', CodeFrameImportView.as_view(), name='code-frame-import'),
+]
+
+
 """ Region Type"""
 urlpatterns += [
     path('<slug:country_code>/region-type-list-ajax/', RegionTypeListViewAjax.as_view(), name='region-type-list-ajax'),
@@ -19,6 +30,7 @@ urlpatterns += [
     path('<slug:country_code>/region-type-create/', RegionTypeCreateView.as_view(), name='region-type-create'),
     path('<slug:country_code>/region-type-update/<int:pk>', RegionTypeUpdateView.as_view(), name='region-type-update'),
     path('<slug:country_code>/region-type-delete/<int:pk>', RegionTypeDeleteView.as_view(), name='region-type-delete'),
+    path('<slug:country_code>/region-type-import/', RegionTypeImportView.as_view(), name='region-type-import'),
 ]
 
 
@@ -29,7 +41,18 @@ urlpatterns += [
     path('<slug:country_code>/region-create/', RegionCreateView.as_view(), name='region-create'),
     path('<slug:country_code>/region-update/<int:pk>', RegionUpdateView.as_view(), name='region-update'),
     path('<slug:country_code>/region-delete/<int:pk>', RegionDeleteView.as_view(), name='region-delete'),
+    path('<slug:country_code>/region-import/', RegionImportView.as_view(), name='region-import'),
 ]
+
+""" Month """
+urlpatterns += [
+    path('<slug:country_code>/month-list-ajax/', MonthListViewAjax.as_view(), name='month-list-ajax'),
+    path('<slug:country_code>/month-list/', MonthListView.as_view(), name='month-list'),
+    path('<slug:country_code>/month-create/', MonthCreateView.as_view(), name='month-create'),
+    path('<slug:country_code>/month-update/<int:pk>', MonthUpdateView.as_view(), name='month-update'),
+    path('<slug:country_code>/month-delete/<int:pk>', MonthDeleteView.as_view(), name='month-delete'),
+]
+
 
 """ Index Setup """
 urlpatterns += [
@@ -37,15 +60,6 @@ urlpatterns += [
     path('<slug:country_code>/indexsetup-create/', IndexSetupCreateView.as_view(), name='indexsetup-create'),
     path('<slug:country_code>/indexsetup-update/<int:pk>', IndexSetupUpdateView.as_view(), name='indexsetup-update'),
     path('<slug:country_code>/indexsetup-delete/<int:pk>', IndexSetupDeleteView.as_view(), name='indexsetup-delete'),
-]
-
-""" Category """
-urlpatterns += [
-    path('<slug:country_code>/category-list-ajax/', CategoryListViewAjax.as_view(), name='category-list-ajax'),
-    path('<slug:country_code>/category-list/', CategoryListView.as_view(), name='category-list'),
-    path('<slug:country_code>/category-create/', CategoryCreateView.as_view(), name='category-create'),
-    path('<slug:country_code>/category-update/<int:pk>', CategoryUpdateView.as_view(), name='category-update'),
-    path('<slug:country_code>/category-delete/<int:pk>', CategoryDeleteView.as_view(), name='category-delete'),
 ]
 
 

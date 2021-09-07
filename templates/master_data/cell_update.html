@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block action_buttons %}
+{% endblock action_buttons %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card m-b-30">
+            <div class="card-body">
+                <form name="frm1" id="frm1" action="" method="POST">
+
+                    {% csrf_token %}
+                    {{ form|crispy }}
+
+                    <div id="accordion">
+                        {{ cell_qs.condition_html|safe}}
+                    </div>
+
+                    <textarea id="condition_html" name="condition_html" style="visibility: hidden;"></textarea>
+                    <input type="text" id="serialize_str" name="serialize_str" value="" style="visibility: hidden;" />
+
+                    <div class="col-12">
+                        <button class="btn btn-warning btn-block btn-lg waves-effect" type="button"
+                            id="btn_filter">Filter</button>
+                    </div>
+
+                    <section>
+                        <div class="container-fluid">
+                            <div id="result-count" class="text-right">
+                                <span class='font-weight-bold'></span> results found.
+                            </div>
+                            <div class="row properties_table justify-content-center">
+                                <div id="no_results">
+                                    <h5>No results found</h5>
+                                </div>
+                                <div class="table-responsive">
+                                    <table
+                                        class="table datatable table table-striped table-bordered dt-responsive nowrap"
+                                        id="list_data" data-toggle="table"
+                                        url="{% url 'master-data:panel-profile-cell-list-json'  country_code=global.country_code pk=object.pk %}">
+                                        <tbody id="listing">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row justify-content-center">
+                                <nav aria-label="navigation">
+                                    <ul class="pagination">
+                                        <li class="page-item">
+                                            <button type="button" class="btn btn-primary page-link"
+                                                id="previous">Previous</button>
+                                        </li>
+                                        <li class="page-item pull-right">
+                                            <button type="button" class="btn btn-primary page-link"
+                                                id="next">Next</button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </section>
+
+
+                    <div class="row">
+                        <div class="col-6">
+                            <button class="btn btn-warning btn-block btn-lg waves-effect" type="button"
+                                onClick="javascript:history.go(-1);">Cancel</button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-primary btn-block btn-lg waves-effect" type="submit">Update</button>
+                        </div>
+                    </div>
+
+                </form>
+
+
+            </div>
+        </div>
+    </div> <!-- end col -->
+</div> <!-- end row -->
+{% endblock content %}
+{% block javascripts %}
+<script src="{% static 'assets/js/rbd.js' %}"></script>
+<script language="javascript">
+</script>
+{% endblock javascripts %}
