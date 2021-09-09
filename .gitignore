@@ -1,4 +1,6 @@
-media/masterdata/
+/media/masterdata/
+/to_import/
+/backups/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
