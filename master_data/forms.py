@@ -62,36 +62,16 @@ class CategoryModelForm(forms.ModelForm):
         fields = ('name','code', 'parent', 'description', 'is_active', )
 
 class OutletTypeModelForm(forms.ModelForm):
-    #
-    # def __init__(self, category = None, *args, **kwargs):
-    #     self.request = kwargs.pop("request")
-    #     super(OutletTypeModelForm, self).__init__(*args, **kwargs)
-    #     country_code = self.request.session.get('country_code')
-    #     # category = forms.ModelChoiceField(queryset=)
-    #     qs_category = Category.objects.filter(country__code=country_code)
-    #     self.fields['category'].queryset = qs_category
     class Meta:
         model = OutletType
         fields = ('name','code', 'parent','urbanity' ,'description', 'is_active', )
-        # self.fields['category'].queryset = Category.objects.filter(country__code = request.session['country_code'])
 
-        # print(args,self)
-    # def __init__(self, *args, **kwargs):
-        # country_code = kwargs.pop('country_code')
 
-        # self.category = forms.ModelChoiceField(queryset=Category.objects.filter(country__code=country_code))
+class OutletStatusModelForm(forms.ModelForm):
+    class Meta:
+        model = OutletStatus
+        fields = ('name','code', )
 
-        # widgets ={
-        #     "category": CategoryWidget,
-        #     "parent" : OutletTypeWidget,
-        # }
-
-    # def __init__(self, user, *args, **kwargs):
-    #     print(self.data,args,kwargs,user)
-    #     # super(OutletTypeModelForm, self).__init__(*args, **kwargs)
-    #     self.fields['category'].queryset = Category.objects.filter(
-    #         country__code='PK'
-    #     )
 
 class RBDModelForm(forms.ModelForm):
     MAX_TREE_DEPTH = 1

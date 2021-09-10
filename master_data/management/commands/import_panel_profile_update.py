@@ -15,7 +15,9 @@ from master_data.models import *
 from master_setups.models import *
 from core.colors import Colors
 from core.settings import MEDIA_ROOT
+from core.utils import cdebug, csvHeadClean,printr,replaceIndex,convertSecond2Min
 
+logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 def printr(str):
@@ -58,10 +60,7 @@ class Command(BaseCommand):
 
                     month = row['month']
                     year = row['year']
-                    # index = row['index']
-                    # outlet_code = row['outlet_code']
-                    # audit_date = row['audit_date']
-                    # outlet_type_code = row['outlet_type_code']
+
 
                     """ Select Month """
                     ymd = parser.parse('1 '+str(month)+' '+str(year))

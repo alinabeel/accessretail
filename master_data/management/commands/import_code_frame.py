@@ -41,7 +41,6 @@ class Command(BaseCommand):
         country = Country.objects.get(pk=upload.country.id)
         log = ""
 
-        # TODO: Add refresh functionality
         if(upload.import_mode == Upload.REFRESH):
             Province.objects.filter(country=upload.country).delete()
             District.objects.filter(country=upload.country).delete()

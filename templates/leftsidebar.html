@@ -44,6 +44,8 @@
                             <li><a href="{% url 'master-setups:indexsetup-list' country_code=global.country_code %}">Index Setup</a></li>
                             <li><a href="{% url 'master-data:category-list' country_code=global.country_code %}">Categories</a></li>
                             <li><a href="{% url 'master-setups:indexcategory-list' country_code=global.country_code %}">Index Category</a></li>
+                            <li><a href="{% url 'master-data:outlet-type-list' country_code=global.country_code %}">Channel/ Outlet Type</a></li>
+                            <li><a href="{% url 'master-setups:outlet-status-list' country_code=global.country_code %}">Outlet Status</a></li>
                             <li><a href="{% url 'master-setups:month-list' country_code=global.country_code  %}">Months</a></li>
                             <li><a href="{% url 'master-setups:threshold' country_code=global.country_code  %}">Threshold</a></li>
                         </ul>
@@ -56,8 +58,6 @@
 
                         <ul class="submenu">
                             <li><a href="{% url 'master-data:census-list' country_code=global.country_code %}">Census</a></li>
-
-                            <li><a href="{% url 'master-data:outlet-type-list' country_code=global.country_code %}">Channel/ Outlet Type</a></li>
                             <li><a href="{% url 'master-data:panel-profile-list' country_code=global.country_code %}">Panel</a></li>
                             <li><a href="{% url 'master-data:rbd-list' country_code=global.country_code %}">RBD</a></li>
                             <li><a href="{% url 'master-data:cell-list' country_code=global.country_code %}">Cell</a></li>

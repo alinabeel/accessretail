@@ -91,6 +91,18 @@ urlpatterns += [
     path('<slug:country_code>/usercountry-update/<int:pk>', UserCountryUpdateView.as_view(), name='usercountry-update'),
 ]
 
+
+
+""" Outlet Status """
+urlpatterns += [
+    path('<slug:country_code>/outlet-status-list-ajax/', OutletStatusListViewAjax.as_view(), name='outlet-status-list-ajax'),
+    path('<slug:country_code>/outlet-status-list/', OutletStatusListView.as_view(), name='outlet-status-list'),
+    path('<slug:country_code>/outlet-status-create/', OutletStatusCreateView.as_view(), name='outlet-status-create'),
+    path('<slug:country_code>/outlet-status-update/<int:pk>', OutletStatusUpdateView.as_view(), name='outlet-status-update'),
+    path('<slug:country_code>/outlet-status-delete/<int:pk>', OutletStatusDeleteView.as_view(), name='outlet-status-delete'),
+]
+
+
 """ Threshold """
 urlpatterns += [
     path('<slug:country_code>/threshold/', ThresholdListView.as_view(), name='threshold'),

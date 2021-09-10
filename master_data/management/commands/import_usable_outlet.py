@@ -9,10 +9,13 @@ from django.db.models import Q
 from django.utils.dateparse import parse_date
 from django.core.management.base import BaseCommand
 from csv import DictReader
+
 from master_data.models import *
 from master_setups.models import *
+
 from core.colors import Colors
 from core.settings import MEDIA_ROOT
+from core.utils import cdebug, csvHeadClean,printr,replaceIndex,convertSecond2Min
 
 logger = logging.getLogger(__name__)
 def printr(str):
@@ -45,46 +48,48 @@ class Command(BaseCommand):
                 created_records = 0
                 for row in csv_reader:
                     # printr(n,end=' ',flush=True)
-                    row = {k.strip(): v.strip() for (k, v) in row.items()}
+                    row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
 
-                    month = row['month']
-                    year = row['year']
-                    index = row['index_code']
+                    # month = row['month']
+                    # year = row['year']
+                    month_code = row['month_code']
+                    index = row['index']
                     outlet_code = row['outlet_code']
                     row["upload"] = upload
 
-                    del row["month"]
-                    del row["year"]
-                    del row["index_code"]
+                    # del row["month"]
+                    # del row["year"]
+                    del row["month_code"]
+                    del row["index"]
                     del row["outlet_code"]
 
 
-                    """ Select Month OR Create """
-                    ymd = parser.parse('1 '+str(month)+' '+str(year))
-                    mcode = ymd.strftime("%b").upper() + ymd.strftime("%y")
-                    """Get or Create Outlet Month"""
-                    month_obj, created = Month.objects.get_or_create(
-                        country=upload.country, code=mcode,
-                        defaults={
-                            'code':mcode,
-                            'name':ymd.strftime("%B"),
-                            'month':ymd.strftime("%m"),
-                            'year':ymd.strftime("%Y")
-                        },
-                    )
+
+                    try:
+                        month_obj = Month.objects.get(country=country, code=month_code)
+                    except Month.DoesNotExist:
+                        month_obj = None
+                        log += ('month code not exist, csv row: '+ str(n))
+                        skiped_records += 1
+                        continue
 
                     row['month'] = month_obj
 
 
                     """ Select Inex or Skip  """
-                    try:
-                        index_qs = IndexSetup.objects.filter(
-                                            Q(country=upload.country) &
-                                            Q(code=index) | Q(name=index)).get()
-                    except IndexSetup.DoesNotExist:
-                        index_qs = None
-                        log += printr('Index code not exist: '+index)
+                    index_qs = None
+                    if(index != ''):
+                        try:
+                            index_qs = IndexSetup.objects.filter(
+                                                Q(country=upload.country) &
+                                                Q(code__iexact = index)).get()
+                        except IndexSetup.DoesNotExist:
+                            log += printr('index code not exist: '+index)
+                            skiped_records+=1
+                            continue
+                    else:
                         skiped_records+=1
+                        log += printr('index code is empty: '+index)
                         continue
 
                     row['index'] = index_qs
@@ -99,6 +104,9 @@ class Command(BaseCommand):
                         continue
 
                     row['outlet'] = outlet_obj
+
+
+
 
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
                         """In this case, if the Person already exists, its existing name is preserved"""

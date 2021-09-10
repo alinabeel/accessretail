@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from datetime import datetime
+from datetime import date, datetime
 import time, os, signal,logging,json
 from time import strptime
 from sys import stdout, stdin, stderr
@@ -35,9 +35,10 @@ from master_setups.forms import UserCreateModelForm,UserChangeModelForm,CountryM
 
 from master_data.models import Upload,RegionType,Region,Category,IndexCategory,OutletType,Outlet, \
                                 CensusManager,Census,Month,UsableOutlet,PanelProfile,Product,ProductAudit, \
-                                RBD,Cell,Province,District,Tehsil,CityVillage,ColLabel
+                                RBD,Cell,Province,District,Tehsil,CityVillage,ColLabel,OutletStatus
 from master_data.forms import UploadCensusForm,CensusForm,UploadModalForm,UploadFormUpdate,CategoryListFormHelper, \
-                                CategoryModelForm,OutletTypeModelForm,RBDModelForm,CellModelForm,UsableOutletModelForm
+                                CategoryModelForm,OutletTypeModelForm,RBDModelForm,CellModelForm,UsableOutletModelForm, \
+                                OutletStatusModelForm
 from ajax_datatable.views import AjaxDatatableView
 
 
@@ -1027,7 +1028,6 @@ class MonthListViewAjax(AjaxDatatableView):
         {'name': 'month',  'choices': True, 'autofilter': True,  },
         {'name': 'year',  'choices': True, 'autofilter': True,  },
         {'name': 'is_locked',  'choices': True, 'autofilter': True,},
-        {'name': 'is_current_month',  'choices': True, 'autofilter': True,},
 
         {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
     ]
@@ -1088,7 +1088,7 @@ class MonthCreateView(LoginRequiredMixin, generic.CreateView):
     def form_valid(self, form):
         print(self.request.POST.get("is_current_month"))
         month_name = self.request.POST.get("name")
-        month_number = strptime(month_name,'%b').tm_mon
+        month_number = datetime.strptime(month_name, '%B').month
         country = Country.objects.get(code=self.kwargs["country_code"])
         form_obj = form.save(commit=False)
         form_obj.country = country
@@ -1113,7 +1113,7 @@ class MonthUpdateView(LoginRequiredMixin, generic.UpdateView):
     def form_valid(self, form):
         print(self.request.POST.get("is_current_month"))
         month_name = self.request.POST.get("name")
-        month_number = strptime(month_name,'%b').tm_mon
+        month_number = datetime.strptime(month_name, '%B').month
         country = Country.objects.get(code=self.kwargs["country_code"])
 
         form_obj = form.save(commit=False)
@@ -1261,10 +1261,131 @@ class CodeFrameListViewAjax(AjaxDatatableView):
 
     def get_initial_queryset(self, request=None):
 
+        queryset = self.model.objects.filter(
+            country__code=self.kwargs['country_code']
+        )
+        return queryset
 
 
+""" ------------------------- OutletStatus ------------------------- """
+class OutletStatusListViewAjax(AjaxDatatableView):
+    model = OutletStatus
+    title = 'Outlet Status'
+    initial_order = [["code", "asc"], ]
+    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
+    search_values_separator = '+'
+
+
+    column_defs = [
+         AjaxDatatableView.render_row_tools_column_def(),
+        {'name': 'id', 'visible': False, },
+        {'name': 'code',  },
+        {'name': 'name',  },
+        {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
+    ]
+
+    def customize_row(self, row, obj):
+            row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
+                             '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+                    reverse('master-setups:outlet-status-update', args=(self.kwargs['country_code'],obj.id,)),
+                    reverse('master-setups:outlet-status-delete', args=(self.kwargs['country_code'],obj.id,)),
+                )
+                # <a href="{1}" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
+
+
+    def get_initial_queryset(self, request=None):
 
         queryset = self.model.objects.filter(
             country__code=self.kwargs['country_code']
+        )
+        return queryset
+
+
+
+class OutletStatusListView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "master_data/outlet_status_list.html"
+    PAGE_TITLE = "Outlet Statuses"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super(OutletStatusListView, self).get_context_data(**kwargs)
+        upload = Upload.objects.filter(
+            country__code=self.kwargs['country_code'], frommodel='outlet_status'
+        ).last()
+        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
+            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
+
+        return context
+
+
+class OutletStatusCreateView(LoginRequiredMixin, generic.CreateView):
+    template_name = "generic_create.html"
+    form_class = OutletStatusModelForm
+    PAGE_TITLE = "Create Outlet Status"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Record saved successfully.")
+        return reverse("master-setups:outlet-status-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+    def form_valid(self, form):
+        country = Country.objects.get(code=self.kwargs["country_code"])
+        form_obj = form.save(commit=False)
+        form_obj.country = country
+        form_obj.save()
+        return super(self.__class__, self).form_valid(form)
+    # #Forward Country Code in Forms
+    # def get_form_kwargs(self):
+    #     kwargs = super(self.__class__, self).get_form_kwargs()
+    #     kwargs['request'] = self.request
+    #     kwargs['country_code'] = self.kwargs["country_code"]
+    #     return kwargs
+
+class OutletStatusUpdateView(LoginRequiredMixin, generic.UpdateView):
+    template_name = "generic_update.html"
+    form_class = OutletStatusModelForm
+    PAGE_TITLE = "Update Outlet Status"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_queryset(self):
+        queryset = OutletStatus.objects.filter(
+            country__code=self.kwargs['country_code']
+        )
+        return queryset
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Record updated successfully.")
+        return reverse("master-setups:outlet-status-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+    def form_valid(self, form):
+        form.save()
+        return super(self.__class__, self).form_valid(form)
+
+
+class OutletStatusDeleteView(LoginRequiredMixin, generic.DeleteView):
+    template_name = "generic_delete.html"
+    PAGE_TITLE = "Delete Outlet Status"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.INFO, "Record deleted successfully.")
+        return reverse("master-setups:outlet-status-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+    def get_queryset(self):
+        queryset = OutletStatus.objects.filter(
+            country__code=self.kwargs['country_code'],
+            pk=self.kwargs['pk']
         )
         return queryset

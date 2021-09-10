@@ -336,163 +336,67 @@ class CategoryDeleteView(LoginRequiredMixin, generic.DeleteView):
 
 
 
-""" ------------------------- OutletType ------------------------- """
+""" ------------------------- Panel Profile ------------------------- """
 
-class OutletTypeImportView(LoginRequiredMixin, generic.CreateView):
-    template_name = "generic_import.html"
-    PAGE_TITLE = "Import Outlet Types"
-    extra_context = {
-        'page_title': PAGE_TITLE,
-        'header_title': PAGE_TITLE
-    }
-
-    form_class = UploadModalForm
-
-    def get_context_data(self, **kwargs):
-        context = super(OutletTypeImportView, self).get_context_data(**kwargs)
-        return context
-
-    def form_valid(self, form):
-
-        country = Country.objects.get(code=self.kwargs["country_code"])
-
-        form_obj = form.save(commit=False)
-        form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
-        form_obj.country = country
-        form_obj.frommodel = "outlet_type"
-        form_obj.save()
-
-        proc = Popen('python manage.py import_outlet_type '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
-
-        return super(self.__class__, self).form_valid(form)
-
-    def get_success_url(self):
-        # return reverse("leads:lead-detail", kwargs={"pk": self.kwargs["pk"]})
-        messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
-        return reverse("master-data:outlet-type-list", kwargs={"country_code": self.kwargs["country_code"]})
-
-
-class OutletTypeListViewAjax(AjaxDatatableView):
-    model = OutletType
-    title = 'OutletType'
-    initial_order = [["code", "asc"], ]
+class PanelProfileListViewAjax(AjaxDatatableView):
+    model = PanelProfile
+    title = 'PanelProfile'
+    initial_order = [["month", "asc"], ]
     length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
     search_values_separator = '+'
-
 
     column_defs = [
          AjaxDatatableView.render_row_tools_column_def(),
         {'name': 'id', 'visible': False, },
-        {'name': 'code',  },
-        {'name': 'name',  },
-        {'name': 'urbanity',  'choices': True,'autofilter': True,},
-        {'name': 'is_active',  'choices': True, 'autofilter': True,},
-        {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
-    ]
-
-    def customize_row(self, row, obj):
-            row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
-                             '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
-                    reverse('master-data:outlet-type-update', args=(self.kwargs['country_code'],obj.id,)),
-                    reverse('master-data:outlet-type-delete', args=(self.kwargs['country_code'],obj.id,)),
-                )
-                # <a href="{1}" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
+        {'name': 'month', 'foreign_field': 'month__code', 'choices': True,'autofilter': True,},
+        {'name': 'outlet','title':'Outlet Code',  'foreign_field': 'outlet__code',},
+        {'title':'Outlet Type Code','name': 'outlet_type_code',  'foreign_field': 'outlet_type__code', 'choices': True, 'autofilter': True,},
+        {'title':'Outlet Type Name','name': 'outlet_type_name',  'foreign_field': 'outlet_type__name', 'choices': True, 'autofilter': True,},
 
 
+        {'title':'Outlet Status code','name': 'outlet_status_code',  'foreign_field': 'outlet_status__code', 'choices': True, 'autofilter': True,},
+        {'title':'Outlet Status Name','name': 'outlet_status_name',  'foreign_field': 'outlet_status__name', 'choices': True, 'autofilter': True,},
+
+        {'name': 'index', 'foreign_field': 'index__name',  'choices': True, 'autofilter': True, 'width':'50',},
+        # {'name': 'hand_nhand',  'choices': True,'autofilter': True,},
+        # {'name': 'region',  'choices': True,'autofilter': True,},
+        {'name': 'audit_date', },
+        {'name': 'acv', },
+        # {'name': 'wtd_factor', },
+        # {'name': 'num_factor',  },
+        # {'name': 'turnover',  },
+
+        ]
+    # for v in model._meta.get_fields():
+    #     if('custom' in v.name):
+    #         column_defs.append({'name':v.name})
+
+
+
+    # model._meta.fields
     def get_initial_queryset(self, request=None):
-
         queryset = self.model.objects.filter(
             country__code=self.kwargs['country_code']
         )
         return queryset
 
-
-
-class OutletTypeListView(LoginRequiredMixin, generic.TemplateView):
-    template_name = "master_data/outlet_type_list.html"
-    PAGE_TITLE = "Outlet Types"
+class PanelProfileListView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "master_data/panel_profile_list.html"
+    PAGE_TITLE = "Panel Profile"
     extra_context = {
         'page_title': PAGE_TITLE,
         'header_title': PAGE_TITLE
     }
 
     def get_context_data(self, **kwargs):
-        context = super(OutletTypeListView, self).get_context_data(**kwargs)
+        context = super(self.__class__, self).get_context_data(**kwargs)
         upload = Upload.objects.filter(
-            country__code=self.kwargs['country_code'], frommodel='outlet_type'
+            country__code=self.kwargs['country_code'], frommodel='panel_profile'
         ).last()
         if(upload is not None and  upload.is_processing != Upload.COMPLETED):
             messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
 
         return context
-
-
-class OutletTypeCreateView(PassRequestToFormViewMixin,LoginRequiredMixin, generic.CreateView):
-    template_name = "generic_create.html"
-    form_class = OutletTypeModelForm
-    PAGE_TITLE = "Create OutletType"
-    extra_context = {
-        'page_title': PAGE_TITLE,
-        'header_title': PAGE_TITLE
-    }
-
-    def get_success_url(self):
-        messages.add_message(self.request, messages.SUCCESS, "Record saved successfully.")
-        return reverse("master-data:outlet-type-list", kwargs={"country_code": self.kwargs["country_code"]})
-
-    def form_valid(self, form):
-        country = Country.objects.get(code=self.kwargs["country_code"])
-        form_obj = form.save(commit=False)
-        form_obj.country = country
-        form_obj.save()
-        return super(self.__class__, self).form_valid(form)
-
-class OutletTypeUpdateView(PassRequestToFormViewMixin, LoginRequiredMixin, generic.UpdateView):
-    template_name = "generic_update.html"
-    form_class = OutletTypeModelForm
-    PAGE_TITLE = "Update OutletType"
-    extra_context = {
-        'page_title': PAGE_TITLE,
-        'header_title': PAGE_TITLE
-    }
-
-    def get_queryset(self):
-        queryset = OutletType.objects.filter(
-            country__code=self.kwargs['country_code']
-        )
-        return queryset
-
-    def get_success_url(self):
-        messages.add_message(self.request, messages.SUCCESS, "Record updated successfully.")
-        return reverse("master-data:outlet-type-list", kwargs={"country_code": self.kwargs["country_code"]})
-
-    def form_valid(self, form):
-        form.save()
-        return super(self.__class__, self).form_valid(form)
-
-
-class OutletTypeDeleteView(LoginRequiredMixin, generic.DeleteView):
-    template_name = "generic_delete.html"
-    PAGE_TITLE = "Delete OutletType"
-    extra_context = {
-        'page_title': PAGE_TITLE,
-        'header_title': PAGE_TITLE
-    }
-
-    def get_success_url(self):
-        messages.add_message(self.request, messages.INFO, "Record deleted successfully.")
-        return reverse("master-data:outlet-type-list", kwargs={"country_code": self.kwargs["country_code"]})
-
-    def get_queryset(self):
-        queryset = OutletType.objects.filter(
-            country__code=self.kwargs['country_code'],
-            pk=self.kwargs['pk']
-        )
-        return queryset
-
-
-""" ------------------------- Panel Profile ------------------------- """
 
 class PanelProfileUpdateView(LoginRequiredMixin, generic.CreateView):
     template_name = "generic_import.html"
@@ -552,7 +456,7 @@ class PanelProfileImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.frommodel = "panel_profile"
         form_obj.save()
 
-        print(Colors.BLUE,form_obj.pk)
+        cdebug(form_obj.pk)
         proc = Popen('python manage.py import_panel_profile '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         return super(self.__class__, self).form_valid(form)
@@ -562,7 +466,10 @@ class PanelProfileImportView(LoginRequiredMixin, generic.CreateView):
         messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
         return reverse("master-data:panel-profile-list", kwargs={"country_code": self.kwargs["country_code"]})
 
-class PanelProfileListViewAjax(AjaxDatatableView):
+
+
+
+class PanelProfileListViewAjax2(AjaxDatatableView):
     model = PanelProfile
     title = 'PanelProfile'
     initial_order = [["month", "asc"], ]
@@ -598,25 +505,6 @@ class PanelProfileListViewAjax(AjaxDatatableView):
             country__code=self.kwargs['country_code']
         )
         return queryset
-
-
-class PanelProfileListView(LoginRequiredMixin, generic.TemplateView):
-    template_name = "master_data/panel_profile_list.html"
-    PAGE_TITLE = "Panel Profile"
-    extra_context = {
-        'page_title': PAGE_TITLE,
-        'header_title': PAGE_TITLE
-    }
-
-    def get_context_data(self, **kwargs):
-        context = super(self.__class__, self).get_context_data(**kwargs)
-        upload = Upload.objects.filter(
-            country__code=self.kwargs['country_code'], frommodel='panel_profile'
-        ).last()
-        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
-
-        return context
 
 
 """ ------------------------- Usable Outlet ------------------------- """
@@ -969,41 +857,6 @@ class ProductAuditListView(LoginRequiredMixin, generic.TemplateView):
 
 """ ------------------------- RBD ------------------------- """
 
-class PanelProfileListViewAjax(AjaxDatatableView):
-    model = PanelProfile
-    title = 'PanelProfile'
-    initial_order = [["month", "asc"], ]
-    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
-    search_values_separator = '+'
-
-    column_defs = [
-         AjaxDatatableView.render_row_tools_column_def(),
-        {'name': 'id', 'visible': False, },
-        {'name': 'month', 'foreign_field': 'month__code', 'choices': True,'autofilter': True,},
-        {'name': 'outlet','title':'Outlet Code',  'foreign_field': 'outlet__code',},
-        {'name': 'outlet_type',  'foreign_field': 'outlet_type__code', 'choices': True, 'autofilter': True,},
-        {'name': 'outlet_status',  'choices': True,'autofilter': True,},
-        {'name': 'index', 'foreign_field': 'index__name',  'choices': True, 'autofilter': True, 'width':'50',},
-        {'name': 'hand_nhand',  'choices': True,'autofilter': True,},
-        {'name': 'region',  'choices': True,'autofilter': True,},
-        {'name': 'audit_date', },
-        {'name': 'wtd_factor', },
-        {'name': 'num_factor',  },
-        {'name': 'turnover',  },
-
-        ]
-    for v in model._meta.get_fields():
-        if('custom' in v.name):
-            column_defs.append({'name':v.name})
-
-
-
-    # model._meta.fields
-    def get_initial_queryset(self, request=None):
-        queryset = self.model.objects.filter(
-            country__code=self.kwargs['country_code']
-        )
-        return queryset
 
 class RBDListViewAjax_backup(AjaxDatatableView):
     model = RBD
@@ -1501,7 +1354,7 @@ class PanelProfileCellListing(ListAPIView):
             new_dic = getDicGroupList(new_list)
             group_filter = getGroupFilter(new_dic)
 
-
+            cdebug(group_filter)
             queryList = queryList.filter(group_filter)
 
 
@@ -1812,3 +1665,166 @@ class CellDeleteView(LoginRequiredMixin, generic.DeleteView):
 
         )
         return queryset
+
+
+""" ------------------------- OutletType ------------------------- """
+
+class OutletTypeImportView(LoginRequiredMixin, generic.CreateView):
+    template_name = "generic_import.html"
+    PAGE_TITLE = "Import Outlet Types"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    form_class = UploadModalForm
+
+    def get_context_data(self, **kwargs):
+        context = super(OutletTypeImportView, self).get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+
+        country = Country.objects.get(code=self.kwargs["country_code"])
+
+        form_obj = form.save(commit=False)
+        form_obj.is_processing = Upload.PROCESSING
+        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.country = country
+        form_obj.frommodel = "outlet_type"
+        form_obj.save()
+
+        proc = Popen('python manage.py import_outlet_type '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+
+        return super(self.__class__, self).form_valid(form)
+
+    def get_success_url(self):
+        # return reverse("leads:lead-detail", kwargs={"pk": self.kwargs["pk"]})
+        messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
+        return reverse("master-data:outlet-type-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+
+class OutletTypeListViewAjax(AjaxDatatableView):
+    model = OutletType
+    title = 'OutletType'
+    initial_order = [["code", "asc"], ]
+    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
+    search_values_separator = '+'
+
+
+    column_defs = [
+         AjaxDatatableView.render_row_tools_column_def(),
+        {'name': 'id', 'visible': False, },
+        {'name': 'code',  },
+        {'name': 'name',  },
+        {'name': 'urbanity',  'choices': True,'autofilter': True,},
+        {'name': 'is_active',  'choices': True, 'autofilter': True,},
+        {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
+    ]
+
+    def customize_row(self, row, obj):
+            row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
+                             '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+                    reverse('master-data:outlet-type-update', args=(self.kwargs['country_code'],obj.id,)),
+                    reverse('master-data:outlet-type-delete', args=(self.kwargs['country_code'],obj.id,)),
+                )
+                # <a href="{1}" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
+
+
+    def get_initial_queryset(self, request=None):
+
+        queryset = self.model.objects.filter(
+            country__code=self.kwargs['country_code']
+        )
+        return queryset
+
+
+
+class OutletTypeListView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "master_data/outlet_type_list.html"
+    PAGE_TITLE = "Outlet Types"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super(OutletTypeListView, self).get_context_data(**kwargs)
+        upload = Upload.objects.filter(
+            country__code=self.kwargs['country_code'], frommodel='outlet_type'
+        ).last()
+        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
+            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
+
+        return context
+
+
+class OutletTypeCreateView(LoginRequiredMixin, generic.CreateView):
+    template_name = "generic_create.html"
+    form_class = OutletTypeModelForm
+    PAGE_TITLE = "Create OutletType"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Record saved successfully.")
+        return reverse("master-data:outlet-type-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+    def form_valid(self, form):
+        country = Country.objects.get(code=self.kwargs["country_code"])
+        form_obj = form.save(commit=False)
+        form_obj.country = country
+        form_obj.save()
+        return super(self.__class__, self).form_valid(form)
+    # #Forward Country Code in Forms
+    # def get_form_kwargs(self):
+    #     kwargs = super(self.__class__, self).get_form_kwargs()
+    #     kwargs['request'] = self.request
+    #     kwargs['country_code'] = self.kwargs["country_code"]
+    #     return kwargs
+
+class OutletTypeUpdateView(LoginRequiredMixin, generic.UpdateView):
+    template_name = "generic_update.html"
+    form_class = OutletTypeModelForm
+    PAGE_TITLE = "Update OutletType"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_queryset(self):
+        queryset = OutletType.objects.filter(
+            country__code=self.kwargs['country_code']
+        )
+        return queryset
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Record updated successfully.")
+        return reverse("master-data:outlet-type-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+    def form_valid(self, form):
+        form.save()
+        return super(self.__class__, self).form_valid(form)
+
+
+class OutletTypeDeleteView(LoginRequiredMixin, generic.DeleteView):
+    template_name = "generic_delete.html"
+    PAGE_TITLE = "Delete OutletType"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.INFO, "Record deleted successfully.")
+        return reverse("master-data:outlet-type-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+    def get_queryset(self):
+        queryset = OutletType.objects.filter(
+            country__code=self.kwargs['country_code'],
+            pk=self.kwargs['pk']
+        )
+        return queryset
+

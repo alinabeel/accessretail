@@ -73,6 +73,93 @@ class Upload(CreateUpdateMixIn, models.Model):
         verbose_name_plural = 'Uploads'
 
 
+class Province(CodeNameMixIn,CreateUpdateMixIn,models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        unique_together = (('country','code',),)
+        db_table = 'province'
+        verbose_name = 'Province'
+        verbose_name_plural = 'Provinces'
+
+class District(CodeNameMixIn,CreateUpdateMixIn,models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    province = models.ForeignKey(Province, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        unique_together = (('country','code',),)
+        db_table = 'district'
+        verbose_name = 'District'
+        verbose_name_plural = 'Districts'
+
+class Tehsil(CodeNameMixIn,CreateUpdateMixIn,models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    district = models.ForeignKey(District, on_delete=models.CASCADE)
+    urbanity =  models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        unique_together = (('country','code',),)
+        db_table = 'tehsil'
+        verbose_name = 'Tehsil'
+        verbose_name_plural = 'Tehsils'
+
+
+
+class CityVillage(CodeNameMixIn,CreateUpdateMixIn,models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
+    tehsil = models.ForeignKey(Tehsil, on_delete=models.CASCADE)
+    rc_cut =  models.CharField(max_length=500)
+    extra_1 =  models.CharField(max_length=500)
+    extra_2 =  models.CharField(max_length=500)
+    extra_3 =  models.CharField(max_length=500)
+    extra_4 =  models.CharField(max_length=500)
+    extra_5 =  models.CharField(max_length=500)
+    extra_6 =  models.CharField(max_length=500)
+    extra_7 =  models.CharField(max_length=500)
+    extra_8 =  models.CharField(max_length=500)
+    extra_9 =  models.CharField(max_length=500)
+    extra_10 =  models.CharField(max_length=500)
+    extra_11 =  models.CharField(max_length=500)
+    extra_12 =  models.CharField(max_length=500)
+    extra_13 =  models.CharField(max_length=500)
+    extra_14 =  models.CharField(max_length=500)
+    extra_15 =  models.CharField(max_length=500)
+    extra_16 =  models.CharField(max_length=500)
+    extra_17 =  models.CharField(max_length=500)
+    extra_18 =  models.CharField(max_length=500)
+    extra_19 =  models.CharField(max_length=500)
+    extra_20 =  models.CharField(max_length=500)
+    extra_21 =  models.CharField(max_length=500)
+    extra_22 =  models.CharField(max_length=500)
+    extra_23 =  models.CharField(max_length=500)
+    extra_24 =  models.CharField(max_length=500)
+    extra_25 =  models.CharField(max_length=500)
+    extra_26 =  models.CharField(max_length=500)
+    extra_27 =  models.CharField(max_length=500)
+    extra_28 =  models.CharField(max_length=500)
+    extra_29 =  models.CharField(max_length=500)
+    extra_30 =  models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        unique_together = (('country','code',),)
+        db_table = 'city_village'
+        verbose_name = 'CityVillage'
+        verbose_name_plural = 'CityVillages'
+        ordering = ['name']
+
 
 
 class RegionType(CreateUpdateMixIn,models.Model):
@@ -235,7 +322,7 @@ class Month(CreateUpdateMixIn,models.Model):
     month = models.SmallIntegerField()
     year = models.SmallIntegerField()
 
-    is_locked = models.BooleanField(default=True)
+    is_locked = models.BooleanField(default=False)
     is_current_month = models.BooleanField(default=False)
 
     def __str__(self):
@@ -268,6 +355,15 @@ class UsableOutlet(CreateUpdateMixIn,models.Model):
         verbose_name = 'UsableOutlet'
         verbose_name_plural = 'UsableOutlets'
 
+class OutletStatus(CodeNameMixIn,CreateUpdateMixIn,models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    def __str__(self):
+        return self.name
+    class Meta:
+        unique_together = (('country','code'),)
+        db_table = 'outlet_status'
+        verbose_name = 'OutletStatus'
+        verbose_name_plural = 'OutletStatuses'
 
 class PanelProfile(CreateUpdateMixIn,models.Model):
 
@@ -276,118 +372,27 @@ class PanelProfile(CreateUpdateMixIn,models.Model):
     month = models.ForeignKey(Month,on_delete=models.CASCADE)
 
     index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     hand_nhand = models.CharField(max_length=50, null=True, blank=True)
     region = models.CharField(max_length=50, null=True, blank=True)
+    city_village = models.ForeignKey(CityVillage, on_delete=models.CASCADE)
 
     outlet = models.ForeignKey(Outlet, on_delete=models.CASCADE)
     outlet_type = models.ForeignKey(OutletType, on_delete=models.CASCADE)
-    outlet_status = models.CharField(max_length=50, null=True, blank=True)
+    outlet_status = models.ForeignKey(OutletStatus, on_delete=models.CASCADE)
+
+    nra_tagging = models.SmallIntegerField(null=True, blank=True, default=0)
+    ra_tagging = models.SmallIntegerField(null=True, blank=True, default=0)
+    ret_tagging = models.SmallIntegerField(null=True, blank=True, default=0)
+
 
     audit_date = models.DateField(null=True, blank=True)
+
     wtd_factor = models.DecimalField(max_digits=15,decimal_places=6, default=0)
     num_factor = models.DecimalField(max_digits=15,decimal_places=6, default=0)
     turnover = models.DecimalField(max_digits=15,decimal_places=6, default=0)
+    acv = models.DecimalField(max_digits=15,decimal_places=6, default=0)
 
-    custom_channel_1 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_2 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_3 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_4 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_5 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_6 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_7 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_8 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_9 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_10 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_11 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_12 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_13 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_14 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_15 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_16 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_17 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_18 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_19 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_20 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_21 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_22 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_23 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_24 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_25 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_26 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_27 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_28 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_29 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_30 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_31 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_32 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_33 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_34 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_35 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_36 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_37 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_38 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_39 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_40 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_41 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_42 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_43 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_44 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_45 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_46 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_47 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_48 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_49 = models.CharField(max_length=80, null=True, blank=True)
-    custom_channel_50 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_1 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_2 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_3 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_4 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_5 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_6 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_7 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_8 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_9 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_10 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_11 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_12 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_13 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_14 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_15 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_16 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_17 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_18 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_19 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_20 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_21 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_22 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_23 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_24 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_25 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_26 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_27 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_28 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_29 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_30 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_31 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_32 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_33 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_34 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_35 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_36 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_37 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_38 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_39 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_40 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_41 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_42 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_43 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_44 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_45 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_46 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_47 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_48 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_49 = models.CharField(max_length=80, null=True, blank=True)
-    custom_region_50 = models.CharField(max_length=80, null=True, blank=True)
     class Meta:
         unique_together = (('country','outlet', 'month'))
         db_table = 'panel_profile'
@@ -531,94 +536,6 @@ class RBD(CreateUpdateMixIn,models.Model):
 
     def __str__(self):
         return self.name
-
-class Province(CodeNameMixIn,CreateUpdateMixIn,models.Model):
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        unique_together = (('country','code',),)
-        db_table = 'province'
-        verbose_name = 'Province'
-        verbose_name_plural = 'Provinces'
-
-class District(CodeNameMixIn,CreateUpdateMixIn,models.Model):
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    province = models.ForeignKey(Province, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        unique_together = (('country','code',),)
-        db_table = 'district'
-        verbose_name = 'District'
-        verbose_name_plural = 'Districts'
-
-class Tehsil(CodeNameMixIn,CreateUpdateMixIn,models.Model):
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    district = models.ForeignKey(District, on_delete=models.CASCADE)
-    urbanity =  models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        unique_together = (('country','code',),)
-        db_table = 'tehsil'
-        verbose_name = 'Tehsil'
-        verbose_name_plural = 'Tehsils'
-
-
-
-class CityVillage(CodeNameMixIn,CreateUpdateMixIn,models.Model):
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
-    tehsil = models.ForeignKey(Tehsil, on_delete=models.CASCADE)
-    rc_cut =  models.CharField(max_length=500)
-    extra_1 =  models.CharField(max_length=500)
-    extra_2 =  models.CharField(max_length=500)
-    extra_3 =  models.CharField(max_length=500)
-    extra_4 =  models.CharField(max_length=500)
-    extra_5 =  models.CharField(max_length=500)
-    extra_6 =  models.CharField(max_length=500)
-    extra_7 =  models.CharField(max_length=500)
-    extra_8 =  models.CharField(max_length=500)
-    extra_9 =  models.CharField(max_length=500)
-    extra_10 =  models.CharField(max_length=500)
-    extra_11 =  models.CharField(max_length=500)
-    extra_12 =  models.CharField(max_length=500)
-    extra_13 =  models.CharField(max_length=500)
-    extra_14 =  models.CharField(max_length=500)
-    extra_15 =  models.CharField(max_length=500)
-    extra_16 =  models.CharField(max_length=500)
-    extra_17 =  models.CharField(max_length=500)
-    extra_18 =  models.CharField(max_length=500)
-    extra_19 =  models.CharField(max_length=500)
-    extra_20 =  models.CharField(max_length=500)
-    extra_21 =  models.CharField(max_length=500)
-    extra_22 =  models.CharField(max_length=500)
-    extra_23 =  models.CharField(max_length=500)
-    extra_24 =  models.CharField(max_length=500)
-    extra_25 =  models.CharField(max_length=500)
-    extra_26 =  models.CharField(max_length=500)
-    extra_27 =  models.CharField(max_length=500)
-    extra_28 =  models.CharField(max_length=500)
-    extra_29 =  models.CharField(max_length=500)
-    extra_30 =  models.CharField(max_length=500)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        unique_together = (('country','code',),)
-        db_table = 'city_village'
-        verbose_name = 'CityVillage'
-        verbose_name_plural = 'CityVillages'
-        ordering = ['name']
-
 
 class ColLabel(CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)

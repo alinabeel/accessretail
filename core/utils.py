@@ -1,5 +1,6 @@
-import pprint
+import time
 import datetime
+import pprint
 from django.utils import timezone
 from django.conf import settings
 from django.utils import formats
@@ -146,3 +147,19 @@ def csvHeadClean(c):
 def printr(str):
     print(str)
     return str+"\n"
+
+def replaceIndex(i):
+    i = csvHeadClean(i)
+    i = i.replace('store_code','outlet_code')
+    i = i.replace('end_audit_date','audit_date')
+    i = i.replace('interview_status','outlet_status')
+    i = i.replace('interview_status_code','outlet_status_code')
+    i = i.replace('channel_type','outlet_type')
+    i = i.replace('channel_type_code','outlet_type_code')
+    i = i.replace('index_code','index')
+    i = i.replace('category_code','category')
+    i = i.replace('wave','month_code')
+    return i
+
+def convertSecond2Min(seconds):
+    return time.strftime("%H:%M:%S", time.gmtime(seconds))
