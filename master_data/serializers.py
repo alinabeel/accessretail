@@ -69,11 +69,29 @@ class CellSerializers(serializers.ModelSerializer):
         model = Cell
         exclude = ['country','created','updated',]
 
+class ProvinceSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Province
+        fields = '__all__'
+
+class DistrictSerializers(serializers.ModelSerializer):
+    province = ProvinceSerializers(many=False, read_only=True)
+    class Meta:
+        model = District
+        fields = '__all__'
+
+class TehsilSerializers(serializers.ModelSerializer):
+    district = DistrictSerializers(many=False, read_only=True)
+    class Meta:
+        model = Tehsil
+        fields = '__all__'
+
+
 class CityVillageSerializers(serializers.ModelSerializer):
+    tehsil=TehsilSerializers(many=False, read_only=True)
     class Meta:
         model = CityVillage
         fields = '__all__'
-        # exclude = ['country','created','updated',]
 
 class PanelProfileSerializers(serializers.ModelSerializer):
     index=IndexSetupSerializers(many=False, read_only=True)

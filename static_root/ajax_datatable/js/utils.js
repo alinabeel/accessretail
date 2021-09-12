@@ -109,9 +109,19 @@ window.AjaxDatatableViewUtils = (function() {
     */
 
     function getCookie(name) {
+        var cookieValue = null;
         var value = '; ' + document.cookie,
             parts = value.split('; ' + name + '=');
-        if (parts.length == 2) return parts.pop().split(';').shift();
+        if (parts.length == 2) cookieValue = parts.pop().split(';').shift();
+        return cookieValue;
+    }
+
+    function getCSRFToken() {
+        var csrftoken = getCookie('csrftoken');
+        if (csrftoken == null) {
+            csrftoken = $('input[name=csrfmiddlewaretoken]').val();
+        }
+        return csrftoken;
     }
 
     function _setup_column_filters(table, data) {
@@ -197,11 +207,11 @@ window.AjaxDatatableViewUtils = (function() {
     };
 
 
-    function _bind_row_tools(table, url, full_row_select)
+    function _bind_row_tools(table, url, options, extra_data)
     {
-        console.log('*** _bind_row_tools()');
+        //console.log('*** _bind_row_tools()');
 
-        if (full_row_select) {
+        if (options.full_row_select) {
 
             // Full row select: when user clicks anywhere in the row,
             // expand it to show further details
@@ -226,13 +236,13 @@ window.AjaxDatatableViewUtils = (function() {
                         this.child.hide();
                     });
                     if (!tr.hasClass('details')) {
-                        row.child(_load_row_details(row.data(), url), 'details').show('slow');
+                        row.child(_load_row_details(row.data(), url, extra_data), 'details').show('slow');
                         tr.addClass('shown');
                     }
                 }
             });
-        }
-        else {
+
+        } else {
 
             // Use "plus" and "minus" links to toggle row details
             table.api().on('click', 'td.dataTables_row-tools .plus, td.dataTables_row-tools .minus', function(event) {
@@ -244,25 +254,44 @@ window.AjaxDatatableViewUtils = (function() {
                     tr.removeClass('shown');
                 }
                 else {
-                    row.child(_load_row_details(row.data(), url), 'details').show('slow');
+                    //row.child(_load_row_details(row.data(), url), 'details').show('slow');
+                    //tr.addClass('shown');
+                    var data = _load_row_details(row.data(), url, extra_data);
+                    if (options.detail_callback) {
+                        options.detail_callback(data, tr);
+                    }
+                    else {
+                        row.child(data, 'details').show('slow');
+                    }
                     tr.addClass('shown');
                 }
             });
         }
     };
 
-    function _load_row_details(rowData, url) {
+    function _load_row_details(rowData, url, extra_data) {
+
         var div = $('<div/>')
             .addClass('row-details-wrapper loading')
             .text('Loading...');
 
         if (rowData !== undefined) {
+
+            var data = {
+                action: 'details',
+                pk: rowData['pk']
+            };
+            if (extra_data) {
+                Object.assign(data, extra_data);
+            }
+
             $.ajax({
                 url: url,
-                data: {
-                    action: 'details',
-                    pk: rowData['pk']
-                },
+                // data: {
+                //     action: 'details',
+                //     pk: rowData['pk']
+                // },
+                data: data,
                 dataType: 'json',
                 success: function(json) {
                     var parent_row_id = json['parent-row-id'];
@@ -316,9 +345,9 @@ window.AjaxDatatableViewUtils = (function() {
     }
 
 
-    function after_table_initialization(table, data, url, full_row_select) {
-        console.log('*** after_table_initialization()');
-        _bind_row_tools(table, url, full_row_select);
+    function after_table_initialization(table, data, url, options, extra_data) {
+        //console.log('*** after_table_initialization()');
+        _bind_row_tools(table, url, options, extra_data);
         _setup_column_filters(table, data);
     }
 
@@ -334,7 +363,7 @@ window.AjaxDatatableViewUtils = (function() {
     }
 
     function initialize_table(element, url, extra_options={}, extra_data={}) {
-        debugger;
+
         var data = {action: 'initialize'};
         if (extra_data) {
             Object.assign(data, extra_data);
@@ -345,7 +374,7 @@ window.AjaxDatatableViewUtils = (function() {
             url: url,
             data: data,
             dataType: 'json',
-            headers: {'X-CSRFToken': getCookie('csrftoken')}
+            headers: {'X-CSRFToken': getCSRFToken()}
         }).done(function(data, textStatus, jqXHR) {
 
             // https://datatables.net/manual/api#Accessing-the-API
@@ -403,7 +432,7 @@ window.AjaxDatatableViewUtils = (function() {
                           dataType: 'json',
                           cache: false,
                           crossDomain: false,
-                          headers: {'X-CSRFToken': getCookie('csrftoken')}
+                          headers: {'X-CSRFToken': getCSRFToken()}
                       }).done(function(data, textStatus, jqXHR) {
                           console.log('data rx: %o', data);
                           callback(data);
@@ -464,7 +493,7 @@ window.AjaxDatatableViewUtils = (function() {
             var table = element.dataTable(options);
 
             _daterange_widget_initialize(table, data);
-            after_table_initialization(table, data, url, options.full_row_select);
+            after_table_initialization(table, data, url, options, extra_data);
         })
     }
 
@@ -488,7 +517,6 @@ window.AjaxDatatableViewUtils = (function() {
     return {
         init: init,
         initialize_table: initialize_table,
-        after_table_initialization: after_table_initialization,
         adjust_table_columns: adjust_table_columns,
         redraw_all_tables: redraw_all_tables,
         redraw_table: redraw_table

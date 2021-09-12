@@ -1321,6 +1321,106 @@ class CellListViewAjax_backup(AjaxDatatableView):
         )
         return queryset
 
+
+#Used in Cell Create View - EXPRIMENT
+class CellPanelProfileAJAX(AjaxDatatableView):
+    model = PanelProfile
+    title = 'Panel Profile'
+    initial_order = [["code", "asc"], ]
+    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
+    search_values_separator = '+'
+
+
+    # abc = AjaxDatatableView.get_country
+    # cdebug(abc)
+
+    def get_column_defs(self, request):
+        """
+        Override to customize based of request
+        """
+        self.column_defs = [
+            AjaxDatatableView.render_row_tools_column_def(),
+            {'name': 'id', 'visible': False, },
+
+            {'name': 'Province Code', 'foreign_field': 'city_village__tehsil__district__province__code', },
+            {'name': 'Province Name', 'foreign_field': 'city_village__tehsil__district__province__name', 'choices': True, 'autofilter': True,},
+            {'name': 'District Code', 'foreign_field': 'city_village__tehsil__district__code',},
+            {'name': 'District Name', 'foreign_field': 'city_village__tehsil__district__name', 'choices': True, 'autofilter': True,},
+
+            {'name': 'Tehsil Code', 'foreign_field': 'city_village__tehsil__code',},
+            {'name': 'Tehsil Name', 'foreign_field': 'city_village__tehsil__name', 'choices': True, 'autofilter': True,},
+            {'name': 'Urbanity', 'foreign_field': 'city_village__tehsil__urbanity', 'choices': True, 'autofilter': True,},
+
+            {'name': 'code', 'title':'City Code', 'foreign_field': 'city_village__code', },
+            {'name': 'name', 'title':'City Name',  'foreign_field': 'city_village__name',},
+            {'name': 'rc_cut', 'foreign_field': 'city_village__rc_cut', 'choices': True, 'autofilter': True,},
+        ]
+
+        # ('index', 'category', 'hand_nhand', 'region', 'city_village', 'outlet', 'outlet_type', 'outlet_status', 'nra_tagging', 'ra_tagging', 'ret_tagging', 'audit_date', 'wtd_factor', 'num_factor', 'turnover', 'acv', )
+        # for v in self.__class__.model._meta.get_fields():
+        #     if('extra' in v.name):
+        #         try:
+        #             col_label = ColLabel.objects.only("col_label").get(
+        #                 country__code = self.kwargs['country_code'],
+        #                 model_name = 'CityVillage',
+        #                 col_name = v.name
+        #             )
+        #         except ColLabel.DoesNotExist:
+        #             col_label = None
+
+        #         title = col_label.col_label if col_label else v.name
+        #         self.column_defs.append({'name': v.name,'title':title, 'choices': True, 'autofilter': True, })
+        return self.column_defs
+
+
+    # def filter_queryset(self, params, queryList):
+
+    #     # qs = self.model.objects.filter(
+    #     #     code='10001'
+    #     # )
+    #     return queryList
+
+    def get_initial_queryset(self, request=None):
+
+
+        # queryset = self.model.objects.filter(
+        #     country__code=self.kwargs['country_code']
+        # )
+        queryList = super().get_initial_queryset(request=request)
+
+        country = Country.objects.get(code=self.kwargs["country_code"])
+
+        audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('-audit_date')[0:2]
+        date_arr = []
+        for instance in audit_date_qs:
+            date_arr.append(instance['month__date'])
+        current_month , previous_month = date_arr
+
+        current_month_qs = Month.objects.get(date=current_month)
+        previous_month_qs = Month.objects.get(date=previous_month)
+
+        queryList = self.model.objects
+        queryList = queryList.filter(country = country, month = current_month_qs)
+        # queryList = queryList.filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+        #                         .filter(country = country, month = current_month_qs, is_active = True))
+        field_group = parse_qs(self.request.POST.get('data'))
+
+        new_list = getDictArray(field_group,'field_group[group]')
+        new_dic = getDicGroupList(new_list)
+        group_filter = getGroupFilter(new_dic)
+
+        cdebug(field_group,'field_group')
+        cdebug(new_list,'new_list')
+        cdebug(group_filter,'group_filter')
+        queryList = queryList.filter(group_filter)
+        prettyprint_queryset(queryList)
+
+
+        # cdebug(self.request.POST.get('data'))
+        # cdebug(queryset)
+        return queryList
+
+
 #Used in Cell Create View
 class PanelProfileCellListing(ListAPIView):
     # set the pagination and serializer class
@@ -1354,7 +1454,10 @@ class PanelProfileCellListing(ListAPIView):
             new_dic = getDicGroupList(new_list)
             group_filter = getGroupFilter(new_dic)
 
-            cdebug(group_filter)
+            cdebug(field_group,'field_group')
+            cdebug(new_list,'new_list')
+            cdebug(group_filter,'group_filter')
+
             queryList = queryList.filter(group_filter)
 
 

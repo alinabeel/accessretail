@@ -88,6 +88,9 @@ urlpatterns += [
 
 """ CELL """
 urlpatterns += [
+
+    path('<slug:country_code>/cell-panel-profile-ajax/', CellPanelProfileAJAX.as_view(), name='cell-panel-profile-ajax'),
+
     path('<slug:country_code>/panel-profile-cell-list-json/', PanelProfileCellListing.as_view(), name='panel-profile-cell-list-json'),
     path('<slug:country_code>/panel-profile-cell-list-json/<int:pk>', PanelProfileCellListing.as_view(), name='panel-profile-cell-list-json'),
 

@@ -52,15 +52,15 @@
                                                                         <option value="category__name">Category Name</option>
                                                                     </optgroup>
                                                                     <optgroup label="Code Frame">
-                                                                        <option value="province__code">Province Code</option>
-                                                                        <option value="province__name">Province Name</option>
+                                                                        <option value="city_village__tehsil__district__province__code">Province Code</option>
+                                                                        <option value="city_village__tehsil__district__province__name">Province Name</option>
 
-                                                                        <option value="district__code">District Code</option>
-                                                                        <option value="district__name">District Name</option>
+                                                                        <option value="city_village__tehsil__district__code">District Code</option>
+                                                                        <option value="city_village__tehsil__district__name">District Name</option>
 
-                                                                        <option value="tehsil__code">Tehsil Code</option>
-                                                                        <option value="tehsil__name">Tehsil Name</option>
-                                                                        <option value="tehsil__urbanity">Tehsil Urbanity</option>
+                                                                        <option value="city_village__tehsil__code">Tehsil Code</option>
+                                                                        <option value="city_village__tehsil__name">Tehsil Name</option>
+                                                                        <option value="city_village__tehsil__urbanity">Tehsil Urbanity</option>
 
                                                                         <option value="city_village__code">CityVillage Code</option>
                                                                         <option value="city_village__name">CityVillage Name</option>
@@ -68,8 +68,9 @@
                                                                         <option value="{{ i }}">{{ v }}</option>
                                                                         {% endfor %}
                                                                     </optgroup>
-                                                                    <optgroup label="Outlet">
-                                                                        <option value="outlet__code">Outlet Code</option>
+                                                                    <optgroup label="Outlet Status">
+                                                                        <option value="outlet_status__code">Status Code</option>
+                                                                        <option value="outlet_status__name">Status Name</option>
                                                                     </optgroup>
                                                                     <optgroup label="Outlet Type">
                                                                         <option value="outlet_type__code">Outlet Code</option>
@@ -82,7 +83,9 @@
                                                                         <option value="{{ i }}">{{ v }}</option>
                                                                         {% endfor %}
                                                                     </optgroup>
-
+                                                                    <optgroup label="Outlet">
+                                                                        <option value="outlet__code">Outlet Code</option>
+                                                                    </optgroup>
                                                                 </select>
 
                                                             </div>
@@ -157,43 +160,23 @@
                             id="btn_filter">Filter</button>
                     </div>
 
-                    <section>
-                        <div class="container-fluid">
-                            <div id="result-count" class="text-right">
-                                <span class='font-weight-bold'></span> results found.
-                            </div>
-                            <div class="row properties_table justify-content-center">
-                                <div id="no_results">
-                                    <h5>No results found</h5>
-                                </div>
-                                <div class="table-responsive">
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card m-b-30">
+                                <div class="card-body">
+
                                     <table
-                                        class="table datatable table table-striped table-bordered dt-responsive nowrap"
-                                        id="list_data" data-toggle="table"
-                                        url="{% url 'master-data:panel-profile-cell-list-json'  country_code=global.country_code %}">
-                                        <tbody id="listing">
-                                        </tbody>
+                                    id="ajax_datatable"
+                                    class="datatable table table-striped table-bordered dt-responsive nowrap"
+                                    style="border-collapse: collapse; border-spacing: 0; width: 100%;"
+                                    url="{% url 'master-data:cell-panel-profile-ajax' country_code=global.country_code %}">
                                     </table>
+
                                 </div>
                             </div>
-                            <div class="row justify-content-center">
-                                <nav aria-label="navigation">
-                                    <ul class="pagination">
-                                        <li class="page-item">
-                                            <button type="button" class="btn btn-primary page-link"
-                                                id="previous">Previous</button>
-                                        </li>
-                                        <li class="page-item pull-right">
-                                            <button type="button" class="btn btn-primary page-link"
-                                                id="next">Next</button>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
-                    </section>
-
-
+                        </div> <!-- end col -->
+                    </div> <!-- end row -->
 
 
                     <div class="row">
@@ -218,7 +201,8 @@
 {% endblock content %}
 
 {% block javascripts %}
-<script src="{% static 'assets/js/rbd.js' %}"></script>
+<script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+<script src="{% static 'assets/js/cell.js' %}"></script>
 <script language="javascript">
 </script>
 {% endblock javascripts %}

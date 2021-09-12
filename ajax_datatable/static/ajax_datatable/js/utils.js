@@ -346,7 +346,7 @@ window.AjaxDatatableViewUtils = (function() {
 
 
     function after_table_initialization(table, data, url, options, extra_data) {
-        //console.log('*** after_table_initialization()');
+        console.log('*** after_table_initialization()');
         _bind_row_tools(table, url, options, extra_data);
         _setup_column_filters(table, data);
     }

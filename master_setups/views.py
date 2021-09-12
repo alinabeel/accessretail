@@ -9,6 +9,8 @@ from subprocess import Popen
 from inspect import getmembers
 from csv import DictReader
 
+from urllib.parse import parse_qs,urlparse
+
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
@@ -25,6 +27,7 @@ from django.http import (HttpResponseRedirect,
                         JsonResponse)
 from django.views import generic
 
+from core.helpers import getDictArray,getDicGroupList,getGroupFilter
 from core.utils import prettyprint_queryset, trace, format_datetime,cdebug
 from core.colors import Colors
 from core.mixinsViews import PassRequestToFormViewMixin
@@ -1259,11 +1262,30 @@ class CodeFrameListViewAjax(AjaxDatatableView):
                 self.column_defs.append({'name': v.name,'title':title, 'choices': True, 'autofilter': True, })
         return self.column_defs
 
+
+    def filter_queryset(self, params, qs):
+        field_group = parse_qs(self.request.POST.get('data'))
+        cdebug(field_group)
+        new_list = getDictArray(field_group,'field_group[group]')
+        cdebug(new_list)
+        new_dic = getDicGroupList(new_list)
+        cdebug(new_dic)
+        group_filter = getGroupFilter(new_dic)
+        qs = self.model.objects.filter(
+            code='10001'
+        )
+        return qs
+
     def get_initial_queryset(self, request=None):
+
 
         queryset = self.model.objects.filter(
             country__code=self.kwargs['country_code']
         )
+        # queryset = super().get_initial_queryset(request=request)
+
+        # cdebug(self.request.POST.get('data'))
+        # cdebug(queryset)
         return queryset
 
 
