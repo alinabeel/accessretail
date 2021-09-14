@@ -51,6 +51,24 @@
                                                                         <option value="category__code">Category Code</option>
                                                                         <option value="category__name">Category Name</option>
                                                                     </optgroup>
+                                                                    <optgroup label="Outlet Status">
+                                                                        <option value="outlet_status__code">OutletStatus Code</option>
+                                                                        <option value="outlet_status__name">OutletStatus Name</option>
+                                                                    </optgroup>
+                                                                    <optgroup label="Outlet Type">
+                                                                        <option value="outlet_type__code">OutletType Code</option>
+                                                                        <option value="outlet_type__name">OutletType Name</option>
+                                                                        <option value="outlet_type__urbanity">OutletType Urbanity</option>
+                                                                        <option value="outlet_type__description">OutletType Description</option>
+                                                                    </optgroup>
+                                                                    <optgroup label="Panel Profile">
+                                                                        {% for i,v in panel_profile_cols.items %}
+                                                                        <option value="{{ i }}">{{ v }}</option>
+                                                                        {% endfor %}
+                                                                    </optgroup>
+                                                                    <optgroup label="Outlet">
+                                                                        <option value="outlet__code">Outlet Code</option>
+                                                                    </optgroup>
                                                                     <optgroup label="Code Frame">
                                                                         <option value="city_village__tehsil__district__province__code">Province Code</option>
                                                                         <option value="city_village__tehsil__district__province__name">Province Name</option>
@@ -68,25 +86,9 @@
                                                                         <option value="{{ i }}">{{ v }}</option>
                                                                         {% endfor %}
                                                                     </optgroup>
-                                                                    <optgroup label="Outlet Status">
-                                                                        <option value="outlet_status__code">Status Code</option>
-                                                                        <option value="outlet_status__name">Status Name</option>
-                                                                    </optgroup>
-                                                                    <optgroup label="Outlet Type">
-                                                                        <option value="outlet_type__code">Outlet Code</option>
-                                                                        <option value="outlet_type__name">Outlet Name</option>
-                                                                        <option value="outlet_type__urbanity">Outlet Urbanity</option>
-                                                                        <option value="outlet_type__description">Outlet Description</option>
-                                                                    </optgroup>
-                                                                    <optgroup label="Panel Profile">
-                                                                        {% for i,v in panel_profile_cols.items %}
-                                                                        <option value="{{ i }}">{{ v }}</option>
-                                                                        {% endfor %}
-                                                                    </optgroup>
-                                                                    <optgroup label="Outlet">
-                                                                        <option value="outlet__code">Outlet Code</option>
-                                                                    </optgroup>
                                                                 </select>
+
+
 
                                                             </div>
                                                             <div class="col">

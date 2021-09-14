@@ -1118,7 +1118,7 @@ class RBDListViewAjax_BACKUP(LoginRequiredMixin, generic.View):
 class RBDListViewAjax(AjaxDatatableView):
     model = RBD
     title = 'RBD'
-    initial_order = [["code", "asc"], ]
+    initial_order = [["name", "asc"], ]
     length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
     search_values_separator = '+'
 
@@ -1126,9 +1126,8 @@ class RBDListViewAjax(AjaxDatatableView):
     column_defs = [
          AjaxDatatableView.render_row_tools_column_def(),
         {'name': 'id', 'visible': False, },
-        {'name': 'code',  },
         {'name': 'name',  },
-        {'name': 'cell','m2m_foreign_field':'cell__code'  },
+        {'name': 'cell','m2m_foreign_field':'cell__name'  },
         # {'name': 'rbdcode', 'title':'RBD Code', 'foreign_field': 'rbd__code', 'choices': True, 'autofilter': True,},
         {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
     ]
@@ -1326,7 +1325,7 @@ class CellListViewAjax_backup(AjaxDatatableView):
 class CellPanelProfileAJAX(AjaxDatatableView):
     model = PanelProfile
     title = 'Panel Profile'
-    initial_order = [["code", "asc"], ]
+    initial_order = [["Index Code", "asc"], ]
     length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
     search_values_separator = '+'
 
@@ -1342,6 +1341,19 @@ class CellPanelProfileAJAX(AjaxDatatableView):
             AjaxDatatableView.render_row_tools_column_def(),
             {'name': 'id', 'visible': False, },
 
+            {'name': 'Index Code', 'foreign_field': 'index__code', },
+            {'name': 'Index Name', 'foreign_field': 'index__name', 'choices': True, 'autofilter': True,},
+
+            {'name': 'Category Code', 'foreign_field': 'category__code', },
+            {'name': 'Category Name', 'foreign_field': 'category__name','choices': True, 'autofilter': True, },
+            {'name': 'Outlet Code', 'foreign_field': 'outlet__code', },
+
+            {'name': 'Outlet Type Code', 'foreign_field': 'outlet_type__code', },
+            {'name': 'Outlet Type Name', 'foreign_field': 'outlet_type__name', 'choices': True, 'autofilter': True,},
+
+            {'name': 'Outlet Status Code', 'foreign_field': 'outlet_status__code', },
+            {'name': 'Outlet Status Name', 'foreign_field': 'outlet_status__name', 'choices': True, 'autofilter': True,},
+
             {'name': 'Province Code', 'foreign_field': 'city_village__tehsil__district__province__code', },
             {'name': 'Province Name', 'foreign_field': 'city_village__tehsil__district__province__name', 'choices': True, 'autofilter': True,},
             {'name': 'District Code', 'foreign_field': 'city_village__tehsil__district__code',},
@@ -1349,27 +1361,34 @@ class CellPanelProfileAJAX(AjaxDatatableView):
 
             {'name': 'Tehsil Code', 'foreign_field': 'city_village__tehsil__code',},
             {'name': 'Tehsil Name', 'foreign_field': 'city_village__tehsil__name', 'choices': True, 'autofilter': True,},
-            {'name': 'Urbanity', 'foreign_field': 'city_village__tehsil__urbanity', 'choices': True, 'autofilter': True,},
+            {'name': 'Tehsil Urbanity', 'foreign_field': 'city_village__tehsil__urbanity', 'choices': True, 'autofilter': True,},
 
-            {'name': 'code', 'title':'City Code', 'foreign_field': 'city_village__code', },
-            {'name': 'name', 'title':'City Name',  'foreign_field': 'city_village__name',},
-            {'name': 'rc_cut', 'foreign_field': 'city_village__rc_cut', 'choices': True, 'autofilter': True,},
+            {'name': 'City Code', 'foreign_field': 'city_village__code', },
+            {'name': 'City Name', 'foreign_field': 'city_village__name',},
+            {'name': 'Rc Cut', 'foreign_field': 'city_village__rc_cut', 'choices': True, 'autofilter': True,},
+            {'name':'lms', 'choices': True, 'autofilter': True,},
+            {'name':'cell_description',},
+            {'name':'nra_tagging',},
+            {'name':'ra_tagging',},
+            {'name':'ret_tagging',},
+            {'name':'audit_date',},
+            {'name':'acv'},
         ]
 
-        # ('index', 'category', 'hand_nhand', 'region', 'city_village', 'outlet', 'outlet_type', 'outlet_status', 'nra_tagging', 'ra_tagging', 'ret_tagging', 'audit_date', 'wtd_factor', 'num_factor', 'turnover', 'acv', )
-        # for v in self.__class__.model._meta.get_fields():
-        #     if('extra' in v.name):
-        #         try:
-        #             col_label = ColLabel.objects.only("col_label").get(
-        #                 country__code = self.kwargs['country_code'],
-        #                 model_name = 'CityVillage',
-        #                 col_name = v.name
-        #             )
-        #         except ColLabel.DoesNotExist:
-        #             col_label = None
+        # ('index', 'category', 'hand_nhand', 'region', 'city_village', 'outlet', 'outlet_type', 'outlet_status', , )
+        for v in CityVillage._meta.get_fields():
+            if('extra' in v.name):
+                try:
+                    col_label = ColLabel.objects.only("col_label").get(
+                        country__code = self.kwargs['country_code'],
+                        model_name = 'CityVillage',
+                        col_name = v.name
+                    )
+                except ColLabel.DoesNotExist:
+                    col_label = None
 
-        #         title = col_label.col_label if col_label else v.name
-        #         self.column_defs.append({'name': v.name,'title':title, 'choices': True, 'autofilter': True, })
+                title = col_label.col_label if col_label else v.name
+                self.column_defs.append({'name': v.name,'title':title, 'foreign_field': 'city_village__'+v.name, 'choices': True, 'autofilter': True, })
         return self.column_defs
 
 
@@ -1421,7 +1440,7 @@ class CellPanelProfileAJAX(AjaxDatatableView):
         return queryList
 
 
-#Used in Cell Create View
+#Used in Cell Create View - X
 class PanelProfileCellListing(ListAPIView):
     # set the pagination and serializer class
     pagination_class = StandardResultsSetPagination
@@ -1541,7 +1560,7 @@ class CellListViewAjax(LoginRequiredMixin, generic.View):
                 """ Store Cell information with cell conditions """
 
                 temp_dic = {
-                    'CellCode' : queryList[k].code,
+                    # 'CellCode' : queryList[k].code,
                     'CellName' : queryList[k].name,
                     'CellDescription' : queryList[k].description,
                     'cell_acv' : queryList[k].cell_acv,
@@ -1613,7 +1632,7 @@ class CellCreateView(LoginRequiredMixin, generic.CreateView):
             form_obj = form.save(commit=False)
             form_obj.country = country
             form_obj.name = self.request.POST.get("name")
-            form_obj.code = self.request.POST.get("code")
+            # form_obj.code = self.request.POST.get("code")
             form_obj.description = self.request.POST.get("description")
             form_obj.condition_html = self.request.POST.get("condition_html")
             form_obj.serialize_str = self.request.POST.get("serialize_str")
@@ -1639,7 +1658,7 @@ class CellCreateView(LoginRequiredMixin, generic.CreateView):
                     pass
                     # panel_profile_cols[v.name+'__code'] = v.name.replace("_", " ").capitalize()
                 else:
-                    panel_profile_cols['panel_profile__'+v.name] = v.name.replace("_", " ").capitalize()
+                    panel_profile_cols[v.name] = v.name.replace("_", " ").capitalize()
 
 
             skip_cols = ['id','pk','country','name','code','tehsil','upload','created','updated',]
@@ -1656,13 +1675,13 @@ class CellCreateView(LoginRequiredMixin, generic.CreateView):
                     except ColLabel.DoesNotExist:
                         col_label = None
                     title = col_label.col_label if col_label else v.name
-                    city_village_cols[v.name] = title.replace("_", " ").title()
+                    city_village_cols['city_village__'+v.name] = title.replace("_", " ").title()
                 else:
-                    city_village_cols[v.name] = v.name.replace("_", " ").title()
+                    city_village_cols['city_village__'+v.name] = v.name.replace("_", " ").title()
 
 
 
-
+            cdebug(city_village_cols)
             country = Country.objects.only('id','code','name').get(code=self.kwargs['country_code'])
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()

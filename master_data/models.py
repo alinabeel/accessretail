@@ -374,7 +374,6 @@ class PanelProfile(CreateUpdateMixIn,models.Model):
     index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     hand_nhand = models.CharField(max_length=50, null=True, blank=True)
-    region = models.CharField(max_length=50, null=True, blank=True)
     city_village = models.ForeignKey(CityVillage, on_delete=models.CASCADE)
 
     outlet = models.ForeignKey(Outlet, on_delete=models.CASCADE)
@@ -385,6 +384,8 @@ class PanelProfile(CreateUpdateMixIn,models.Model):
     ra_tagging = models.SmallIntegerField(null=True, blank=True, default=0)
     ret_tagging = models.SmallIntegerField(null=True, blank=True, default=0)
 
+    lms = models.CharField(max_length=50, null=True, blank=True)
+    cell_description = models.CharField(max_length=1000, null=True, blank=True)
 
     audit_date = models.DateField(null=True, blank=True)
 
@@ -501,7 +502,6 @@ class Cell(CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
 
     name = models.CharField(max_length=500,)
-    code = UpperCaseCharField(max_length=500,validators=[validators.validate_slug])
     description = models.TextField(null=True, blank=True)
 
     cell_acv = models.DecimalField(max_digits=15,decimal_places=6,default=0)
@@ -513,7 +513,7 @@ class Cell(CreateUpdateMixIn,models.Model):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = (('country','code'))
+        unique_together = (('country','name'))
         db_table = 'cell'
         verbose_name = 'Cell'
         verbose_name_plural = 'Cells'
@@ -524,12 +524,11 @@ class Cell(CreateUpdateMixIn,models.Model):
 class RBD(CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     name = models.CharField(max_length=500,)
-    code = UpperCaseCharField(max_length=500,validators=[validators.validate_slug])
     description = models.TextField(null=True, blank=True)
     cell = models.ManyToManyField(Cell)
 
     class Meta:
-        unique_together = (('country','code'))
+        unique_together = (('country','name'))
         db_table = 'rbd'
         verbose_name = 'RBD'
         verbose_name_plural = 'RBDs'

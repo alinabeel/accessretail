@@ -73,8 +73,6 @@ class Command(BaseCommand):
                     outlet_status_code = row['outlet_status_code']
 
 
-                    del row["month"]
-                    del row["year"]
                     del row["month_code"]
                     del row["index"]
                     del row["category"]

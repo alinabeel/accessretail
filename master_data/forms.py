@@ -83,10 +83,10 @@ class RBDModelForm(forms.ModelForm):
 
     def clean(self):
         data = self.cleaned_data
-        code = data.get('code')
+        # code = data.get('code')
         name = data.get('name')
 
-        if (code == '' or name == ''):
+        if (name == ''):
             raise forms.ValidationError('This field cannot be left blank')
 
         # if self.parent != '' and int(self.parent) >= 0:
@@ -103,14 +103,14 @@ class RBDModelForm(forms.ModelForm):
 
         if self.instance.pk is None:  # add
             for instance in RBD.objects.filter(country__code = self.country_code):
-                if instance.code == code:
-                    raise forms.ValidationError({'code': code + ' is already exist.'})
+                # if instance.code == code:
+                #     raise forms.ValidationError({'code': code + ' is already exist.'})
                 if instance.name == name:
                     raise forms.ValidationError({'name': name + ' is already exist.'})
         else:
             for instance in RBD.objects.filter(country__code = self.country_code).exclude(pk = self.instance.pk):
-                if instance.code == code:
-                    raise forms.ValidationError({'code': code + ' is already exist.'})
+                # if instance.code == code:
+                #     raise forms.ValidationError({'code': code + ' is already exist.'})
                 if instance.name == name:
                     raise forms.ValidationError({'name': name + ' is already exist.'})
 
@@ -118,7 +118,7 @@ class RBDModelForm(forms.ModelForm):
 
     class Meta:
         model = RBD
-        fields = ('name','code', 'description','cell')
+        fields = ('name', 'description','cell')
 
 
 class CellModelForm(forms.ModelForm):
@@ -134,22 +134,18 @@ class CellModelForm(forms.ModelForm):
 
     def clean(self):
         data = self.cleaned_data
-        code = data.get('code')
+        # code = data.get('code')
         name = data.get('name')
 
-        if (code == '' or name == ''):
+        if (name == ''):
             raise forms.ValidationError('This field cannot be left blank')
 
         if self.instance.pk is None:  # add
             for instance in Cell.objects.filter(country__code = self.country_code):
-                if instance.code == code:
-                    raise forms.ValidationError({'code': code + ' is already exist.'})
                 if instance.name == name:
                     raise forms.ValidationError({'name': name + ' is already exist.'})
         else:
             for instance in Cell.objects.filter(country__code = self.country_code).exclude(pk = self.instance.pk):
-                if instance.code == code:
-                    raise forms.ValidationError({'code': code + ' is already exist.'})
                 if instance.name == name:
                     raise forms.ValidationError({'name': name + ' is already exist.'})
 
@@ -157,7 +153,7 @@ class CellModelForm(forms.ModelForm):
 
     class Meta:
         model = Cell
-        fields = ('name','code', 'description','cell_acv', 'num_universe', 'optimal_panel',)
+        fields = ('name', 'description','cell_acv', 'num_universe', 'optimal_panel',)
 
 class UsableOutletModelForm(forms.ModelForm):
     class Meta:
