@@ -706,8 +706,6 @@ class ProductImportView(LoginRequiredMixin, generic.CreateView):
         messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
         return reverse("master-data:product-list", kwargs={"country_code": self.kwargs["country_code"]})
 
-
-
 class ProductListViewAjax(AjaxDatatableView):
     model = Product
     title = 'Product'
@@ -1286,40 +1284,38 @@ class RBDDeleteView(LoginRequiredMixin, generic.DeleteView):
 
 """ ------------------------- Cell ------------------------- """
 
-class CellListViewAjax_backup(AjaxDatatableView):
-    model = Cell
-    title = 'Cell'
-    initial_order = [["code", "asc"], ]
-    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
-    search_values_separator = '+'
+class CellImportView(LoginRequiredMixin, generic.CreateView):
+    template_name = "generic_import.html"
+    PAGE_TITLE = "Import Cell"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
 
+    form_class = UploadModalForm
 
-    column_defs = [
-         AjaxDatatableView.render_row_tools_column_def(),
-        {'name': 'id', 'visible': False, },
-        {'name': 'name','title':'Cell Name' },
-        {'name': 'code','title':'Cell Code'  },
-        {'name': 'rbdcode', 'title':'RBD Code', 'foreign_field': 'rbd__code', 'choices': True, 'autofilter': True,},
-        {'name': 'rbd','title':'RBD Name', 'foreign_field': 'rbd__name', 'choices': True, 'autofilter': True,},
-        {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
-    ]
+    def get_context_data(self, **kwargs):
+        context = super(self.__class__, self).get_context_data(**kwargs)
+        return context
 
-    def customize_row(self, row, obj):
-            row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
-                             '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
-                    reverse('master-data:cell-update', args=(self.kwargs['country_code'],obj.id,)),
-                    reverse('master-data:cell-delete', args=(self.kwargs['country_code'],obj.id,)),
-                )
-                # <a href="{1}" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
+    def form_valid(self, form):
+        country = Country.objects.get(code=self.kwargs["country_code"])
 
+        form_obj = form.save(commit=False)
+        form_obj.is_processing = Upload.PROCESSING
+        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.country = country
+        form_obj.frommodel = "cell"
+        form_obj.save()
 
-    def get_initial_queryset(self, request=None):
+        proc = Popen('python manage.py import_cell '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
-        queryset = self.model.objects.filter(
-            country__code=self.kwargs['country_code']
-        )
-        return queryset
+        return super(self.__class__, self).form_valid(form)
 
+    def get_success_url(self):
+
+        messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
+        return reverse("master-data:cell-list", kwargs={"country_code": self.kwargs["country_code"]})
 
 #Used in Cell Create View - EXPRIMENT
 class CellPanelProfileAJAX(AjaxDatatableView):
@@ -1439,7 +1435,6 @@ class CellPanelProfileAJAX(AjaxDatatableView):
         # cdebug(queryset)
         return queryList
 
-
 #Used in Cell Create View - X
 class PanelProfileCellListing(ListAPIView):
     # set the pagination and serializer class
@@ -1551,11 +1546,11 @@ class CellListViewAjax(LoginRequiredMixin, generic.View):
 
                 filter_human = "Cell( \n {})".format(cell_group_filter_human)
 
-                # queryListPPAllCell = queryListPPAll.filter(cell_group_filter)
+                queryListPPAllCell = queryListPPAll.filter(cell_group_filter)
 
                 # prettyprint_queryset(queryListPPAllRBDCell)
 
-                # total_outlets_in_cell = queryListPPAllCell.aggregate(count = Count('outlet__id',distinct=True))
+                total_outlets_in_cell = queryListPPAllCell.aggregate(count = Count('outlet__id',distinct=True))
 
                 """ Store Cell information with cell conditions """
 
@@ -1567,8 +1562,8 @@ class CellListViewAjax(LoginRequiredMixin, generic.View):
                     'num_universe' : queryList[k].num_universe,
                     'optimal_panel' : queryList[k].optimal_panel,
                     'Condition' : "<br />".join(filter_human.split("\n")),
-                    'TotalOutlets' : 0,
-                    # 'TotalOutlets' : total_outlets_in_cell['count'],
+
+                    'TotalOutlets' : total_outlets_in_cell['count'],
 
 
                     'Actions' : ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
@@ -1597,9 +1592,6 @@ class CellListViewAjax(LoginRequiredMixin, generic.View):
                 cls=DjangoJSONEncoder
             ),
             content_type="application/json")
-
-
-
 
 class CellListView(LoginRequiredMixin, generic.TemplateView):
     template_name = "master_data/cell_list.html"
@@ -1636,6 +1628,8 @@ class CellCreateView(LoginRequiredMixin, generic.CreateView):
             form_obj.description = self.request.POST.get("description")
             form_obj.condition_html = self.request.POST.get("condition_html")
             form_obj.serialize_str = self.request.POST.get("serialize_str")
+            form_obj.condition_json = self.request.POST.get("condition_json")
+
             form_obj.save()
             return super(self.__class__, self).form_valid(form)
         except Exception as e:
@@ -1747,6 +1741,7 @@ class CellUpdateView(LoginRequiredMixin, generic.UpdateView):
             form_obj.description = self.request.POST.get("description")
             form_obj.condition_html = self.request.POST.get("condition_html")
             form_obj.serialize_str = self.request.POST.get("serialize_str")
+            form_obj.condition_json = self.request.POST.get("condition_json")
             form_obj.save()
 
             return super(self.__class__, self).form_valid(form)

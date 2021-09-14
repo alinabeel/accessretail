@@ -137,11 +137,11 @@ class MonthModelForm(forms.ModelForm):
              raise forms.ValidationError({'year': 'year must be less than or equal to current year'})
 
         if self.instance.pk is None:  # adding new value
-            for instance in Cell.objects.filter(country__code = self.country_code):
+            for instance in Month.objects.filter(country__code = self.country_code):
                 if instance.code == code:
                     raise forms.ValidationError({'code': code + ' is already exist.'})
         else: #updating value
-            for instance in Cell.objects.filter(country__code = self.country_code).exclude(pk = self.instance.pk):
+            for instance in Month.objects.filter(country__code = self.country_code).exclude(pk = self.instance.pk):
                 if instance.code == code:
                     raise forms.ValidationError({'code': code + ' is already exist.'})
 

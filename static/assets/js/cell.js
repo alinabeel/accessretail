@@ -14,6 +14,10 @@ $(document).ready(function() {
 
 function getAPIData() {
     $('#ajax_datatable').DataTable().ajax.reload(null, false);
+
+    var jsonObj = jQFormSerializeArrToJson($("#accordion :input").serializeArray());
+    console.log(jsonObj);
+    $("#condition_json").val(jsonObj);
 }
 
 
@@ -57,6 +61,13 @@ $( "#frm1" ).submit(function( event ) {
         $(this).find('option[value="' + value + '"]').attr("selected", "selected");
 
     });
+
+
+    var jsonObj = jQFormSerializeArrToJson($("#accordion :input").serializeArray());
+    console.log(jsonObj);
+    $("#condition_json").val(jsonObj);
+
+
     $("#serialize_str").val($("#frm1").serialize());
     $("#condition_html").val($("#accordion").html());
 

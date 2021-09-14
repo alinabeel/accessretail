@@ -76,3 +76,14 @@ function isObject(obj) {
 function stripSlashes(str){
     return str.toString().replace(/\\(.)/mg, "$1");
 }
+
+
+function jQFormSerializeArrToJson(formSerializeArr){
+    var jsonObj = {};
+    jQuery.map( formSerializeArr, function( n, i ) {
+        jsonObj[n.name] = n.value;
+    });
+
+    return JSON.stringify(jsonObj);
+   }
+

@@ -94,6 +94,8 @@ urlpatterns += [
     path('<slug:country_code>/panel-profile-cell-list-json/', PanelProfileCellListing.as_view(), name='panel-profile-cell-list-json'),
     path('<slug:country_code>/panel-profile-cell-list-json/<int:pk>', PanelProfileCellListing.as_view(), name='panel-profile-cell-list-json'),
 
+
+    path('<slug:country_code>/cell-import/', CellImportView.as_view(), name='cell-import'),
     path('<slug:country_code>/cell-list-ajax/', CellListViewAjax.as_view(), name='cell-list-ajax'),
     path('<slug:country_code>/cell-list/', CellListView.as_view(), name='cell-list'),
     path('<slug:country_code>/cell-create/', CellCreateView.as_view(), name='cell-create'),

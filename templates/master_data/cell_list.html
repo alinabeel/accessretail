@@ -1,9 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 {% block action_buttons %}
+<a href="{% url 'master-data:cell-import' country_code=global.country_code %}"
+    class="btn btn-info btn-lg waves-effect waves-light">
+    Import Cell
+</a>
 <a href="{% url 'master-data:cell-create' country_code=global.country_code %}"
     class="btn btn-info btn-lg waves-effect waves-light">
-    Create New Cell</a>
+    Create New Cell
+</a>
 {% endblock action_buttons %}
 {% block content %}
 <div class="row">

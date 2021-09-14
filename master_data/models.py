@@ -497,9 +497,10 @@ class ProductAudit(CreateUpdateMixIn,models.Model):
         return self.country
 
 
-class Cell(CreateUpdateMixIn,models.Model):
+class CellStructure(CreateUpdateMixIn,models.Model):
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
 
     name = models.CharField(max_length=500,)
     description = models.TextField(null=True, blank=True)
@@ -510,6 +511,33 @@ class Cell(CreateUpdateMixIn,models.Model):
 
     condition_html = models.TextField(null=True, blank=True)
     serialize_str = models.TextField(null=True, blank=True)
+    condition_json = models.TextField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = (('country','name'))
+        db_table = 'cell_structure'
+        verbose_name = 'CellStructure'
+        verbose_name_plural = 'CellStructures'
+
+    def __str__(self):
+        return self.name
+
+class Cell(CreateUpdateMixIn,models.Model):
+
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
+
+    name = models.CharField(max_length=500,)
+    description = models.TextField(null=True, blank=True)
+
+    cell_acv = models.DecimalField(max_digits=15,decimal_places=6,default=0)
+    num_universe = models.DecimalField(max_digits=15,decimal_places=6,default=0)
+    optimal_panel = models.IntegerField(default=0)
+
+    condition_html = models.TextField(null=True, blank=True)
+    serialize_str = models.TextField(null=True, blank=True)
+    condition_json = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
     class Meta:

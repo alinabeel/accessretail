@@ -19,48 +19,29 @@
 
                     <textarea id="condition_html" name="condition_html" style="visibility: hidden;"></textarea>
                     <input type="text" id="serialize_str" name="serialize_str" value="" style="visibility: hidden;" />
+                    <input type="text" id="condition_json" name="condition_json" value="" style="visibility: hidden;" />
 
                     <div class="col-12">
                         <button class="btn btn-warning btn-block btn-lg waves-effect" type="button"
                             id="btn_filter">Filter</button>
                     </div>
 
-                    <section>
-                        <div class="container-fluid">
-                            <div id="result-count" class="text-right">
-                                <span class='font-weight-bold'></span> results found.
-                            </div>
-                            <div class="row properties_table justify-content-center">
-                                <div id="no_results">
-                                    <h5>No results found</h5>
-                                </div>
-                                <div class="table-responsive">
-                                    <table
-                                        class="table datatable table table-striped table-bordered dt-responsive nowrap"
-                                        id="list_data" data-toggle="table"
-                                        url="{% url 'master-data:panel-profile-cell-list-json'  country_code=global.country_code pk=object.pk %}">
-                                        <tbody id="listing">
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="row justify-content-center">
-                                <nav aria-label="navigation">
-                                    <ul class="pagination">
-                                        <li class="page-item">
-                                            <button type="button" class="btn btn-primary page-link"
-                                                id="previous">Previous</button>
-                                        </li>
-                                        <li class="page-item pull-right">
-                                            <button type="button" class="btn btn-primary page-link"
-                                                id="next">Next</button>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
-                    </section>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card m-b-30">
+                                <div class="card-body">
 
+                                    <table
+                                    id="ajax_datatable"
+                                    class="datatable table table-striped table-bordered dt-responsive nowrap"
+                                    style="border-collapse: collapse; border-spacing: 0; width: 100%;"
+                                    url="{% url 'master-data:cell-panel-profile-ajax' country_code=global.country_code %}">
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div> <!-- end col -->
+                    </div> <!-- end row -->
 
                     <div class="row">
                         <div class="col-6">
@@ -81,7 +62,8 @@
 </div> <!-- end row -->
 {% endblock content %}
 {% block javascripts %}
-<script src="{% static 'assets/js/rbd.js' %}"></script>
+<script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+<script src="{% static 'assets/js/cell.js' %}"></script>
 <script language="javascript">
 </script>
 {% endblock javascripts %}
