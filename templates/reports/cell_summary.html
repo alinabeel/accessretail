@@ -4,7 +4,7 @@
 {% endblock stylesheets %}
 {% load crispy_forms_tags %}
 {% block action_buttons %}
-<a href="{% url 'reports:cell-summary-ajax' country_code=global.country_code%}?export=csv" class="btn btn-info btn-lg waves-effect waves-light">Export CSV</a>
+<a href="{% url 'reports:cell-summary-ajax' country_code=global.country_code pk=view.kwargs.pk %}?export=csv" class="btn btn-info btn-lg waves-effect waves-light">Export CSV</a>
 {% endblock action_buttons %}
 {% block content %}
 <div class="row">
@@ -24,10 +24,11 @@
                                     <h5>No results found</h5>
                                 </div>
                                 <div class="table-responsive">
+
                                     <table
                                         class="table datatable table table-striped table-bordered dt-responsive header-fixed"
                                         id="list_data" data-toggle="table"
-                                        url="{% url 'reports:cell-summary-ajax'  country_code=global.country_code %}">
+                                        url="{% url 'reports:cell-summary-ajax'  country_code=global.country_code pk=view.kwargs.pk %}">
                                         <thead>
                                             <tr>
                                                 <th colspan="8">Cell Summary</th>
@@ -232,21 +233,6 @@
             }
         });
 
-        /*$.ajax({
-            method: 'GET',
-            url: "{% url 'reports:cell-summary-ajax'  country_code=global.country_code %}",
-            data: datastring,
-            beforeSend: function(){
-                //$("#no_results h5").html("Loading data...");
-            },
-            success: function (result) {
-                console.log(JSON.parse(result));
-            },
-            error: function (response) {
-                //$("#no_results h5").html("Something went wrong");
-                //$("#list_data").hide();
-            }
-        });*/
 
     }
 

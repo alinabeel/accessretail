@@ -3671,21 +3671,3 @@ table.focus-on tbody tr.focused td {
   padding-left: 20px;
 }
 /*# sourceMappingURL=style.css.map */
-
-
-
-/****************Custom************************/
-.dataTables_length{margin-top: 30px;}
-.prevmonth{text-align: center; background-color: rgba(173, 216, 230, 0.678);white-space: pre-wrap !important;}
-.currmonth{text-align: center; background-color: rgba(240, 128, 128, 0.678);white-space: pre-wrap !important;}
-.red{ color: #fff;background-color:orangered !important;}
-.green{ color: #fff;background-color: #5aca52 !important;}
-.orange{ color: #fff;background-color: orange !important;}
-.blue{ color: #fff;background-color: rgb(62, 62, 202) !important;}
-.bold{font-size: 15px; font-weight: bold;}
-
-
-.simple-tree-table-root.simple-tree-table-closed .simple-tree-table-icon{font-size: 15px; color: #fff; background-color: #319b92 !important;}
-.simple-tree-table-root.simple-tree-table-opened .simple-tree-table-icon{font-size: 15px; color: #fff; background-color: #fc5454 !important;}
-
-.submenu hr{margin: 5px 0 !important;}

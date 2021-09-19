@@ -6,7 +6,7 @@ import dateutil.parser
 from django.utils.dateparse import parse_date
 from django.core.management.base import BaseCommand
 from csv import DictReader
-from master_data.models import Upload,Cell
+from master_data.models import Upload,Cell,Month,CellMonthACV
 from master_setups.models import Country,IndexSetup
 import json
 from collections import OrderedDict
@@ -52,7 +52,7 @@ class Command(BaseCommand):
                     row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
 
                     cell_name = row['cell_name']
-                    # cell_acv = row['cell_acv']
+                    cell_acv = row['cell_acv']
                     # num_universe = row['num_universe']
                     # optimal_panel = row['optimal_panel']
                     del row["cell_name"]
@@ -86,6 +86,14 @@ class Command(BaseCommand):
                         )
                         if(created): created_records+=1
                         else: updated_records+=1
+
+
+                    month_qs = Month.objects.all().filter(country = country)
+                    for key in month_qs:
+                        CellMonthACV.objects.get_or_create(
+                            country=upload.country, month=key,cell=obj,
+                            defaults={'cell_acv':float(cell_acv)}
+                        )
 
 
             logger.error('CSV file processed successfully.')

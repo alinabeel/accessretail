@@ -143,6 +143,10 @@ def csvHeadClean(c):
     c = c.strip()
     c = c.replace(' ','_')
     c = c.replace('-','_')
+    c = c.replace('.','_')
+    c = c.replace('(','')
+    c = c.replace(')','')
+    c = c.strip()
     return c
 
 def printr(str):
@@ -165,6 +169,18 @@ def replaceIndex(i):
 
     i = i.replace('num_uni','num_universe')
     i = i.replace('optimal_panel','optimal_panel')
+
+    i = i.replace('p_purchase_1','purchase_1')
+    i = i.replace('p_purchase_2','purchase_2')
+    i = i.replace('p_purchase_3','purchase_3')
+    i = i.replace('p_purchase_4','purchase_4')
+    i = i.replace('p_purchase_5','purchase_5')
+    i = i.replace('op_stock','opening_stock')
+    i = i.replace('ostock','opening_stock')
+
+    i = i.replace('stock1','stock_1')
+    i = i.replace('stock2','stock_2')
+    i = i.replace('stock3','stock_3')
 
 
 

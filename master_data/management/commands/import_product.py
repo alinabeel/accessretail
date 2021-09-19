@@ -1,3 +1,4 @@
+from core.utils import cdebug
 import re
 import time
 import datetime
@@ -6,16 +7,15 @@ import dateutil.parser
 from django.utils.dateparse import parse_date
 from django.core.management.base import BaseCommand
 from csv import DictReader
-from master_data.models import Category,Outlet ,OutletType,Upload,Product
+from master_data.models import Category,Outlet ,OutletType,Upload,Product,ColLabel
 from master_setups.models import Country,IndexSetup
 import json
 from collections import OrderedDict
 from core.settings import MEDIA_ROOT
+from core.utils import cdebug, csvHeadClean,printr
+
 import logging
 logger = logging.getLogger(__name__)
-def printr(str):
-    print(str)
-    return str+"\n"
 
 class Command(BaseCommand):
 
@@ -36,7 +36,11 @@ class Command(BaseCommand):
         if(upload.import_mode == Upload.REFRESH):
             Product.objects.filter(country=upload.country).delete()
 
-
+        product_fields = []
+        skip_cols = ['id','pk','country','category','productaudit','upload','created','updated',]
+        for v in Product._meta.get_fields():
+            if(v.name not in skip_cols):
+                product_fields.append(v.name)
 
         # printr(Colors.BRIGHT_PURPLE,form_obj.file)
         try:
@@ -47,41 +51,45 @@ class Command(BaseCommand):
                 log += printr("csv.DictReader took %s seconds" % (time.time() - start_time))
 
                 for row in csv_reader:
+                    n+=1
+                    temp_row = dict()
                     # printr(n,end=' ',flush=True)
-                    row = {k.strip(): v.strip() for (k, v) in row.items()}
+                    row = {csvHeadClean(k): v.strip() for (k, v) in row.items()}
 
+                    temp_row = row
                     # product_code	product	pack_type	aggregation_level	category_code	company	brand	family	flavour_type	weight	price_segment	length_range	number_in_pack	price_per_stick
                     # ('pack_type', 'aggregation_level', 'category_code', 'company', 'brand', 'family', 'flavour_type', 'weight', 'price_segment', 'length_range', 'number_in_pack', 'price_per_stick', )
                     for (k, v) in row.items():
                         # k = re.sub('[^A-Za-z0-9]+', '_', k).lower().strip('_')
                         v = str(v.strip())
-                        if(str(v.lower()) in ['true','t','y','yes']):
-                            v = True
-                        elif(str(v.lower()) in ['false','f','n','no']):
-                            v = False
-                        elif(str(v.lower()) in ['na','nill','','null','n/a']):
+                        if(str(v.lower()) in ['-','na','nill','','null','n/a']):
                             v = None
-                        elif(v.replace('.','',1).isdigit()):
-                            v = float(v)
                         else:
                             v = str(v)
                         row[k] = v
-
+                    # cdebug(row,'Line:70')
                     product_code = row['product_code']
-                    product = row['product']
+                    product_name = row.pop("product_name", "")
                     category_code = row['category_code']
                     row['code'] = product_code
-                    row['name'] = product
+                    row['name'] = product_name
                     row["upload"] = upload
 
-                    del row["product_code"]
-                    del row["product"]
-                    del row["category_code"]
+                    row.pop("product_code", None)
+                    row.pop("category_code", None)
+                    row.pop("category_name", None)
+
+                    #remove extra fields
+                    for v in product_fields:
+                        if(v not in row.keys()):
+                            row.pop(v, None)
+                    cdebug(row,'Line:86')
+                    cdebug(product_fields)
 
                     category_qs = None
                     if(category_code != ''):
                         try:
-                            category_qs = Category.objects.get(country=upload.country, code=category_code)
+                            category_qs = Category.objects.get(country=upload.country, code__iexact=category_code)
                         except Category.DoesNotExist:
                             category_qs = None
 
@@ -89,9 +97,33 @@ class Command(BaseCommand):
                         log += printr('skip category: ' + category_code)
                         skiped_records+=1
                         continue
-                    print(row)
+
                     row['category'] = category_qs
 
+                    extra_count = 1
+                    max_extra = 30
+                    for key, val in list(temp_row.items()):
+                        if('extra' in key and extra_count <= max_extra):
+                            # print(key,val)
+                            extra  = key.replace('extra_','')
+                            extra  = extra.replace('_', ' ')
+                            extra  = extra.title()
+
+                            col_name = 'extra_'+str(extra_count)
+
+                            row[col_name] = val
+                            cdebug(key,'row')
+                            del row[key]
+                            if n==1:
+                                col_label_qs, created = ColLabel.objects.update_or_create(
+                                    country=upload.country, model_name='Product',col_name=col_name,
+                                    defaults={'col_label':extra},
+                                )
+
+                            extra_count += 1
+
+
+                    cdebug(row)
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
 
                         # In this case, if the Person already exists, its existing name is preserved
@@ -111,7 +143,6 @@ class Command(BaseCommand):
                         if(created): created_records+=1
                         else: updated_records+=1
 
-                    n+=1
 
 
             logger.error('CSV file processed successfully.')

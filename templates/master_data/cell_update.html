@@ -14,7 +14,151 @@
                     {{ form|crispy }}
 
                     <div id="accordion">
+                        {% if cell_qs.condition_html != None %}
                         {{ cell_qs.condition_html|safe}}
+                        {% else %}
+
+                        <hr>
+                        <div class="card">
+                            <div class="card-header" id="headingOne">
+                                <a class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+                                    aria-expanded="true" aria-controls="collapseOne">
+                                    <h6 class="mb-0">
+
+                                        Cell Conditions
+
+                                    </h6>
+                                </a>
+                            </div>
+
+                            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+                                data-parent="#accordion">
+                                <div class="card-body">
+                                    <div class="clonable-block" data-toggle="cloner" data-options='{"debug":false}'>
+                                        <div class="clonable" data-ss="1">
+                                            <div id="or_group_0" class="clonable-increment-id or_group">
+                                                <div class="clonable-block" data-toggle="cloner">
+                                                    <div class="clonable" data-ss="1">
+                                                        <div class="form-group row" style="margin:10px 0">
+
+                                                            <div class="col">
+                                                                <select class="form-control clonable-increment-name"
+                                                                    data-name="cols" name="field_group[cols]">
+
+                                                                    <option value="">-- Select Column --</option>
+
+                                                                    <optgroup label="Index">
+                                                                        <option value="index__code">Index Code</option>
+                                                                        <option value="index__name">Index Name</option>
+                                                                    </optgroup>
+
+                                                                    <optgroup label="Category">
+                                                                        <option value="category__code">Category Code</option>
+                                                                        <option value="category__name">Category Name</option>
+                                                                    </optgroup>
+                                                                    <optgroup label="Outlet Status">
+                                                                        <option value="outlet_status__code">OutletStatus Code</option>
+                                                                        <option value="outlet_status__name">OutletStatus Name</option>
+                                                                    </optgroup>
+                                                                    <optgroup label="Outlet Type">
+                                                                        <option value="outlet_type__code">OutletType Code</option>
+                                                                        <option value="outlet_type__name">OutletType Name</option>
+                                                                        <option value="outlet_type__urbanity">OutletType Urbanity</option>
+                                                                        <option value="outlet_type__description">OutletType Description</option>
+                                                                    </optgroup>
+                                                                    <optgroup label="Panel Profile">
+                                                                        {% for i,v in panel_profile_cols.items %}
+                                                                        <option value="{{ i }}">{{ v }}</option>
+                                                                        {% endfor %}
+                                                                    </optgroup>
+                                                                    <optgroup label="Outlet">
+                                                                        <option value="outlet__code">Outlet Code</option>
+                                                                    </optgroup>
+                                                                    <optgroup label="Code Frame">
+                                                                        <option value="city_village__tehsil__district__province__code">Province Code</option>
+                                                                        <option value="city_village__tehsil__district__province__name">Province Name</option>
+
+                                                                        <option value="city_village__tehsil__district__code">District Code</option>
+                                                                        <option value="city_village__tehsil__district__name">District Name</option>
+
+                                                                        <option value="city_village__tehsil__code">Tehsil Code</option>
+                                                                        <option value="city_village__tehsil__name">Tehsil Name</option>
+                                                                        <option value="city_village__tehsil__urbanity">Tehsil Urbanity</option>
+
+                                                                        <option value="city_village__code">CityVillage Code</option>
+                                                                        <option value="city_village__name">CityVillage Name</option>
+                                                                        {% for i,v in city_village_cols.items %}
+                                                                        <option value="{{ i }}">{{ v }}</option>
+                                                                        {% endfor %}
+                                                                    </optgroup>
+                                                                </select>
+
+
+
+                                                            </div>
+                                                            <div class="col">
+                                                                <select class="form-control clonable-increment-name"
+                                                                    data-name="operator" name="field_group[operator]">
+
+                                                                    <option value="">-- Select Condition --</option>
+                                                                    <option value="iexact">Equals</option>
+                                                                    <option value="istartswith">Starts With</option>
+                                                                    <option value="iendswith">Ends With</option>
+                                                                    <option value="icontains">Contains</option>
+                                                                    <option value="~">Not Equal</option>
+
+                                                                    <option value="isnull">Not Set or Blank</option>
+
+                                                                    <option value="gt">Greater Than</option>
+                                                                    <option value="gte">Greater Than or Equals to
+                                                                    </option>
+                                                                    <option value="lt">Less Than</option>
+                                                                    <option value="lte">Less Than or Equals to</option>
+
+                                                                    {% comment %} <option value="isoneof">is one of
+                                                                    </option>
+                                                                    <option value="isset">is Set or Not Blank</option>
+                                                                    <option value="null">Is Not Set or is blank</option>
+                                                                    <option value="less">before</option>
+                                                                    <option value="lessequal">on or before</option>
+                                                                    <option value="greater">after</option>
+                                                                    <option value="greaterequal">on or after</option>
+                                                                    <option value="between">between</option>
+                                                                    {% endcomment %}
+                                                                </select>
+                                                            </div>
+                                                            <div class="col">
+                                                                <input type="text"
+                                                                    class="form-control clonable-increment-name"
+                                                                    data-name="value" name="field_group[value]" />
+                                                            </div>
+                                                            <div class="col">
+                                                                <button id="a_and"
+                                                                    class="btn btn-primary clonable-button-add and-add"
+                                                                    type="button">AND</button>
+                                                                <button id="r_and" type="button"
+                                                                    class="btn btn-danger clonable-button-close">X</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col" style="margin:10px">
+                                                <label>OR</label>
+                                                <button id="a_or" class="btn btn-primary clonable-button-add or-add"
+                                                    type="button">Add rule group</button>
+                                                <button id="r_or" type="button"
+                                                    class="btn btn-danger clonable-button-close">Delete</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
                     </div>
 
                     <textarea id="condition_html" name="condition_html" style="visibility: hidden;"></textarea>

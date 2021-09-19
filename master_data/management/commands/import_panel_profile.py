@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.utils.dateparse import parse_date
 from django.core.management.base import BaseCommand
 from csv import DictReader
+
 from master_data.models import *
 from master_setups.models import *
 from core.colors import Colors
@@ -55,7 +56,7 @@ class Command(BaseCommand):
 
                 for row in csv_reader:
                     n+=1
-                    print(n,end=' ',flush=True)
+                    if n%500==0: print(n,end=' ',flush=True)
                     row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
 
                     row["upload"] = upload

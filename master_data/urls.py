@@ -99,6 +99,7 @@ urlpatterns += [
     path('<slug:country_code>/cell-list-ajax/', CellListViewAjax.as_view(), name='cell-list-ajax'),
     path('<slug:country_code>/cell-list/', CellListView.as_view(), name='cell-list'),
     path('<slug:country_code>/cell-create/', CellCreateView.as_view(), name='cell-create'),
+    path('<slug:country_code>/cell-duplicate/<int:pk>', CellDuplicateView.as_view(), name='cell-duplicate'),
     path('<slug:country_code>/cell-update/<int:pk>', CellUpdateView.as_view(), name='cell-update'),
     path('<slug:country_code>/cell-delete/<int:pk>', CellDeleteView.as_view(), name='cell-delete'),
 ]

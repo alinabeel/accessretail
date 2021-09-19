@@ -4,6 +4,7 @@ import csv
 from django.db.models import Q, Avg, Count, Min,Max, Sum
 from decimal import Decimal
 from django.http import (HttpResponseRedirect,HttpResponse,JsonResponse)
+from master_data.models import Category
 
 def getDictArray(post, name):
     array =  []
@@ -98,4 +99,11 @@ def remove_exponent(d):
     ret = d.quantize(Decimal(1)) if d == d.to_integral() else d.normalize()
     return "{:,}".format(ret)
 
-
+def getCategories(self):
+    queryset = Category.objects.filter(country__code=self.kwargs['country_code']).order_by('name')
+    # cdebug(queryset)
+    html = '<select name="category">'
+    for cat in queryset:
+        html += '<option value="'+str(cat.id)+'" >' + str(cat.name)+'('+str(cat.code)+')</option>'
+    html += '</select">'
+    return html

@@ -80,13 +80,13 @@
                                         class="mdi mdi-chevron-right"></i></span> </span></a>
 
                         <ul class="submenu">
-                            <li><a href="{% url 'reports:cell-summary-overview-list-view' country_code=global.country_code %}">Cell Summary Overview</a></li>
-                            <li><a href="{% url 'reports:cell-summary-list-view' country_code=global.country_code %}">Cell Summary</a></li>
-                            <li><hr ></li>
+                            <!-- <li><a href="{% url 'reports:cell-summary-overview-list-view' country_code=global.country_code %}">Cell Summary Overview</a></li> -->
+                            <li><a href="{% url 'reports:rbd-list' country_code=global.country_code %}">Cell Summary</a></li>
+                            <!-- <li><hr ></li>
                             <li><a href="{% url 'reports:cell-shop-inspection-list-view' country_code=global.country_code %}">Cell & Shop Inspection</a></li>
                             <li><hr ></li>
                             <li><a href="{% url 'reports:client-reporting-view' country_code=global.country_code %}">Client Reporting</a></li>
-                            <li><hr ></li>
+                            <li><hr ></li> -->
                             <li><a href="{% url 'reports:import-logs' country_code=global.country_code %}">Import Logs</a></li>
                         </ul>
                     </li>

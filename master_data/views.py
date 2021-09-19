@@ -3,6 +3,8 @@ from dateutil.easter import *
 from dateutil.rrule import *
 from dateutil.parser import *
 from datetime import *
+import base64
+
 
 from termcolor import cprint
 import traceback
@@ -17,7 +19,7 @@ from urllib.parse import parse_qs,urlparse
 from itertools import chain
 from collections import OrderedDict
 
-
+from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -239,12 +241,12 @@ class CategoryListViewAjax(AjaxDatatableView):
     ]
 
     def customize_row(self, row, obj):
-            row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
-                             '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+            row['action'] = ('<a href="%s" title="Edit" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
+                             '<a href="%s" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
                     reverse('master-data:category-update', args=(self.kwargs['country_code'],obj.id,)),
                     reverse('master-data:category-delete', args=(self.kwargs['country_code'],obj.id,)),
                 )
-                # <a href="{1}" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
+                # <a href="{1}" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
 
 
     def get_initial_queryset(self, request=None):
@@ -564,8 +566,8 @@ class UsableOutletListViewAjax(AjaxDatatableView):
     ]
 
     def customize_row(self, row, obj):
-            row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
-                             '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+            row['action'] = ('<a href="%s" title="Edit" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
+                             '<a href="%s" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
                     reverse('master-data:usable-outlet-update', args=(self.kwargs['country_code'],obj.id,)),
                     reverse('master-data:usable-outlet-delete', args=(self.kwargs['country_code'],obj.id,)),
                 )
@@ -714,25 +716,55 @@ class ProductListViewAjax(AjaxDatatableView):
     search_values_separator = '+'
 
 
-    column_defs = [
-         AjaxDatatableView.render_row_tools_column_def(),
-        # ('pack_type', 'aggregation_level', 'category_code', 'company', 'brand', 'family', 'flavour_type', 'weight', 'price_segment', 'length_range', 'number_in_pack', 'price_per_stick', )
-        {'name': 'id', 'visible': False, },
-        {'name': 'code',  },
-        {'name': 'name',  },
 
-        {'name': 'pack_type',  'choices': True, 'autofilter': True,},
-        {'name': 'aggregation_level',  'choices': True, 'autofilter': True,},
-        {'name': 'company',  'choices': True, 'autofilter': True,},
-        {'name': 'brand',  'choices': True, 'autofilter': True,},
-        {'name': 'family',  'choices': True, 'autofilter': True,},
-        {'name': 'flavour_type',  'choices': True, 'autofilter': True,},
-        {'name': 'weight',  },
-        {'name': 'price_segment',  'choices': True, 'autofilter': True,},
-        {'name': 'length_range',  'choices': True, 'autofilter': True,},
-        {'name': 'number_in_pack',  },
-        {'name': 'price_per_stick',  },
-    ]
+    def get_column_defs(self, request):
+        """
+        Override to customize based of request
+        """
+
+        self.column_defs = [
+            AjaxDatatableView.render_row_tools_column_def(),
+            {'name': 'id', 'visible': False, },
+            # {'name': 'category','foreign_field': 'category__code',   'choices': True, 'autofilter': True,},
+            {'name': 'code',  },
+            # {'name': 'aggregation_level',  'choices': True, 'autofilter': True,},
+            # {'name': 'company',  'choices': True, 'autofilter': True,},
+            # {'name': 'brand',  'choices': True, 'autofilter': True,},
+            # {'name': 'family',  'choices': True, 'autofilter': True,},
+            # {'name': 'flavour_type',  'choices': True, 'autofilter': True,},
+            # {'name': 'weight',  },
+            # {'name': 'price_segment',  'choices': True, 'autofilter': True,},
+            # {'name': 'length_range',  'choices': True, 'autofilter': True,},
+            # {'name': 'number_in_pack',  },
+            # {'name': 'price_per_stick',  },
+        ]
+        # ('barcode', 'sku', 'brand', 'variant', 'size', 'packaging', 'weight', 'origin', 'country', 'manufacture', 'price_segment', 'super_manufacture', 'super_brand', 'weight', 'number_in_pack', 'price_per_unit', )
+
+        skip_cols = ['id','pk','code','category','productaudit','country','upload','created','updated',]
+
+        # for v in Product._meta.get_fields():
+        #     if(v.name not in skip_cols):
+        #         column_defs.append({'name':v.name})
+
+        # ('index', 'category', 'hand_nhand', 'region', 'city_village', 'outlet', 'outlet_type', 'outlet_status', , )
+        for v in Product._meta.get_fields():
+            if(v.name in skip_cols):
+                continue
+            if('extra' in v.name):
+                try:
+                    col_label = ColLabel.objects.only("col_label").get(
+                        country__code = self.kwargs['country_code'],
+                        model_name = 'Product',
+                        col_name = v.name
+                    )
+                except ColLabel.DoesNotExist:
+                    col_label = None
+
+                title = col_label.col_label if col_label else v.name
+                self.column_defs.append({'name': v.name,'title':title, })
+            else:
+                self.column_defs.append({'name': v.name})
+        return self.column_defs
 
     def get_initial_queryset(self, request=None):
 
@@ -808,17 +840,15 @@ class ProductAuditListViewAjax(AjaxDatatableView):
     column_defs = [
          AjaxDatatableView.render_row_tools_column_def(),
         {'name': 'id', 'visible': False, },
-        {'name': 'period',  'choices': True,'autofilter': True,},
         {'name': 'month', 'foreign_field': 'month__code', 'choices': True,'autofilter': True,},
         {'name': 'category', 'foreign_field': 'category__code', 'choices': True,'autofilter': True,},
         {'name': 'outlet', 'foreign_field': 'outlet__code',},
         {'name': 'product','title':'Product Code', 'foreign_field': 'product__code',},
-        {'name': 'avaibility', 'choices': True,'autofilter': True,},
 
         ]
 
     skip_cols = ['id','pk','country','upload','created','updated',
-                 'month', 'period', 'category', 'outlet', 'product','avaibility',]
+                 'month', 'period', 'category', 'outlet', 'product',]
 
     for v in model._meta.get_fields():
         if(v.name not in skip_cols):
@@ -873,12 +903,12 @@ class RBDListViewAjax_backup(AjaxDatatableView):
     ]
 
     def customize_row(self, row, obj):
-            row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
-                             '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+            row['action'] = ('<a href="%s" title="Edit" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
+                             '<a href="%s" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
                     reverse('master-data:rbd-update', args=(self.kwargs['country_code'],obj.id,)),
                     reverse('master-data:rbd-delete', args=(self.kwargs['country_code'],obj.id,)),
                 )
-                # <a href="{1}" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
+                # <a href="{1}" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
 
 
     def get_initial_queryset(self, request=None):
@@ -1086,8 +1116,8 @@ class RBDListViewAjax_BACKUP(LoginRequiredMixin, generic.View):
                     'data-node-id' : data_node_id,
                     'data-node-pid' : data_node_pid,
 
-                    'Actions' : ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
-                                 '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+                    'Actions' : ('<a href="%s" title="Edit" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
+                                 '<a href="%s" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
                                     reverse('master-data:rbd-update', args=(self.kwargs['country_code'],pk,)),
                                     reverse('master-data:rbd-delete', args=(self.kwargs['country_code'],pk,)),
                                 )
@@ -1131,12 +1161,15 @@ class RBDListViewAjax(AjaxDatatableView):
     ]
 
     def customize_row(self, row, obj):
-            row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
-                             '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+            row['action'] = ('<a href="%s" title="Edit" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
+                             '<a href="%s" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
                     reverse('master-data:rbd-update', args=(self.kwargs['country_code'],obj.id,)),
                     reverse('master-data:rbd-delete', args=(self.kwargs['country_code'],obj.id,)),
                 )
-                # <a href="{1}" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
+            row['cell'] = row['cell'].replace(',','<br>')
+
+            # cdebug(obj.cell.__dict__,'M2')
+
 
 
     def get_initial_queryset(self, request=None):
@@ -1181,6 +1214,10 @@ class RBDCreateView(LoginRequiredMixin, generic.CreateView):
             form_obj.code = self.request.POST.get("code")
             form_obj.description = self.request.POST.get("description")
             form_obj.save()
+            # cdebug(self.request.POST.get("checkbox"))
+            # form_obj.cell.add(self.request.POST.get("checkbox"))
+            # form_obj.save()
+
             return super(self.__class__, self).form_valid(form)
 
         except IntegrityError:
@@ -1191,6 +1228,35 @@ class RBDCreateView(LoginRequiredMixin, generic.CreateView):
             messages.add_message(self.request, messages.SUCCESS, "Record saved successfully.")
             return reverse("master-data:rbd-list", kwargs={"country_code": self.kwargs["country_code"]})
 
+
+    def get_context_data(self, *args, **kwargs):
+        try:
+            context = super(self.__class__, self).get_context_data(**kwargs)
+
+            country = Country.objects.get(code=self.kwargs["country_code"])
+            objects = Cell.objects.only('id','name').filter(country = country).order_by('name')
+            # objects = Cell.objects.only('id','name').get(country__code=self.kwargs['country_code']).order_by('name')
+            # data = [i[0] for i in list(data)]
+            dictionaries = [ obj.as_dict() for obj in objects ]
+            # return HttpResponse(), content_type='application/json')
+
+            # row = {k: v for (k, v) in data.items()}
+            # print(row)
+
+            cells = {
+                "data": json.dumps(dictionaries)
+            }
+
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
+
+        context.update({
+            "cells": cells,
+        })
+        return context
 
 class RBDUpdateView(LoginRequiredMixin, generic.UpdateView):
     template_name = "master_data/rbd_update.html"
@@ -1219,6 +1285,10 @@ class RBDUpdateView(LoginRequiredMixin, generic.UpdateView):
             form_obj.code = self.request.POST.get("code")
             form_obj.description = self.request.POST.get("description")
             form_obj.save()
+            # cdebug(self.request.POST.get("checkbox"))
+            # form_obj.cell.add(self.request.POST.get("checkbox"))
+            # form_obj.save()
+
 
             return super(self.__class__, self).form_valid(form)
 
@@ -1238,27 +1308,31 @@ class RBDUpdateView(LoginRequiredMixin, generic.UpdateView):
             return reverse("master-data:rbd-list", kwargs={"country_code": self.kwargs["country_code"]})
 
     def get_context_data(self, *args, **kwargs):
+        try:
+            context = super(self.__class__, self).get_context_data(**kwargs)
 
-        context = super(self.__class__, self).get_context_data(**kwargs)
-        rbd_qs = RBD.objects.get(
-            country__code=self.kwargs['country_code'],
-            pk=self.kwargs['pk']
-        )
-        skip_cols = ['id','pk','country','upload','created','updated',]
+            country = Country.objects.get(code=self.kwargs["country_code"])
+            objects = Cell.objects.only('id','name').filter(country = country).order_by('name')
+            # objects = Cell.objects.only('id','name').get(country__code=self.kwargs['country_code']).order_by('name')
+            # data = [i[0] for i in list(data)]
+            dictionaries = [ obj.as_dict() for obj in objects ]
+            # return HttpResponse(), content_type='application/json')
 
-        panel_profile_cols = {}
-        for v in PanelProfile._meta.get_fields():
-            if(v.name not in skip_cols):
-                if isinstance(v, models.ForeignKey):
-                    panel_profile_cols[v.name+'__code'] = v.name.replace("_", " ").capitalize()
-                else:
-                    panel_profile_cols[v.name] = v.name.replace("_", " ").capitalize()
+            # row = {k: v for (k, v) in data.items()}
+            # print(row)
 
-        country = Country.objects.only('id','code','name').get(code=self.kwargs['country_code'])
+            cells = {
+                "data": json.dumps(dictionaries)
+            }
+
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
 
         context.update({
-            "panel_profile_cols": panel_profile_cols,
-            "rbd_qs": rbd_qs,
+            "cells": cells,
         })
         return context
 
@@ -1424,11 +1498,11 @@ class CellPanelProfileAJAX(AjaxDatatableView):
         new_dic = getDicGroupList(new_list)
         group_filter = getGroupFilter(new_dic)
 
-        cdebug(field_group,'field_group')
-        cdebug(new_list,'new_list')
-        cdebug(group_filter,'group_filter')
+        # cdebug(field_group,'field_group')
+        # cdebug(new_list,'new_list')
+        # cdebug(group_filter,'group_filter')
         queryList = queryList.filter(group_filter)
-        prettyprint_queryset(queryList)
+        # prettyprint_queryset(queryList)
 
 
         # cdebug(self.request.POST.get('data'))
@@ -1468,9 +1542,9 @@ class PanelProfileCellListing(ListAPIView):
             new_dic = getDicGroupList(new_list)
             group_filter = getGroupFilter(new_dic)
 
-            cdebug(field_group,'field_group')
-            cdebug(new_list,'new_list')
-            cdebug(group_filter,'group_filter')
+            # cdebug(field_group,'field_group')
+            # cdebug(new_list,'new_list')
+            # cdebug(group_filter,'group_filter')
 
             queryList = queryList.filter(group_filter)
 
@@ -1498,7 +1572,7 @@ class CellListViewAjax(LoginRequiredMixin, generic.View):
             country = Country.objects.get(code=self.kwargs["country_code"])
 
             #RBD Query List
-            queryList = Cell.objects.all().filter(country = country)
+            queryList = Cell.objects.all().filter(country = country).order_by('name')
             # prettyprint_queryset(queryList)
             #Calculate Current Month
             audit_date_qs = PanelProfile.objects.all().filter(country = country).aggregate(current_month=Max('month__date'))
@@ -1527,7 +1601,7 @@ class CellListViewAjax(LoginRequiredMixin, generic.View):
                 pk = queryList[k].pk
                 cell_serialize_str = queryList[k].serialize_str
 
-                print(Colors.BOLD_YELLOW,'Processing Cell: ', queryList[k].name,Colors.WHITE)
+                # print(Colors.BOLD_YELLOW,'Processing Cell: ', queryList[k].name,Colors.WHITE)
 
 
                 cell_group_filter_human = ""
@@ -1535,9 +1609,9 @@ class CellListViewAjax(LoginRequiredMixin, generic.View):
                     cell_params = parse_qs((cell_serialize_str))
                     cell_list = getDictArray(cell_params,'field_group[group]')
                     cell_dic = getDicGroupList(cell_list)
-                    cdebug(cell_dic,'cell_dic')
+                    # cdebug(cell_dic,'cell_dic')
                     cell_group_filter = getGroupFilter(cell_dic)
-                    cdebug(cell_group_filter,'cell_group_filter')
+                    # cdebug(cell_group_filter,'cell_group_filter')
                     cell_group_filter_human = getGroupFilterHuman(cell_dic)
 
 
@@ -1566,9 +1640,11 @@ class CellListViewAjax(LoginRequiredMixin, generic.View):
                     'TotalOutlets' : total_outlets_in_cell['count'],
 
 
-                    'Actions' : ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
-                                '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+                    'Actions' : ('<a href="%s" title="Edit" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
+                                '<a href="%s" title="Duplicate" class="btn btn btn-warning btn-xs dt-duplicate"><span class="mdi mdi-content-duplicate" aria-hidden="true"></span></a>' +
+                                '<a href="%s" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
                                     reverse('master-data:cell-update', args=(self.kwargs['country_code'],pk,)),
+                                    reverse('master-data:cell-duplicate', args=(self.kwargs['country_code'],pk,)),
                                     reverse('master-data:cell-delete', args=(self.kwargs['country_code'],pk,)),
                                 )
 
@@ -1624,13 +1700,24 @@ class CellCreateView(LoginRequiredMixin, generic.CreateView):
             form_obj = form.save(commit=False)
             form_obj.country = country
             form_obj.name = self.request.POST.get("name")
-            # form_obj.code = self.request.POST.get("code")
             form_obj.description = self.request.POST.get("description")
             form_obj.condition_html = self.request.POST.get("condition_html")
+            # form_obj.condition_html =  base64.b64encode(condition_html.encode('ascii'))
             form_obj.serialize_str = self.request.POST.get("serialize_str")
             form_obj.condition_json = self.request.POST.get("condition_json")
-
             form_obj.save()
+
+            month_qs = Month.objects.all().filter(country = country)
+            cell_acv = self.request.POST.get("cell_acv")
+
+            for key in month_qs:
+                CellMonthACV.objects.get_or_create(
+                    country=country, month=key,cell=form_obj,
+                    defaults={'cell_acv':float(cell_acv)}
+                )
+
+
+
             return super(self.__class__, self).form_valid(form)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1700,32 +1787,62 @@ class CellUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super(self.__class__, self).get_form_kwargs()
-        print(Colors.BLUE,kwargs,Colors.WHITE)
+        # print(Colors.BLUE,kwargs,Colors.WHITE)
         kwargs['request'] = self.request
         kwargs['country_code'] = self.kwargs["country_code"]
         return kwargs
 
     def get_context_data(self, *args, **kwargs):
+        try:
+            context = super(self.__class__, self).get_context_data(**kwargs)
+            cell_qs = Cell.objects.get(
+                country__code=self.kwargs['country_code'],
+                pk=self.kwargs['pk']
+            )
+            # base64_message = base64_bytes.decode('ascii')
+            # print(cell_qs.condition_json)
+            # condtion = json.loads(cell_qs.condition_json)
+            # print(condtion)
+            # for i in condtion:
+            #     print(condtion[i])
 
-        context = super(self.__class__, self).get_context_data(**kwargs)
-        cell_qs = Cell.objects.get(
-            country__code=self.kwargs['country_code'],
-            pk=self.kwargs['pk']
-        )
-        skip_cols = ['id','pk','country','upload','created','updated',]
+            skip_cols = ['id','pk','month','outlet','outlet_type','country','upload','created','updated',]
+            panel_profile_cols = {}
+            for v in PanelProfile._meta.get_fields():
+                if(v.name in skip_cols): continue
+                panel_profile_cols[v.name] = v.name.replace("_", " ").capitalize()
 
-        panel_profile_cols = {}
-        for v in PanelProfile._meta.get_fields():
-            if(v.name not in skip_cols):
-                if isinstance(v, models.ForeignKey):
-                    panel_profile_cols[v.name+'__code'] = v.name.replace("_", " ").capitalize()
+
+            skip_cols = ['id','pk','country','name','code','tehsil','upload','created','updated',]
+            city_village_cols = {}
+            for v in CityVillage._meta.get_fields():
+                if(v.name in skip_cols): continue
+                if('extra' in v.name):
+                    try:
+                        col_label = ColLabel.objects.only("col_label").get(
+                            country__code = self.kwargs['country_code'],
+                            model_name = 'CityVillage',
+                            col_name = v.name
+                        )
+                    except ColLabel.DoesNotExist:
+                        col_label = None
+                    title = col_label.col_label if col_label else v.name
+                    city_village_cols['city_village__'+v.name] = title.replace("_", " ").title()
                 else:
-                    panel_profile_cols[v.name] = v.name.replace("_", " ").capitalize()
+                    city_village_cols['city_village__'+v.name] = v.name.replace("_", " ").title()
 
-        country = Country.objects.only('id','code','name').get(code=self.kwargs['country_code'])
+
+
+            # cdebug(city_village_cols)
+            country = Country.objects.only('id','code','name').get(code=self.kwargs['country_code'])
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
 
         context.update({
             "panel_profile_cols": panel_profile_cols,
+            "city_village_cols": city_village_cols,
             "cell_qs": cell_qs,
         })
         return context
@@ -1762,6 +1879,24 @@ class CellUpdateView(LoginRequiredMixin, generic.UpdateView):
     def get_success_url(self):
             messages.add_message(self.request, messages.SUCCESS, "Record saved successfully.")
             return reverse("master-data:cell-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+class CellDuplicateView(LoginRequiredMixin, generic.ListView):
+    template_name = "master_data/cell_update.html"
+    PAGE_TITLE = "Duplicate Cell"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def dispatch(self, request, *args, **kwargs):
+        pk = self.kwargs['pk']
+        obj = Cell.objects.get(pk=pk)
+        obj.pk = None
+        obj.name  = obj.name+' - Copy'
+        obj.save()
+
+        return HttpResponseRedirect(reverse("master-data:cell-update",kwargs={"country_code": self.kwargs["country_code"],'pk':obj.pk}))
+
 
 class CellDeleteView(LoginRequiredMixin, generic.DeleteView):
     template_name = "generic_delete.html"
@@ -1840,12 +1975,12 @@ class OutletTypeListViewAjax(AjaxDatatableView):
     ]
 
     def customize_row(self, row, obj):
-            row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
-                             '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+            row['action'] = ('<a href="%s" title="Edit" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
+                             '<a href="%s" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
                     reverse('master-data:outlet-type-update', args=(self.kwargs['country_code'],obj.id,)),
                     reverse('master-data:outlet-type-delete', args=(self.kwargs['country_code'],obj.id,)),
                 )
-                # <a href="{1}" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
+                # <a href="{1}" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
 
 
     def get_initial_queryset(self, request=None):

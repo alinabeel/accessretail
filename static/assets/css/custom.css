@@ -1,1 +1,62 @@
+/****************DataTables************************/
 .dataTables_filter{text-align: right;}
+.dataTables_length{margin-top: 30px;}
+.prevmonth{text-align: center; background-color: rgba(173, 216, 230, 0.678);white-space: pre-wrap !important;}
+.currmonth{text-align: center; background-color: rgba(240, 128, 128, 0.678);white-space: pre-wrap !important;}
+.red{ color: #fff;background-color:orangered !important;}
+.green{ color: #fff;background-color: #5aca52 !important;}
+.orange{ color: #fff;background-color: orange !important;}
+.blue{ color: #fff;background-color: rgb(62, 62, 202) !important;}
+.bold{font-size: 15px; font-weight: bold;}
+
+
+.simple-tree-table-root.simple-tree-table-closed .simple-tree-table-icon{font-size: 15px; color: #fff; background-color: #319b92 !important;}
+.simple-tree-table-root.simple-tree-table-opened .simple-tree-table-icon{font-size: 15px; color: #fff; background-color: #fc5454 !important;}
+
+.submenu hr{margin: 5px 0 !important;}
+
+/***************** Multiselect Search*****************************/
+
+.multiselect-search{
+    /* border: 1px solid #e4e4e4 ;
+    background-color:#fdfbfb; */
+    height: 100vh;
+    padding: 2em 0;
+}
+.multiselect-search .active{
+    display: none;
+}
+
+.multiselect-search .form-group{
+    height: 75vh;
+    background-color: white;
+    overflow: scroll;
+    overflow-x: hidden;
+    padding: 1em;
+    border: 1px solid #ced4d9;
+}
+
+.multiselect-search .btn-li-items{
+   padding:1em 0;
+   display: flex;
+   justify-content: space-between;
+}
+
+.multiselect-search .ul-el{
+    list-style:none;
+    margin: 0;
+    padding: 0;
+}
+
+.multiselect-search .ul-el .list-items{
+    border-bottom:1px solid rgb(230, 227, 227) ;
+    padding:.5em;
+}
+
+.multiselect-search .list-items .check{
+    margin-right: 10px;
+}
+
+.multiselect-search .list-items .mcheckbox-label{
+    margin: 0;
+}
