@@ -4,9 +4,11 @@
 {% endblock stylesheets %}
 {% load crispy_forms_tags %}
 {% block action_buttons %}
-<a href="{% url 'reports:cell-summary-ajax' country_code=global.country_code pk=view.kwargs.pk %}?export=csv" class="btn btn-info btn-lg waves-effect waves-light">Export CSV</a>
+<a href="{% url 'reports:cell-summary-ajax' country_code=global.country_code pk=view.kwargs.pk cat=request.GET.category %}?export=csv" class="btn btn-info btn-lg waves-effect waves-light">Export CSV</a>
 {% endblock action_buttons %}
 {% block content %}
+
+
 <div class="row">
     <div class="col-12">
         <div class="card m-b-30">
@@ -28,54 +30,7 @@
                                     <table
                                         class="table datatable table table-striped table-bordered dt-responsive header-fixed"
                                         id="list_data" data-toggle="table"
-                                        url="{% url 'reports:cell-summary-ajax'  country_code=global.country_code pk=view.kwargs.pk %}">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="8">Cell Summary</th>
-                                                <th colspan="12" class="prevmonth" id="prevmonthname">Last Month in the application</th>
-                                                <th colspan="12" class="currmonth" id="currmonthname">Current Month in the application</th>
-                                            </tr>
-                                            <tr>
-                                                <th>RBD Name</th>
-                                                <th>Cell Name</th>
-                                                <th>Cell Code</th>
-                                                <th>Cell Description</th>
-                                                <th>Active</th>
-                                                <th>Condition</th>
-                                                <th>Numeric Universe (N)<br>(Selected Projection Set-up)</th>
-                                                <th>W_Universe<br>(Selected Projection Setup)</th>
-
-                                                <th class="prevmonth">Total Outlets In Audit</th>
-                                                <th class="prevmonth">w Panel Previous</th>
-                                                 <th class="prevmonth">n Panel Previous</th>
-                                                 <th class="prevmonth">N Factor Previous</th>
-                                                 <th class="prevmonth">W Factor Previous</th>
-
-
-                                                 <th class="prevmonth">Unprojected sales (volume) in Millions</th>
-                                                 <th class="prevmonth">Unprojected sales (value) in Millions</th>
-                                                 <th class="prevmonth">Projected sales (volume) in Millions</th>
-                                                 <th class="prevmonth">Projected sales (value) in Millions</th>
-                                                 <th class="prevmonth">Unprojected contribution (volume)%</th>
-                                                 <th class="prevmonth">Projected contribution (volume)%</th>
-                                                 <th class="prevmonth">Projected contribution (value)%</th>
-
-                                                 <th class="currmonth">Total Outlets In Audit</th>
-                                                 <th class="currmonth">w Panel Current</th>
-                                                 <th class="currmonth">n Panel Current</th>
-                                                 <th class="currmonth">N Factor Current</th>
-                                                 <th class="currmonth">W Factor Current</th>
-
-
-                                                 <th class="currmonth">Unprojected sales (volume) in Millions</th>
-                                                 <th class="currmonth">Unprojected sales (value) in Millions</th>
-                                                 <th class="currmonth">Projected sales (volume) in Millions</th>
-                                                 <th class="currmonth">Projected sales (value) in Millions</th>
-                                                 <th class="currmonth">Unprojected contribution (volume)%</th>
-                                                 <th class="currmonth">Projected contribution (volume)%</th>
-                                                 <th class="currmonth">Projected contribution (value)%</th>
-                                            </tr>
-                                        </thead>
+                                        url="{% url 'reports:cell-summary-ajax'  country_code=global.country_code pk=view.kwargs.pk cat=request.GET.category %}">
                                         <tbody id="listing">
                                         </tbody>
                                     </table>
@@ -131,7 +86,7 @@
             $.each(result["results"], function (a, b) {
 
                 row = '<tr>';
-                /*
+
                 if(tr_index==0){
                     row +=  '<tr>';
                     $.each(b, function (aa, bb) {
@@ -140,7 +95,7 @@
                     });
                     row +=  '</tr>';
                 }
-                */
+
 
                 $.each(b, function (aa, bb) {
                     if(aa=='condition_html' || aa=='serialize_str'){return;}

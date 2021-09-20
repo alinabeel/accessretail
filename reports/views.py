@@ -147,13 +147,15 @@ class RBDListView(LoginRequiredMixin, generic.TemplateView):
 
 """ ------------------------- Cell Summary ------------------------- """
 class CellSummaryAJAX(LoginRequiredMixin, generic.View):
-
     def get(self, request, *args, **kwargs):
         return_dic = {}
         response_dict = []
-        temp_dic = dict()
+        temp_dic = {}
+        month_data = dict()
         rbd_id = self.kwargs["pk"]
+        cat_id = self.kwargs["cat"]
         cdebug(rbd_id)
+        cdebug(cat_id)
         export = False
         if 'export' in request.GET:
             export = request.GET['export']
@@ -164,6 +166,8 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
 
             rbd_cells = RBD.objects.only('id').filter(country = country,pk=rbd_id).values('cell')
 
+            category = Category.objects.get(id=cat_id)
+
             #Cell Query List
             queryList = Cell.objects.all().filter(country = country,id__in=rbd_cells).order_by('name')
 
@@ -171,57 +175,58 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
             queryListPA = ProductAudit.objects.all().filter(country = country)
 
             #Calculate Previous Month, Next Month
-            audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('-audit_date')[0:3]
+            audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('month__date')[0:3]
+            prettyprint_queryset(audit_date_qs,'audit_date_qs')
+
             date_arr = []
+            date_arr_obj = []
             for instance in audit_date_qs:
                 date_arr.append(instance['month__date'])
+
             if(len(date_arr)==3):
-                current_month , previous_month = date_arr
                 month_1 , month_2, month_3 = date_arr
                 month_1_qs = Month.objects.get(date=month_1)
                 month_2_qs = Month.objects.get(date=month_2)
                 month_3_qs = Month.objects.get(date=month_3)
 
+                date_arr_obj.append(month_1_qs)
+                date_arr_obj.append(month_2_qs)
+                date_arr_obj.append(month_3_qs)
+
+                cdebug('3-Month data')
+
             elif(len(date_arr)==2):
-                current_month , previous_month = date_arr
                 month_1 , month_2 = date_arr
                 month_1_qs = Month.objects.get(date=month_1)
                 month_2_qs = Month.objects.get(date=month_2)
-
+                date_arr_obj.append(month_1_qs)
+                date_arr_obj.append(month_2_qs)
+                cdebug('2-Month data')
             else:
+                cdebug('1-Month data')
                 return HttpResponse(json.dumps({'msg','Please load minimum 2 month data.'},cls=DjangoJSONEncoder),content_type="application/json")
 
 
+            cdebug(len(queryList),'Total Cells')
+
+            cdebug(date_arr,'date_arr')
             return_dic['count'] = len(queryList)
             return_dic['next'] = None
             return_dic['previous'] = None
 
-            return_dic['previous_month'] = "{}, {}".format(previous_month_qs.name,previous_month_qs.year)
-            return_dic['current_month'] = "{}, {}".format(current_month_qs.name,current_month_qs.year)
+            # return_dic['previous_month'] = "{}, {}".format(previous_month_qs.name,previous_month_qs.year)
+            # return_dic['current_month'] = "{}, {}".format(current_month_qs.name,current_month_qs.year)
+
+            queryListPPAll = PanelProfile.objects.all().filter(country = country,category__id = cat_id)
+            queryListPPCell = queryListPPAll
 
 
 
-            # queryList_json = serialize('json', queryList)
             for k in range(0,len(queryList)):
-                rbd_serialize_str = queryList[k].rbd.serialize_str
                 cell_serialize_str = queryList[k].serialize_str
-
                 print(Colors.BOLD_YELLOW,'Processing Cell: ', queryList[k].name,Colors.WHITE)
 
                 """ Rbd and Cell Processing from previous saved serialize string """
-
-
-                queryListPPAll = PanelProfile.objects.all().filter(country = country) #All Panel profile Records
-                queryListPPCell = queryListPPAll
-
-
-                if rbd_serialize_str != '':
-                    rbd_params = parse_qs((rbd_serialize_str))
-                    rbd_list = getDictArray(rbd_params,'field_group[group]')
-                    rbd_dic = getDicGroupList(rbd_list)
-                    rbd_group_filter = getGroupFilter(rbd_dic)
-                    rbd_group_filter_human = getGroupFilterHuman(rbd_dic)
-
 
                 field_group = parse_qs((cell_serialize_str))
                 new_list = getDictArray(field_group,'field_group[group]')
@@ -231,198 +236,216 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
 
 
                 filter_human = ''
-                if rbd_serialize_str != '':
-                    rbd_group_filter &= Q(group_filter)
-                    filter_human = "RBD(\n{}) \n AND \n CELL( \n {})".format(rbd_group_filter_human, group_filter_human)
-                    queryListPPCell = queryListPPCell.filter(rbd_group_filter)
-                else:
-                    if(group_filter != ''):
-                        filter_human = group_filter_human
-                        queryListPPCell = queryListPPCell.filter(group_filter)
+                if(group_filter != ''):
+                    filter_human = group_filter_human
+                    queryListPPCell = queryListPPCell.filter(group_filter)
 
 
-                # prettyprint_queryset(queryListPPCell)
 
-                N_Numeric_Universe = queryList[k].num_universe
-                W_Universe = queryList[k].cell_acv
+                # N_Numeric_Universe = queryList[k].num_universe
+                # W_Universe = queryList[k].cell_acv
 
-                """-------------Previous Month Calculatuons-------------"""
+                """-------------Month 1 Calculatuons-------------"""
 
                 #"""CELL Panel Profile"""
-                queryListPPCellPrevious = queryListPPCell.filter(month = previous_month_qs) \
+                queryListPPCellMonth_1 = queryListPPCell.filter(month = month_1_qs) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = previous_month_qs, is_active = True))
-                agg_outlets_cell_previous = queryListPPCellPrevious.aggregate(count = Count('id'),
-                                                                              num_factor_avg = Avg('num_factor'),
-                                                                              turnover_sum = Sum('turnover'))
-                total_outlets_in_cell_previous = agg_outlets_cell_previous['count'] #NPanel Numerator
-                turnover_sum_cell_previous = agg_outlets_cell_previous['turnover_sum']
+                                                    .filter(country = country, month = month_1_qs, is_active = True))
 
-                #Audit Data
-                queryListPAAllPrevious = queryListPA.filter(month = previous_month_qs) \
-                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = previous_month_qs, is_active = True))
-                agg_outlets_audit_all_previous = queryListPAAllPrevious.aggregate(count = Count('outlet__id',distinct=True))
-                total_outlets_in_audit_previous = agg_outlets_audit_all_previous['count']
+                prettyprint_queryset(queryListPPCellMonth_1,'queryListPPCellMonth_1')
+
+                # agg_outlets_cell_month_1 = queryListPPCellMonth_1.aggregate(count = Count('id'),
+                #                                                             num_factor_avg = Avg('num_factor'),
+                #                                                             turnover_sum = Sum('turnover'))
+                # total_outlets_in_cell_month_1 = agg_outlets_cell_month_1['count'] #NPanel Numerator
+                # turnover_sum_cell_month_1 = agg_outlets_cell_month_1['turnover_sum']
 
 
-                """ J K L M
-                    Unprojected Sales (Volume)	Unprojected Sales (Value)	projected Sales (Volume)	projected Sales (Value)
-                """
-
-                #Get outlets from Product Audit
-                agg_sum_sales_previous = queryListPAAllPrevious \
-                                            .filter(outlet__id__in = queryListPPCellPrevious.values_list('outlet_id', flat=True) ) \
-                                            .aggregate(
-                                                sum_sales_unprojected_volume = Sum('sales_unprojected_volume'),
-                                                sum_sales_unprojected_value = Sum('sales_unprojected_value'),
-                                                sum_sales_projected_volume = Sum('sales_projected_volume'),
-                                                sum_sales_projected_value = Sum('sales_projected_value'),
-                                            )
-
-                sum_sales_unprojected_volume_previous = agg_sum_sales_previous['sum_sales_unprojected_volume']
-                sum_sales_unprojected_value_previous = agg_sum_sales_previous['sum_sales_unprojected_value']
-                sum_sales_projected_volume_previous = agg_sum_sales_previous['sum_sales_projected_volume']
-                sum_sales_projected_value_previous = agg_sum_sales_previous['sum_sales_projected_value']
-
-
-                """Unprojected Contribution (Volume)	Projected Contribution (Volume)	Projected Contribution (Value)"""
-                agg_sum_sales_all_previous = queryListPAAllPrevious.aggregate(
-                                                sum_sales_unprojected_volume = Sum('sales_unprojected_volume'),
-                                                sum_sales_projected_volume = Sum('sales_projected_volume'),
-                                                sum_sales_projected_value = Sum('sales_projected_value'),
-                                            )
-
-                sum_sales_unprojected_volume_all_previous = agg_sum_sales_all_previous['sum_sales_unprojected_volume']
-                sum_sales_projected_volume_all_previous = agg_sum_sales_all_previous['sum_sales_projected_volume']
-                sum_sales_projected_value_all_previous = agg_sum_sales_all_previous['sum_sales_projected_value']
-
-
-
-                unprojected_contribution_volume_previous = (sum_sales_unprojected_volume_previous / sum_sales_unprojected_volume_all_previous)*100
-                projected_contribution_volume_previous = (sum_sales_projected_volume_previous / sum_sales_projected_volume_all_previous)*100
-                projected_contribution_value_previous = (sum_sales_projected_value_previous / sum_sales_projected_value_all_previous)*100
-
-                if(turnover_sum_cell_previous==0): turnover_sum_cell_previous = 1
-                N_Factor_Previous = N_Numeric_Universe / total_outlets_in_cell_previous
-                W_Factor_Previous = W_Universe / turnover_sum_cell_previous
-
-
-                """-----------------------------------------Current Month Calculatuons-----------------------------------------"""
-
-                #CELL Panel Profile
-                #--Filter Useable Outlets
-                queryListPPCellCurrent = queryListPPCell.filter(month = current_month_qs) \
-                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = current_month_qs, is_active = True))
-                agg_outlets_cell_current = queryListPPCellCurrent.aggregate(count = Count('id'),
-                                                                            num_factor_avg = Avg('num_factor'),
-                                                                            turnover_sum = Sum('turnover'))
-                total_outlets_in_cell_current = agg_outlets_cell_current['count']
-                num_factor_avg_cell_current = agg_outlets_cell_current['num_factor_avg']
-                turnover_sum_cell_current = agg_outlets_cell_current['turnover_sum']
-
-                #Audit Data
-                queryListPAAllCurrent = queryListPA.filter(month = current_month_qs) \
-                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = current_month_qs, is_active = True))
-                agg_outlets_audit_all_current = queryListPAAllCurrent.aggregate(count = Count('outlet__id',distinct=True))
-                total_outlets_in_audit_current = agg_outlets_audit_all_current['count']  #NPanel Denumerator
-
-
-                """
-                    Unprojected Sales (Volume)	Unprojected Sales (Value)	projected Sales (Volume)	projected Sales (Value)
-                """
-
-                #Get outlets from Product Audit
-                agg_sum_sales_current = queryListPAAllCurrent \
-                                                .filter(outlet__id__in = queryListPPCellCurrent.values_list('outlet_id', flat=True) ) \
-                                                .aggregate(
-                                                    sum_sales_unprojected_volume = Sum('sales_unprojected_volume'),
-                                                    sum_sales_unprojected_value = Sum('sales_unprojected_value'),
-                                                    sum_sales_projected_volume = Sum('sales_projected_volume'),
-                                                    sum_sales_projected_value = Sum('sales_projected_value'),
-                                                )
-
-                sum_sales_unprojected_volume_current = agg_sum_sales_current['sum_sales_unprojected_volume']
-                sum_sales_unprojected_value_current = agg_sum_sales_current['sum_sales_unprojected_value']
-                sum_sales_projected_volume_current = agg_sum_sales_current['sum_sales_projected_volume']
-                sum_sales_projected_value_current = agg_sum_sales_current['sum_sales_projected_value']
-
-
-                """Unprojected Contribution (Volume)	Projected Contribution (Volume)	Projected Contribution (Value)"""
-                agg_sum_sales_all_current = queryListPAAllCurrent.aggregate(
-                                                sum_sales_unprojected_volume = Sum('sales_unprojected_volume'),
-                                                sum_sales_projected_volume = Sum('sales_projected_volume'),
-                                                sum_sales_projected_value = Sum('sales_projected_value'),
-                                            )
-
-                sum_sales_unprojected_volume_all_current = agg_sum_sales_all_current['sum_sales_unprojected_volume']
-                sum_sales_projected_volume_all_current = agg_sum_sales_all_current['sum_sales_projected_volume']
-                sum_sales_projected_value_all_current = agg_sum_sales_all_current['sum_sales_projected_value']
-
-
-                unprojected_contribution_volume_current = (sum_sales_unprojected_volume_current / sum_sales_unprojected_volume_all_current)*100
-                projected_contribution_volume_current = (sum_sales_projected_volume_current / sum_sales_projected_volume_all_current)*100
-                projected_contribution_value_current = (sum_sales_projected_value_current / sum_sales_projected_value_all_current)*100
-
-
-                if(turnover_sum_cell_current==0): turnover_sum_cell_current = 1
-                N_Factor_Current = N_Numeric_Universe / total_outlets_in_cell_current
-                W_Factor_Current = W_Universe / turnover_sum_cell_current
-
+                # prettyprint_queryset(queryListPPCellMonth_1)
 
                 temp_dic = {
-                    'RBD Name' : queryList[k].rbd.name,
+                    'Category' : category.name,
                     'Cell Name' : queryList[k].name,
-                    'Cell Code' : queryList[k].code,
-                    'Cell Description' : queryList[k].description,
-                    'Active' : queryList[k].is_active,
-                    'Condition' : "".join(filter_human.split("\n")),
-
-                    'N Numeric Universe (Selected Projection Set-up)' : dropzeros(N_Numeric_Universe),
-                    'W Universe (Selected Projection Setup)' : dropzeros(W_Universe),
-
-                    'total_outlets_in_audit_previous' : dropzeros(total_outlets_in_audit_previous),
-                    'w Panel Previous' : dropzeros(turnover_sum_cell_previous),
-                    'n Panel Previous' : dropzeros(total_outlets_in_cell_previous),
+                    'Area': queryListPPCellMonth_1[0].city_village.name,
+                    'Urbanity': queryListPPCellMonth_1[0].city_village.tehsil.urbanity,
+                }
 
 
-                    'N Factor Previous' : "{:,.6f}".format(N_Factor_Previous),  # N-factor = N_Universe/nPanel (it must be 1 or greater then 1)
-                    'W Factor Previous' : "{:,.6f}".format(W_Factor_Previous),  # W-factor = W_Universe/wPanel (it must be 1 or greater then 1)
+                for date_obj in date_arr_obj:
+                    cell_month_acv = CellMonthACV.objects.get(country = country,month=date_obj,cell=queryList[k])
+                    temp_dic['cell_acv_'+str(date_obj.code)] = cell_month_acv.cell_acv
 
-                    'Unprojected Sales (Volume) in Millions' : "{:,.6f}".format(sum_sales_unprojected_volume_previous/1000000),
-                    'Unprojected Sales (Value) in Millions' : "{:,.6f}".format(sum_sales_unprojected_value_previous/1000000),
-                    'projected Sales (Volume) in Millions' : "{:,.6f}".format(sum_sales_projected_volume_previous/1000000),
-                    'projected Sales (Value) in Millions' : "{:,.6f}".format(sum_sales_projected_value_previous/1000000),
-
-                    'Unprojected Contribution (Volume)' : "{:,.4f}".format(unprojected_contribution_volume_previous),
-                    'Projected Contribution (Volume)' : "{:,.4f}".format(projected_contribution_volume_previous),
-                    'Projected Contribution (Value)' : "{:,.4f}".format(projected_contribution_value_previous),
-                    #-----------------------------------------------------------------------------------------
-                    'total_outlets_in_audit_current' : total_outlets_in_audit_current,
-
-                    'w Panel Current' : dropzeros(turnover_sum_cell_current),
-                    'n Panel Current' : dropzeros(total_outlets_in_cell_current),
-
-                    'N Factor Current' : "{:,.6f}".format(N_Factor_Current),  # N-factor = N_Universe/nPanel (it must be 1 or greater then 1)
-                    'W Factor Current' : "{:,.6f}".format(W_Factor_Current),  # W-factor = W_Universe/wPanel (it must be 1 or greater then 1)
-
-                    'Unprojected Sales (Volume) Current in Millions' : "{:,.6f}".format(sum_sales_unprojected_volume_current/1000000),
-                    'Unprojected Sales (Value) Current in Millions' : "{:,.6f}".format(sum_sales_unprojected_value_current/1000000),
-                    'projected Sales (Volume) Current in Millions' : "{:,.6f}".format(sum_sales_projected_volume_current/1000000),
-                    'projected Sales (Value) Current in Millions' :  "{:,.6f}".format(sum_sales_projected_value_current/1000000),
-
-                    'Unprojected Contribution (Volume) Current' : "{:,.4f}".format(unprojected_contribution_volume_current),
-                    'Projected Contribution (Volume) Current' : "{:,.4f}".format(projected_contribution_volume_current),
-                    'Projected Contribution (Value) Current' : "{:,.4f}".format(projected_contribution_value_current),
+                for date_obj in date_arr_obj:
+                    temp_dic['num_universe_'+str(date_obj.code)] = queryList[k].num_universe
 
 
-                    }
+                for date_obj in date_arr_obj:
+                    agg_outlets_cell = queryListPPCell.filter(month = date_obj) \
+                                                .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                                                        .filter(country = country, month = date_obj, is_active = True)) \
+                                                .aggregate(count = Count('id'))
+
+                    temp_dic['store_'+str(date_obj.code)] = agg_outlets_cell['count']
+
+                for date_obj in date_arr_obj:
+                    agg_outlets_cell = queryListPPCell.filter(month = date_obj) \
+                                                .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                                                        .filter(country = country, month = date_obj, is_active = True)) \
+                                                .aggregate(acv_sum = Sum('acv'))
+
+                    temp_dic['panel_acv_'+str(date_obj.code)] = agg_outlets_cell['acv_sum']
+
+
+                temp_dic['optimal_panel'] = queryList[k].optimal_panel
+
+                sales = []
+                for date_obj in date_arr_obj:
+                    agg_outlets_cell = queryListPA.filter(month = date_obj) \
+                                                .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                                                        .filter(country = country, month = date_obj, is_active = True))  \
+                                                .aggregate(sales = Sum('sales'))
+                    temp_dic['sales_'+str(date_obj.code)] = agg_outlets_cell['sales']
+                    sales.append(agg_outlets_cell['sales'])
+
+
+                # list(date_obj)[-1]
+                temp_dic['diff'] = sales[-1]  - sales[-2]
+
+
+
+
+                prv_month = queryListPPCell.filter(month = date_arr_obj[-2]) \
+                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                                                    .filter(country = country, month = date_arr_obj[-2], is_active = True)) \
+                                            .values_list('id', flat=True)
+
+                new_outlets = queryListPPCell.filter(month = date_arr_obj[-1]).exclude(outlet_id__in=prv_month) \
+                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                                                    .filter(country = country, month = date_arr_obj[-1], is_active = True)) \
+                                            .values_list('id', flat=True)
+
+                common_outlets = queryListPPCell.filter(month = date_arr_obj[-1]).filter(outlet_id__in = prv_month) \
+                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                                                    .filter(country = country, month = date_arr_obj[-1], is_active = True)) \
+                                            .values_list('id', flat=True)
+
+                temp_dic['new_outlets'] = len(new_outlets)
+                temp_dic['common_outlets'] = len(common_outlets)
+
+
+                for date_obj in date_arr_obj:
+                    cdebug(temp_dic['cell_acv_'+str(date_obj.code)])
+                    panel_acv = temp_dic['panel_acv_'+str(date_obj.code)] if temp_dic['panel_acv_'+str(date_obj.code)] is not None else 1
+                    temp_dic['acv_pf_'+str(date_obj.code)] = temp_dic['cell_acv_'+str(date_obj.code)] / panel_acv
+
+
+                sales_vol = []
+                for date_obj in date_arr_obj:
+                    agg_outlets_cell = queryListPA.filter(month = date_obj) \
+                                                .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                                                        .filter(country = country, month = date_obj, is_active = True))  \
+                                                .aggregate(sales_vol = Sum('sales_vol'))
+                    temp_dic['sales_vol_'+str(date_obj.code)] = agg_outlets_cell['sales_vol']
+                    sales_vol.append(agg_outlets_cell['sales_vol'])
+
+                temp_dic['weighted_change'] = sales_vol[-1]  - sales_vol[-2]
+
+                sales_val = []
+                for date_obj in date_arr_obj:
+                    agg_outlets_cell = queryListPA.filter(month = date_obj) \
+                                                .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                                                        .filter(country = country, month = date_obj, is_active = True))  \
+                                                .aggregate(sales_val = Sum('sales_val'))
+                    temp_dic['sales_val_'+str(date_obj.code)] = agg_outlets_cell['sales_val']
+                    sales_val.append(agg_outlets_cell['sales_val'])
+
+                temp_dic['val_change'] = sales_val[-1]  - sales_val[-2]
+                cdebug(temp_dic)
+
+                # #Audit Data
+                # queryListPAAllPrevious = queryListPA.filter(month = previous_month_qs) \
+                #                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                #                                     .filter(country = country, month = previous_month_qs, is_active = True))
+                # agg_outlets_audit_all_previous = queryListPAAllPrevious.aggregate(count = Count('outlet__id',distinct=True))
+                # total_outlets_in_audit_previous = agg_outlets_audit_all_previous['count']
+
+
+                # """ J K L M
+                #     Unprojected Sales (Volume)	Unprojected Sales (Value)	projected Sales (Volume)	projected Sales (Value)
+                # """
+
+                # #Get outlets from Product Audit
+                # agg_sum_sales_previous = queryListPAAllPrevious \
+                #                             .filter(outlet__id__in = queryListPPCellPrevious.values_list('outlet_id', flat=True) ) \
+                #                             .aggregate(
+                #                                 sum_sales_unprojected_volume = Sum('sales_unprojected_volume'),
+                #                                 sum_sales_unprojected_value = Sum('sales_unprojected_value'),
+                #                                 sum_sales_projected_volume = Sum('sales_projected_volume'),
+                #                                 sum_sales_projected_value = Sum('sales_projected_value'),
+                #                             )
+
+                # sum_sales_unprojected_volume_previous = agg_sum_sales_previous['sum_sales_unprojected_volume']
+                # sum_sales_unprojected_value_previous = agg_sum_sales_previous['sum_sales_unprojected_value']
+                # sum_sales_projected_volume_previous = agg_sum_sales_previous['sum_sales_projected_volume']
+                # sum_sales_projected_value_previous = agg_sum_sales_previous['sum_sales_projected_value']
+
+
+                # """Unprojected Contribution (Volume)	Projected Contribution (Volume)	Projected Contribution (Value)"""
+                # agg_sum_sales_all_previous = queryListPAAllPrevious.aggregate(
+                #                                 sum_sales_unprojected_volume = Sum('sales_unprojected_volume'),
+                #                                 sum_sales_projected_volume = Sum('sales_projected_volume'),
+                #                                 sum_sales_projected_value = Sum('sales_projected_value'),
+                #                             )
+
+                # sum_sales_unprojected_volume_all_previous = agg_sum_sales_all_previous['sum_sales_unprojected_volume']
+                # sum_sales_projected_volume_all_previous = agg_sum_sales_all_previous['sum_sales_projected_volume']
+                # sum_sales_projected_value_all_previous = agg_sum_sales_all_previous['sum_sales_projected_value']
+
+
+
+                # unprojected_contribution_volume_previous = (sum_sales_unprojected_volume_previous / sum_sales_unprojected_volume_all_previous)*100
+                # projected_contribution_volume_previous = (sum_sales_projected_volume_previous / sum_sales_projected_volume_all_previous)*100
+                # projected_contribution_value_previous = (sum_sales_projected_value_previous / sum_sales_projected_value_all_previous)*100
+
+                # if(turnover_sum_cell_previous==0): turnover_sum_cell_previous = 1
+                # N_Factor_Previous = N_Numeric_Universe / total_outlets_in_cell_previous
+                # W_Factor_Previous = W_Universe / turnover_sum_cell_previous
+
+
+
+                # temp_dic = {
+                #     'RBD Name' : queryList[k].rbd.name,
+                #     'Cell Name' : queryList[k].name,
+                #     'Cell Code' : queryList[k].code,
+                #     'Cell Description' : queryList[k].description,
+                #     'Active' : queryList[k].is_active,
+                #     'Condition' : "".join(filter_human.split("\n")),
+
+                #     'N Numeric Universe (Selected Projection Set-up)' : dropzeros(N_Numeric_Universe),
+                #     'W Universe (Selected Projection Setup)' : dropzeros(W_Universe),
+
+                #     'total_outlets_in_audit_previous' : dropzeros(total_outlets_in_audit_previous),
+                #     'w Panel Previous' : dropzeros(turnover_sum_cell_previous),
+                #     'n Panel Previous' : dropzeros(total_outlets_in_cell_previous),
+
+
+                #     'N Factor Previous' : "{:,.6f}".format(N_Factor_Previous),  # N-factor = N_Universe/nPanel (it must be 1 or greater then 1)
+                #     'W Factor Previous' : "{:,.6f}".format(W_Factor_Previous),  # W-factor = W_Universe/wPanel (it must be 1 or greater then 1)
+
+                #     'Unprojected Sales (Volume) in Millions' : "{:,.6f}".format(sum_sales_unprojected_volume_previous/1000000),
+                #     'Unprojected Sales (Value) in Millions' : "{:,.6f}".format(sum_sales_unprojected_value_previous/1000000),
+                #     'projected Sales (Volume) in Millions' : "{:,.6f}".format(sum_sales_projected_volume_previous/1000000),
+                #     'projected Sales (Value) in Millions' : "{:,.6f}".format(sum_sales_projected_value_previous/1000000),
+
+                #     'Unprojected Contribution (Volume)' : "{:,.4f}".format(unprojected_contribution_volume_previous),
+                #     'Projected Contribution (Volume)' : "{:,.4f}".format(projected_contribution_volume_previous),
+                #     'Projected Contribution (Value)' : "{:,.4f}".format(projected_contribution_value_previous),
+
+                #     }
 
                 response_dict.append( temp_dic )
 
-            # print(response_dict)
+            print(response_dict)
             return_dic['results'] = response_dict
             # response_dict['queryList_json'] = queryList_json
 

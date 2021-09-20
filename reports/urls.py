@@ -14,7 +14,7 @@ urlpatterns = [
     path('<slug:country_code>/rbd-list/', RBDListView.as_view(), name='rbd-list'),
 
     # """ Cell Summary """
-    path('<slug:country_code>/cell-summary-ajax/<int:pk>', CellSummaryAJAX.as_view(), name='cell-summary-ajax'),
+    path('<slug:country_code>/cell-summary-ajax/<int:pk>/<str:cat>', CellSummaryAJAX.as_view(), name='cell-summary-ajax'),
     path('<slug:country_code>/cell-summary/<int:pk>', CellSummaryListView.as_view(), name='cell-summary'),
 
     # """ Cell Summary Overview """
