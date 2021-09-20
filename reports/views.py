@@ -218,11 +218,9 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
             # return_dic['current_month'] = "{}, {}".format(current_month_qs.name,current_month_qs.year)
 
             queryListPPAll = PanelProfile.objects.all().filter(country = country,category__id = cat_id)
-            queryListPPCell = queryListPPAll
-
-
 
             for k in range(0,len(queryList)):
+                queryListPPCell = queryListPPAll
                 cell_serialize_str = queryList[k].serialize_str
                 print(Colors.BOLD_YELLOW,'Processing Cell: ', queryList[k].name,Colors.WHITE)
 
@@ -237,11 +235,11 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
 
                 filter_human = ''
                 if(group_filter != ''):
-                    filter_human = group_filter_human
+                    # filter_human = group_filter_human
                     queryListPPCell = queryListPPCell.filter(group_filter)
 
 
-
+                # prettyprint_queryset(queryListPPCell,'queryListPPCell')
                 # N_Numeric_Universe = queryList[k].num_universe
                 # W_Universe = queryList[k].cell_acv
 
@@ -252,16 +250,7 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
                                                     .filter(country = country, month = month_1_qs, is_active = True))
 
-                prettyprint_queryset(queryListPPCellMonth_1,'queryListPPCellMonth_1')
 
-                # agg_outlets_cell_month_1 = queryListPPCellMonth_1.aggregate(count = Count('id'),
-                #                                                             num_factor_avg = Avg('num_factor'),
-                #                                                             turnover_sum = Sum('turnover'))
-                # total_outlets_in_cell_month_1 = agg_outlets_cell_month_1['count'] #NPanel Numerator
-                # turnover_sum_cell_month_1 = agg_outlets_cell_month_1['turnover_sum']
-
-
-                # prettyprint_queryset(queryListPPCellMonth_1)
 
                 temp_dic = {
                     'Category' : category.name,
@@ -329,12 +318,13 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                                                     .filter(country = country, month = date_arr_obj[-1], is_active = True)) \
                                             .values_list('id', flat=True)
 
+                prettyprint_queryset(common_outlets,'common_outlets')
+
                 temp_dic['new_outlets'] = len(new_outlets)
                 temp_dic['common_outlets'] = len(common_outlets)
 
 
                 for date_obj in date_arr_obj:
-                    cdebug(temp_dic['cell_acv_'+str(date_obj.code)])
                     panel_acv = temp_dic['panel_acv_'+str(date_obj.code)] if temp_dic['panel_acv_'+str(date_obj.code)] is not None else 1
                     temp_dic['acv_pf_'+str(date_obj.code)] = temp_dic['cell_acv_'+str(date_obj.code)] / panel_acv
 
@@ -360,92 +350,9 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                     sales_val.append(agg_outlets_cell['sales_val'])
 
                 temp_dic['val_change'] = sales_val[-1]  - sales_val[-2]
-                cdebug(temp_dic)
-
-                # #Audit Data
-                # queryListPAAllPrevious = queryListPA.filter(month = previous_month_qs) \
-                #                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                #                                     .filter(country = country, month = previous_month_qs, is_active = True))
-                # agg_outlets_audit_all_previous = queryListPAAllPrevious.aggregate(count = Count('outlet__id',distinct=True))
-                # total_outlets_in_audit_previous = agg_outlets_audit_all_previous['count']
-
-
-                # """ J K L M
-                #     Unprojected Sales (Volume)	Unprojected Sales (Value)	projected Sales (Volume)	projected Sales (Value)
-                # """
-
-                # #Get outlets from Product Audit
-                # agg_sum_sales_previous = queryListPAAllPrevious \
-                #                             .filter(outlet__id__in = queryListPPCellPrevious.values_list('outlet_id', flat=True) ) \
-                #                             .aggregate(
-                #                                 sum_sales_unprojected_volume = Sum('sales_unprojected_volume'),
-                #                                 sum_sales_unprojected_value = Sum('sales_unprojected_value'),
-                #                                 sum_sales_projected_volume = Sum('sales_projected_volume'),
-                #                                 sum_sales_projected_value = Sum('sales_projected_value'),
-                #                             )
-
-                # sum_sales_unprojected_volume_previous = agg_sum_sales_previous['sum_sales_unprojected_volume']
-                # sum_sales_unprojected_value_previous = agg_sum_sales_previous['sum_sales_unprojected_value']
-                # sum_sales_projected_volume_previous = agg_sum_sales_previous['sum_sales_projected_volume']
-                # sum_sales_projected_value_previous = agg_sum_sales_previous['sum_sales_projected_value']
-
-
-                # """Unprojected Contribution (Volume)	Projected Contribution (Volume)	Projected Contribution (Value)"""
-                # agg_sum_sales_all_previous = queryListPAAllPrevious.aggregate(
-                #                                 sum_sales_unprojected_volume = Sum('sales_unprojected_volume'),
-                #                                 sum_sales_projected_volume = Sum('sales_projected_volume'),
-                #                                 sum_sales_projected_value = Sum('sales_projected_value'),
-                #                             )
-
-                # sum_sales_unprojected_volume_all_previous = agg_sum_sales_all_previous['sum_sales_unprojected_volume']
-                # sum_sales_projected_volume_all_previous = agg_sum_sales_all_previous['sum_sales_projected_volume']
-                # sum_sales_projected_value_all_previous = agg_sum_sales_all_previous['sum_sales_projected_value']
-
-
-
-                # unprojected_contribution_volume_previous = (sum_sales_unprojected_volume_previous / sum_sales_unprojected_volume_all_previous)*100
-                # projected_contribution_volume_previous = (sum_sales_projected_volume_previous / sum_sales_projected_volume_all_previous)*100
-                # projected_contribution_value_previous = (sum_sales_projected_value_previous / sum_sales_projected_value_all_previous)*100
-
-                # if(turnover_sum_cell_previous==0): turnover_sum_cell_previous = 1
-                # N_Factor_Previous = N_Numeric_Universe / total_outlets_in_cell_previous
-                # W_Factor_Previous = W_Universe / turnover_sum_cell_previous
-
-
-
-                # temp_dic = {
-                #     'RBD Name' : queryList[k].rbd.name,
-                #     'Cell Name' : queryList[k].name,
-                #     'Cell Code' : queryList[k].code,
-                #     'Cell Description' : queryList[k].description,
-                #     'Active' : queryList[k].is_active,
-                #     'Condition' : "".join(filter_human.split("\n")),
-
-                #     'N Numeric Universe (Selected Projection Set-up)' : dropzeros(N_Numeric_Universe),
-                #     'W Universe (Selected Projection Setup)' : dropzeros(W_Universe),
-
-                #     'total_outlets_in_audit_previous' : dropzeros(total_outlets_in_audit_previous),
-                #     'w Panel Previous' : dropzeros(turnover_sum_cell_previous),
-                #     'n Panel Previous' : dropzeros(total_outlets_in_cell_previous),
-
-
-                #     'N Factor Previous' : "{:,.6f}".format(N_Factor_Previous),  # N-factor = N_Universe/nPanel (it must be 1 or greater then 1)
-                #     'W Factor Previous' : "{:,.6f}".format(W_Factor_Previous),  # W-factor = W_Universe/wPanel (it must be 1 or greater then 1)
-
-                #     'Unprojected Sales (Volume) in Millions' : "{:,.6f}".format(sum_sales_unprojected_volume_previous/1000000),
-                #     'Unprojected Sales (Value) in Millions' : "{:,.6f}".format(sum_sales_unprojected_value_previous/1000000),
-                #     'projected Sales (Volume) in Millions' : "{:,.6f}".format(sum_sales_projected_volume_previous/1000000),
-                #     'projected Sales (Value) in Millions' : "{:,.6f}".format(sum_sales_projected_value_previous/1000000),
-
-                #     'Unprojected Contribution (Volume)' : "{:,.4f}".format(unprojected_contribution_volume_previous),
-                #     'Projected Contribution (Volume)' : "{:,.4f}".format(projected_contribution_volume_previous),
-                #     'Projected Contribution (Value)' : "{:,.4f}".format(projected_contribution_value_previous),
-
-                #     }
 
                 response_dict.append( temp_dic )
 
-            print(response_dict)
             return_dic['results'] = response_dict
             # response_dict['queryList_json'] = queryList_json
 
@@ -767,7 +674,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
 
             current_month_qs = Month.objects.get(date=current_month)
             previous_month_qs = Month.objects.get(date=previous_month)
-            cdebug(len(queryList))
+            cdebug(len(queryList),'total cells')
             return_dic['count'] = len(queryList)
             return_dic['next'] = None
             return_dic['previous'] = None
