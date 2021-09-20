@@ -306,19 +306,18 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 prv_month = queryListPPCell.filter(month = date_arr_obj[-2]) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
                                                     .filter(country = country, month = date_arr_obj[-2], is_active = True)) \
-                                            .values_list('id', flat=True)
+                                            .values_list('outlet_id', flat=True)
 
-                new_outlets = queryListPPCell.filter(month = date_arr_obj[-1]).exclude(outlet_id__in=prv_month) \
+                new_outlets = queryListPPCell.filter(month = date_arr_obj[-1]).exclude(outlet_id__in = prv_month) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
                                                     .filter(country = country, month = date_arr_obj[-1], is_active = True)) \
-                                            .values_list('id', flat=True)
+                                            .values_list('outlet_id', flat=True)
 
                 common_outlets = queryListPPCell.filter(month = date_arr_obj[-1]).filter(outlet_id__in = prv_month) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
                                                     .filter(country = country, month = date_arr_obj[-1], is_active = True)) \
-                                            .values_list('id', flat=True)
+                                            .values_list('outlet_id', flat=True)
 
-                prettyprint_queryset(common_outlets,'common_outlets')
 
                 temp_dic['new_outlets'] = len(new_outlets)
                 temp_dic['common_outlets'] = len(common_outlets)
