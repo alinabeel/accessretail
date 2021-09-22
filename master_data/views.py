@@ -725,8 +725,9 @@ class ProductListViewAjax(AjaxDatatableView):
         self.column_defs = [
             AjaxDatatableView.render_row_tools_column_def(),
             {'name': 'id', 'visible': False, },
-            # {'name': 'category','foreign_field': 'category__code',   'choices': True, 'autofilter': True,},
             {'name': 'code',  },
+            {'name': 'category code','foreign_field': 'category__code', 'autofilter': True,},
+            {'name': 'category name','foreign_field': 'category__name', 'choices': True, 'autofilter': True,},
             # {'name': 'aggregation_level',  'choices': True, 'autofilter': True,},
             # {'name': 'company',  'choices': True, 'autofilter': True,},
             # {'name': 'brand',  'choices': True, 'autofilter': True,},

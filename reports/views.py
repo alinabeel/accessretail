@@ -169,10 +169,21 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
             category = Category.objects.get(id=cat_id)
 
             #Cell Query List
-            queryList = Cell.objects.all().filter(country = country,id__in=rbd_cells).order_by('name')
+            queryList = Cell.objects.all().filter(country = country, id__in=rbd_cells).order_by('name')
 
             #Product Audit Query List
-            queryListPA = ProductAudit.objects.all().filter(country = country)
+            queryListPA = ProductAudit.objects.all().filter(country = country, category=category)
+
+            super_manufacture = Product.objects.filter(country = country, category=category).exclude(super_manufacture=None) \
+                                .order_by('category').values_list('super_manufacture', flat=True).distinct()
+            super_manufacture_products = dict()
+            for sm in super_manufacture:
+                smp = Product.objects \
+                    .filter(country = country, category=category,super_manufacture__iexact=sm) \
+                    .exclude(super_manufacture=None) \
+                    .order_by('category').values_list('id', flat=True)
+                super_manufacture_products[sm] = smp
+
 
             #Calculate Previous Month, Next Month
             audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('month__date')[0:3]
@@ -207,18 +218,25 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 return HttpResponse(json.dumps({'msg','Please load minimum 2 month data.'},cls=DjangoJSONEncoder),content_type="application/json")
 
 
-            cdebug(len(queryList),'Total Cells')
 
-            cdebug(date_arr,'date_arr')
-            return_dic['count'] = len(queryList)
-            return_dic['next'] = None
-            return_dic['previous'] = None
 
             # return_dic['previous_month'] = "{}, {}".format(previous_month_qs.name,previous_month_qs.year)
             # return_dic['current_month'] = "{}, {}".format(current_month_qs.name,current_month_qs.year)
 
             queryListPPAll = PanelProfile.objects.all().filter(country = country,category__id = cat_id)
 
+            if len(queryListPPAll) == 0 :
+                return_dic['count'] = 0
+                return_dic['next'] = None
+                return_dic['previous'] = None
+                return_dic['results'] = []
+                return HttpResponse(json.dumps(return_dic,cls=DjangoJSONEncoder),content_type="application/json")
+
+            return_dic['count'] = len(queryList)
+            return_dic['next'] = None
+            return_dic['previous'] = None
+
+            # prettyprint_queryset(queryListPPAll)
             for k in range(0,len(queryList)):
                 queryListPPCell = queryListPPAll
                 cell_serialize_str = queryList[k].serialize_str
@@ -251,7 +269,6 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                                                     .filter(country = country, month = month_1_qs, is_active = True))
 
 
-
                 temp_dic = {
                     'Category' : category.name,
                     'Cell Name' : queryList[k].name,
@@ -269,35 +286,33 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
 
 
                 for date_obj in date_arr_obj:
-                    agg_outlets_cell = queryListPPCell.filter(month = date_obj) \
+                    aggregate_val = queryListPPCell.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
                                                         .filter(country = country, month = date_obj, is_active = True)) \
                                                 .aggregate(count = Count('id'))
 
-                    temp_dic['store_'+str(date_obj.code)] = agg_outlets_cell['count']
+                    temp_dic['store_'+str(date_obj.code)] = aggregate_val['count']
 
                 for date_obj in date_arr_obj:
-                    agg_outlets_cell = queryListPPCell.filter(month = date_obj) \
+                    aggregate_val = queryListPPCell.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
                                                         .filter(country = country, month = date_obj, is_active = True)) \
                                                 .aggregate(acv_sum = Sum('acv'))
 
-                    temp_dic['panel_acv_'+str(date_obj.code)] = agg_outlets_cell['acv_sum']
+                    temp_dic['panel_acv_'+str(date_obj.code)] = aggregate_val['acv_sum']
 
 
                 temp_dic['optimal_panel'] = queryList[k].optimal_panel
 
                 sales = []
                 for date_obj in date_arr_obj:
-                    agg_outlets_cell = queryListPA.filter(month = date_obj) \
+                    aggregate_val = queryListPA.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
                                                         .filter(country = country, month = date_obj, is_active = True))  \
                                                 .aggregate(sales = Sum('sales'))
-                    temp_dic['sales_'+str(date_obj.code)] = agg_outlets_cell['sales']
-                    sales.append(agg_outlets_cell['sales'])
+                    temp_dic['sales_'+str(date_obj.code)] = aggregate_val['sales']
+                    sales.append(aggregate_val['sales'])
 
-
-                # list(date_obj)[-1]
                 temp_dic['diff'] = sales[-1]  - sales[-2]
 
 
@@ -330,25 +345,46 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
 
                 sales_vol = []
                 for date_obj in date_arr_obj:
-                    agg_outlets_cell = queryListPA.filter(month = date_obj) \
+                    aggregate_val = queryListPA.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
                                                         .filter(country = country, month = date_obj, is_active = True))  \
                                                 .aggregate(sales_vol = Sum('sales_vol'))
-                    temp_dic['sales_vol_'+str(date_obj.code)] = agg_outlets_cell['sales_vol']
-                    sales_vol.append(agg_outlets_cell['sales_vol'])
+                    temp_dic['sales_vol_'+str(date_obj.code)] = aggregate_val['sales_vol']
+                    sales_vol.append(aggregate_val['sales_vol'])
 
                 temp_dic['weighted_change'] = sales_vol[-1]  - sales_vol[-2]
 
                 sales_val = []
                 for date_obj in date_arr_obj:
-                    agg_outlets_cell = queryListPA.filter(month = date_obj) \
+                    aggregate_val = queryListPA.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
                                                         .filter(country = country, month = date_obj, is_active = True))  \
                                                 .aggregate(sales_val = Sum('sales_val'))
-                    temp_dic['sales_val_'+str(date_obj.code)] = agg_outlets_cell['sales_val']
-                    sales_val.append(agg_outlets_cell['sales_val'])
+                    temp_dic['sales_val_'+str(date_obj.code)] = aggregate_val['sales_val']
+                    sales_val.append(aggregate_val['sales_val'])
 
                 temp_dic['val_change'] = sales_val[-1]  - sales_val[-2]
+
+                for sm,smp in super_manufacture_products.items():
+
+
+
+                    for date_obj in date_arr_obj:
+                        smpppp = queryListPA.filter(month = date_obj) \
+                                                    .filter(product_id__in = smp) \
+                                                    .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                                                            .filter(country = country, month = date_obj, is_active = True))
+                        prettyprint_queryset(smpppp)
+                        aggregate_val = queryListPA.filter(month = date_obj) \
+                                                    .filter(product_id__in = smp) \
+                                                    .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                                                            .filter(country = country, month = date_obj, is_active = True))  \
+                                                    .aggregate(sales = Sum('sales'))
+                        temp_dic[sm+'_'+str(date_obj.code)] = aggregate_val['sales']
+
+
+
+
 
                 response_dict.append( temp_dic )
 
