@@ -183,11 +183,10 @@ def replaceIndex(i):
     i = i.replace('stock3','stock_3')
 
 
-
-
-
-
     return i
 
 def convertSecond2Min(seconds):
     return time.strftime("%H:%M:%S", time.gmtime(seconds))
+
+def get_max_str(lst):
+    return max(lst, key=len).strip()

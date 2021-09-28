@@ -158,4 +158,4 @@ class CellModelForm(forms.ModelForm):
 class UsableOutletModelForm(forms.ModelForm):
     class Meta:
         model = UsableOutlet
-        fields = ('month', 'outlet', 'index', 'is_active', )
+        fields = ('month', 'outlet', 'index', 'cell','status', )

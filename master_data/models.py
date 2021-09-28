@@ -340,21 +340,6 @@ class Month(CreateUpdateMixIn,models.Model):
             self.is_locked = True
             super(self.__class__, self).save(*args, **kwargs)
 
-class UsableOutlet(CreateUpdateMixIn,models.Model):
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
-    month = models.ForeignKey(Month,on_delete=models.CASCADE)
-    outlet = models.ForeignKey(Outlet, on_delete=models.CASCADE)
-    index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.outlet.code
-    class Meta:
-        unique_together = (('country','month','index','outlet'),)
-        db_table = 'usable_outlet'
-        verbose_name = 'UsableOutlet'
-        verbose_name_plural = 'UsableOutlets'
 
 class OutletStatus(CodeNameMixIn,CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
@@ -650,6 +635,36 @@ class RBD(CreateUpdateMixIn,models.Model):
 
     def __str__(self):
         return self.name
+
+class UsableOutlet(CreateUpdateMixIn,models.Model):
+
+    USABLE = 'UA'
+    NOTUSABLE = 'NU'
+    DROP = 'DR'
+    QUARANTINE = 'QA'
+    USABLE_STATUS_CHOICES = (
+        (USABLE , 'Usable'),
+        (NOTUSABLE , 'Not Usable'),
+        (DROP , 'Drop'),
+        (QUARANTINE , 'Quarantine'),
+    )
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
+    month = models.ForeignKey(Month,on_delete=models.CASCADE)
+    outlet = models.ForeignKey(Outlet, on_delete=models.CASCADE)
+    index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
+    cell = models.ForeignKey(Cell, on_delete=models.CASCADE)
+    status = models.CharField(max_length=2, choices=USABLE_STATUS_CHOICES,default=USABLE)
+    # is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.outlet.code
+    class Meta:
+        unique_together = (('country','month','index','outlet','cell'),)
+        db_table = 'usable_outlet'
+        verbose_name = 'UsableOutlet'
+        verbose_name_plural = 'UsableOutlets'
+
 
 class ColLabel(CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)

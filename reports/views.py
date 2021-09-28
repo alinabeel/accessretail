@@ -266,7 +266,7 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 #"""CELL Panel Profile"""
                 queryListPPCellMonth_1 = queryListPPCell.filter(month = month_1_qs) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = month_1_qs, is_active = True))
+                                                    .filter(country = country, month = month_1_qs, status = UsableOutlet.USABLE))
 
 
                 temp_dic = {
@@ -288,7 +288,7 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 for date_obj in date_arr_obj:
                     aggregate_val = queryListPPCell.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, is_active = True)) \
+                                                        .filter(country = country, month = date_obj, status = UsableOutlet.USABLE)) \
                                                 .aggregate(count = Count('id'))
 
                     temp_dic['store_'+str(date_obj.code)] = aggregate_val['count']
@@ -296,7 +296,7 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 for date_obj in date_arr_obj:
                     aggregate_val = queryListPPCell.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, is_active = True)) \
+                                                        .filter(country = country, month = date_obj, status = UsableOutlet.USABLE)) \
                                                 .aggregate(acv_sum = Sum('acv'))
 
                     temp_dic['panel_acv_'+str(date_obj.code)] = aggregate_val['acv_sum']
@@ -308,7 +308,7 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 for date_obj in date_arr_obj:
                     aggregate_val = queryListPA.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, is_active = True))  \
+                                                        .filter(country = country, month = date_obj, status = UsableOutlet.USABLE))  \
                                                 .aggregate(sales = Sum('sales'))
                     temp_dic['sales_'+str(date_obj.code)] = aggregate_val['sales']
                     sales.append(aggregate_val['sales'])
@@ -320,17 +320,17 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
 
                 prv_month = queryListPPCell.filter(month = date_arr_obj[-2]) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = date_arr_obj[-2], is_active = True)) \
+                                                    .filter(country = country, month = date_arr_obj[-2], status = UsableOutlet.USABLE)) \
                                             .values_list('outlet_id', flat=True)
 
                 new_outlets = queryListPPCell.filter(month = date_arr_obj[-1]).exclude(outlet_id__in = prv_month) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = date_arr_obj[-1], is_active = True)) \
+                                                    .filter(country = country, month = date_arr_obj[-1], status = UsableOutlet.USABLE)) \
                                             .values_list('outlet_id', flat=True)
 
                 common_outlets = queryListPPCell.filter(month = date_arr_obj[-1]).filter(outlet_id__in = prv_month) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = date_arr_obj[-1], is_active = True)) \
+                                                    .filter(country = country, month = date_arr_obj[-1], status = UsableOutlet.USABLE)) \
                                             .values_list('outlet_id', flat=True)
 
 
@@ -347,7 +347,7 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 for date_obj in date_arr_obj:
                     aggregate_val = queryListPA.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, is_active = True))  \
+                                                        .filter(country = country, month = date_obj, status = UsableOutlet.USABLE))  \
                                                 .aggregate(sales_vol = Sum('sales_vol'))
                     temp_dic['sales_vol_'+str(date_obj.code)] = aggregate_val['sales_vol']
                     sales_vol.append(aggregate_val['sales_vol'])
@@ -358,7 +358,7 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 for date_obj in date_arr_obj:
                     aggregate_val = queryListPA.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, is_active = True))  \
+                                                        .filter(country = country, month = date_obj, status = UsableOutlet.USABLE))  \
                                                 .aggregate(sales_val = Sum('sales_val'))
                     temp_dic['sales_val_'+str(date_obj.code)] = aggregate_val['sales_val']
                     sales_val.append(aggregate_val['sales_val'])
@@ -373,12 +373,12 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                         smpppp = queryListPA.filter(month = date_obj) \
                                                     .filter(product_id__in = smp) \
                                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                            .filter(country = country, month = date_obj, is_active = True))
+                                                            .filter(country = country, month = date_obj, status = UsableOutlet.USABLE))
                         prettyprint_queryset(smpppp)
                         aggregate_val = queryListPA.filter(month = date_obj) \
                                                     .filter(product_id__in = smp) \
                                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                            .filter(country = country, month = date_obj, is_active = True))  \
+                                                            .filter(country = country, month = date_obj, status = UsableOutlet.USABLE))  \
                                                     .aggregate(sales = Sum('sales'))
                         temp_dic[sm+'_'+str(date_obj.code)] = aggregate_val['sales']
 
@@ -395,7 +395,7 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
-            # logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
+
 
         # Prepare response
 
@@ -481,13 +481,13 @@ class CellSummaryOverviewAJAX(LoginRequiredMixin, generic.View):
 
             agg_total_outlets_in_pp_previous = queryListPPAll.filter(month = previous_month_qs) \
                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                            .filter(country = country, month = previous_month_qs, is_active = True)) \
+                                            .filter(country = country, month = previous_month_qs, status = UsableOutlet.USABLE)) \
                                     .aggregate(count = Count('outlet__id'))
             total_outlets_in_pp_previous = agg_total_outlets_in_pp_previous['count']
 
             agg_total_outlets_in_pp_current = queryListPPAll.filter(month = current_month_qs) \
                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                            .filter(country = country, month = current_month_qs, is_active = True)) \
+                                            .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE)) \
                                     .aggregate(count = Count('outlet__id'))
             total_outlets_in_pp_current = agg_total_outlets_in_pp_current['count']
 
@@ -525,7 +525,7 @@ class CellSummaryOverviewAJAX(LoginRequiredMixin, generic.View):
 
                     queryListPPRBDAllPrevious = queryListPPRBDAll.filter(month = previous_month_qs) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = previous_month_qs, is_active = True))
+                                                    .filter(country = country, month = previous_month_qs, status = UsableOutlet.USABLE))
 
 
 
@@ -537,7 +537,7 @@ class CellSummaryOverviewAJAX(LoginRequiredMixin, generic.View):
 
                     queryListPPRBDAllCurrent = queryListPPRBDAll.filter(month = current_month_qs) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = current_month_qs, is_active = True))
+                                                    .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
 
 
 
@@ -592,7 +592,7 @@ class CellSummaryOverviewAJAX(LoginRequiredMixin, generic.View):
 
                         queryListPPCellAllPrevious = queryListPPCellAll.filter(month = previous_month_qs) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = previous_month_qs, is_active = True))
+                                                        .filter(country = country, month = previous_month_qs, status = UsableOutlet.USABLE))
 
 
 
@@ -606,7 +606,7 @@ class CellSummaryOverviewAJAX(LoginRequiredMixin, generic.View):
 
                         queryListPPCellAllCurrent = queryListPPCellAll.filter(month = current_month_qs) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = current_month_qs, is_active = True))
+                                                        .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
 
 
 
@@ -653,7 +653,7 @@ class CellSummaryOverviewAJAX(LoginRequiredMixin, generic.View):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
-            # logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
+
 
         # Prepare response
         return HttpResponse(
@@ -771,7 +771,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
 
                 queryListPPCellCurrentPrevious = queryListPPCell.filter(Q(month = previous_month_qs)| Q(month = current_month_qs)) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(Q(country = country) & Q(is_active = True) & Q(Q(month = previous_month_qs)| Q(month = current_month_qs)))) \
+                                                    .filter(Q(country = country) & Q(status = UsableOutlet.USABLE) & Q(Q(month = previous_month_qs)| Q(month = current_month_qs)))) \
                                             .values('outlet__code','outlet__id').annotate(outlet_id_count=Count('outlet__code'))
                 # prettyprint_queryset(queryListPPCellCurrentPrevious)
                 outlets  = list(queryListPPCellCurrentPrevious)
@@ -810,12 +810,12 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
 
                     #"""CELL Panel Profile"""
                     is_usable_previous  = list(UsableOutlet.objects.values_list('outlet__code',flat=True) \
-                                                        .filter(country = country, month = previous_month_qs, is_active = True,outlet_id=outlet_id))
+                                                        .filter(country = country, month = previous_month_qs, status = UsableOutlet.USABLE,outlet_id=outlet_id))
 
                     if(is_usable_previous):
                         queryListPPCellPrevious = queryListPPCell.filter(month = previous_month_qs) \
                                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                            .filter(country = country, month = previous_month_qs, is_active = True))
+                                                            .filter(country = country, month = previous_month_qs, status = UsableOutlet.USABLE))
 
 
                         # for i in range(0,len(queryListPPCellPrevious)):
@@ -828,7 +828,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
                         #Audit Data
                         queryListPAAllPrevious = queryListPA.filter(month = previous_month_qs) \
                                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                            .filter(country = country, month = previous_month_qs, is_active = True))
+                                                            .filter(country = country, month = previous_month_qs, status = UsableOutlet.USABLE))
 
                         agg_outlets_audit_all_previous = queryListPAAllPrevious.aggregate(count = Count('outlet__id',distinct=True))
                         total_outlets_in_audit_previous = agg_outlets_audit_all_previous['count']
@@ -883,7 +883,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
                     """-----------------------------------------Current Month Calculatuons-----------------------------------------"""
 
                     is_usable_current  = list(UsableOutlet.objects.values_list('outlet__code',flat=True) \
-                                                        .filter(country = country, month = current_month_qs, is_active = True,outlet_id=outlet_id))
+                                                        .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE,outlet_id=outlet_id))
 
                     if(is_usable_current):
 
@@ -891,7 +891,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
                         #--Filter Useable Outlets
                         queryListPPCellCurrent = queryListPPCell.filter(month = current_month_qs) \
                                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                            .filter(country = country, month = current_month_qs, is_active = True))
+                                                            .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
 
                         # for i in range(0,len(queryListPPCellCurrent)):
 
@@ -905,7 +905,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
                         #Audit Data
                         queryListPAAllCurrent = queryListPA.filter(month = current_month_qs) \
                                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                            .filter(country = country, month = current_month_qs, is_active = True))
+                                                            .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
                         agg_outlets_audit_all_current = queryListPAAllCurrent.aggregate(count = Count('outlet__id',distinct=True))
                         total_outlets_in_audit_current = agg_outlets_audit_all_current['count']  #NPanel Denumerator
 
@@ -1018,7 +1018,6 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
-            # logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
 
         # Prepare response
 
@@ -1084,6 +1083,8 @@ class ClientReportingView(LoginRequiredMixin, generic.TemplateView):
         })
         return context
 
+class SampleMaintenanceView(LoginRequiredMixin, generic.TemplateView):
+    pass
 
 
 def getRBDs(request):

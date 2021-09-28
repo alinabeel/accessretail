@@ -55,7 +55,8 @@ urlpatterns += [
     path('<slug:country_code>/usable-outlet-create/', UsableOutletCreateView.as_view(), name='usable-outlet-create'),
     path('<slug:country_code>/usable-outlet-update/<int:pk>', UsableOutletUpdateView.as_view(), name='usable-outlet-update'),
     path('<slug:country_code>/usable-outlet-delete/<int:pk>', UsableOutletDeleteView.as_view(), name='usable-outlet-delete'),
-
+    path('<slug:country_code>/usable-outlet-status/', UsableOutletStatus.as_view(), name='usable-outlet-status'),
+    # path('<slug:country_code>/usable-outlet-status/', usableoutletstatus, name='usable-outlet-status'),
 ]
 
 """ Product List """

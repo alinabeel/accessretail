@@ -550,22 +550,36 @@ class UsableOutletImportView(LoginRequiredMixin, generic.CreateView):
 class UsableOutletListViewAjax(AjaxDatatableView):
     model = UsableOutlet
     title = 'Usable Outlet'
-    initial_order = [["month", "asc"],['index','asc'] ]
+    initial_order = [["id", "asc"]]
     length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
     search_values_separator = '+'
 
 
     column_defs = [
          AjaxDatatableView.render_row_tools_column_def(),
-        {'name': 'id', 'visible': False, },
-        {'name': 'month', 'foreign_field': 'month__code', 'choices': True,'autofilter': True,},
+        {'name': 'id','title':'ID', 'visible': True, },
+        {'name': 'month','title':'Month Code', 'foreign_field': 'month__code', 'choices': True,'autofilter': True,},
+        {'name': 'name','title':'Month', 'foreign_field': 'month__name', 'choices': True,'autofilter': True,},
+        {'name': 'year','title':'Year', 'foreign_field': 'month__year', 'choices': True,'autofilter': True,},
         {'name': 'index', 'foreign_field': 'index__name',  'choices': True, 'autofilter': True, 'width':'50',},
+        {'name': 'cell', 'foreign_field': 'cell__name', },
         {'name': 'outlet','title':'Outlet Code',  'foreign_field': 'outlet__code',},
-        {'name': 'is_active',  'choices': True, 'autofilter': True,},
+        {'name': 'status',  'choices': True, 'autofilter': True,},
+
+        {'name': UsableOutlet.USABLE, 'title': 'Usable', 'placeholder': True, 'searchable': False, 'orderable': False, },
+        {'name': UsableOutlet.NOTUSABLE, 'title': 'Not Usable', 'placeholder': True, 'searchable': False, 'orderable': False, },
+        {'name': UsableOutlet.DROP, 'title': 'Drop', 'placeholder': True, 'searchable': False, 'orderable': False, },
+        {'name': UsableOutlet.QUARANTINE, 'title': 'Quarantine', 'placeholder': True, 'searchable': False, 'orderable': False, },
         {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
     ]
 
     def customize_row(self, row, obj):
+
+            row[UsableOutlet.USABLE] = '<input class="status" type="radio" name="'+str(obj.id)+'" value="'+UsableOutlet.USABLE+'" '+("checked" if obj.status==UsableOutlet.USABLE else "")+'  >'
+            row[UsableOutlet.NOTUSABLE] = '<input class="status" type="radio" name="'+str(obj.id)+'" value="'+UsableOutlet.NOTUSABLE+'" '+("checked" if obj.status==UsableOutlet.NOTUSABLE else "")+'  >'
+            row[UsableOutlet.DROP] = '<input class="status" type="radio" name="'+str(obj.id)+'" value="'+UsableOutlet.DROP+'" '+("checked" if obj.status==UsableOutlet.DROP else "")+'  >'
+            row[UsableOutlet.QUARANTINE] = '<input class="status" type="radio" name="'+str(obj.id)+'" value="'+UsableOutlet.QUARANTINE+'" '+("checked" if obj.status==UsableOutlet.QUARANTINE else "")+'  >'
+
             row['action'] = ('<a href="%s" title="Edit" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
                              '<a href="%s" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
                     reverse('master-data:usable-outlet-update', args=(self.kwargs['country_code'],obj.id,)),
@@ -607,6 +621,37 @@ class UsableOutletListView(LoginRequiredMixin, generic.TemplateView):
 
         return context
 
+class UsableOutletStatus(LoginRequiredMixin, generic.CreateView):
+    def post(self, request, country_code):
+        country = Country.objects.get(code=self.kwargs["country_code"])
+        id = self.request.POST.get("id")
+        value = self.request.POST.get("value")
+        # form_obj = form.save(commit=False)
+        # form_obj.country = country
+        # form_obj.name = self.request.POST.get("name")
+        # form_obj.code = self.request.POST.get("code")
+        # form_obj.description = self.request.POST.get("description")
+        # form_obj.save()
+        # pk = self.kwargs['pk']
+        obj = UsableOutlet.objects.get(pk=id,country=country)
+        obj.status  = value
+        obj.save()
+
+        return HttpResponse(
+            json.dumps(
+                {'data':'success'},
+                cls=DjangoJSONEncoder
+            ),
+            content_type="application/json")
+
+
+def usableoutletstatus(request):
+    if request.method == 'POST':
+        # post_id = request.GET['post_id']
+        # likedpost = Post.objects.get(id = post_id )
+        # m = Like( post=likedpost )
+        # m.save()
+        return HttpResponse('success')
 
 class UsableOutletCreateView(LoginRequiredMixin, generic.CreateView):
     template_name = "generic_create.html"
@@ -726,7 +771,7 @@ class ProductListViewAjax(AjaxDatatableView):
             AjaxDatatableView.render_row_tools_column_def(),
             {'name': 'id', 'visible': False, },
             {'name': 'code',  },
-            {'name': 'category code','foreign_field': 'category__code', 'autofilter': True,},
+            {'name': 'category code','foreign_field': 'category__code', },
             {'name': 'category name','foreign_field': 'category__name', 'choices': True, 'autofilter': True,},
             # {'name': 'aggregation_level',  'choices': True, 'autofilter': True,},
             # {'name': 'company',  'choices': True, 'autofilter': True,},
@@ -944,7 +989,7 @@ class PanelProfileRBDListing(ListAPIView):
 
             queryList = PanelProfile.objects.all().filter(country = country, month = current_month_qs)
             queryList = queryList.filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                    .filter(country = country, month = current_month_qs, is_active = True))
+                                    .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
 
             parent = self.request.query_params.get('parent')
 
@@ -1021,7 +1066,7 @@ class PanelProfileRBDListing(ListAPIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
-            # logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
+
 
         return queryList
 
@@ -1066,7 +1111,7 @@ class RBDListViewAjax_BACKUP(LoginRequiredMixin, generic.View):
                 queryListPPAll = PanelProfile.objects.all() \
                                     .filter(country = country) \
                                         .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                            .filter(country = country, month = current_month_qs, is_active = True))
+                                            .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
 
                 if rbd_serialize_str != '':
                     rbd_params = parse_qs((rbd_serialize_str))
@@ -1134,7 +1179,7 @@ class RBDListViewAjax_BACKUP(LoginRequiredMixin, generic.View):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
-            # logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
+
 
         # Prepare response
         return HttpResponse(
@@ -1535,7 +1580,7 @@ class PanelProfileCellListing(ListAPIView):
 
             queryList = PanelProfile.objects.all().filter(country = country, month = current_month_qs)
             queryList = queryList.filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                    .filter(country = country, month = current_month_qs, is_active = True))
+                                    .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
 
             # Get condition filter
             field_group = self.request.query_params
@@ -1557,7 +1602,7 @@ class PanelProfileCellListing(ListAPIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
-            # logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
+
 
         return queryList
 
@@ -1591,7 +1636,7 @@ class CellListViewAjax(LoginRequiredMixin, generic.View):
             queryListPPAll = PanelProfile.objects.all() \
                                 .filter(country = country) \
                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                        .filter(country = country, month = current_month_qs, is_active = True))
+                                        .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
 
 
             # queryList_json = serialize('json', queryList)
@@ -1660,7 +1705,7 @@ class CellListViewAjax(LoginRequiredMixin, generic.View):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
-            # logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
+
 
         # Prepare response
         return HttpResponse(

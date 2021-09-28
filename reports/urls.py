@@ -28,4 +28,9 @@ urlpatterns = [
     # """ Client Reporting """
     path('<slug:country_code>/client-reporting-view/', ClientReportingView.as_view(), name='client-reporting-view'),
 
+    # """ Sample Maintenance """
+    path('<slug:country_code>/sample-maintenance/', SampleMaintenanceView.as_view(), name='sample-maintenance'),
+
+
+
 ]
