@@ -19,7 +19,7 @@
 {% block javascripts %}
 <script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
 <script language="javascript">
-    var dt_ajax_url = '{% url "master-data:usable-outlet-list-ajax" country_code=global.country_code %}';
+    var dt_ajax_url = '{% url "reports:sample-maintenance-ajax" country_code=global.country_code %}';
     function getCookie(name) {
         var cookieValue = null;
         var value = '; ' + document.cookie,
@@ -43,22 +43,48 @@
             common_dt_options
         );
 
-        $("body").on( "click", ".status", function() {
-            var name = $(this).attr('name');
-            var value = $(this).val();
-            let url = $('#list_data').attr("url")
-            var datastring = $("#frm1").serialize();
-            console.log(getCSRFToken());
+        $("body").on( "click", ".copy_to", function() {
+            var data_row = $(this).attr('data_row');
+            var outlet_to = $(this).attr('outlet_to');
+            var month_from = $(this).attr('month_from');
+            var outlet_from = $('#outlet_from_'+data_row).val();
+
             $.ajax({
                 method: 'POST',
-                //headers: {'X-CSRFToken': getCSRFToken()},
                 headers: { "X-CSRFToken": getCookie("csrftoken") },
-                //mode: "same-origin",
-                url: "{% url 'master-data:usable-outlet-status' country_code=global.country_code%}",
-                data: {'id':name,'value':value,'csrfmiddlewaretoken':getCSRFToken()},
+                url: "{% url 'reports:sample-maintenance-copy' country_code=global.country_code %}",
+                data: {'outlet_from':outlet_from,'outlet_to':outlet_to,'month_from':month_from,'csrfmiddlewaretoken':getCSRFToken()},
                 success: function (result) {
                     if(result.data=='success'){
-                        alertify.success("Status changed successfully");
+                        alertify.success("Outlet Copied Successfully");
+                        $.fn.dataTable.tables({
+                            api: true
+                        }).draw();
+                    }else{
+                        alertify.error("Something went wrong");
+                    }
+                },
+                error: function (response) {
+                    alertify.error("Something went wrong");
+                }
+            });
+
+        });
+
+        $("body").on( "click", ".estimate_from", function() {
+            var data_row = $(this).attr('data_row');
+            var outlet_to = $(this).attr('outlet_to');
+            var month_from = $(this).attr('month_from');
+            var outlet_from = outlet_to;
+
+            $.ajax({
+                method: 'POST',
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
+                url: "{% url 'reports:sample-maintenance-estimate' country_code=global.country_code %}",
+                data: {'outlet_from':outlet_from,'outlet_to':outlet_to,'month_from':month_from,'csrfmiddlewaretoken':getCSRFToken()},
+                success: function (result) {
+                    if(result.data=='success'){
+                        alertify.success("Outlet Estimate Successfully");
                         $.fn.dataTable.tables({
                             api: true
                         }).draw();
@@ -75,10 +101,8 @@
 
         /*setTimeout(
             function(){
-                $("input.status").on( "click", function() {
-                    alert($(this).val());
-                });
-            },5000
+                $(".select2").select2();
+            },2000
         );*/
 
 

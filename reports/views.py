@@ -3,6 +3,7 @@ from dateutil.easter import *
 from dateutil.rrule import *
 from dateutil.parser import *
 from datetime import *
+from datetime import datetime,date,timedelta
 from  decimal import Decimal
 
 import csv
@@ -30,6 +31,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import (HttpResponseRedirect,HttpResponse,JsonResponse)
 from django.http import StreamingHttpResponse
+from django.db.models.functions import Concat
+
 
 from django.views import generic
 from rest_framework.generics import ListAPIView
@@ -187,7 +190,6 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
 
             #Calculate Previous Month, Next Month
             audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('month__date')[0:3]
-            prettyprint_queryset(audit_date_qs,'audit_date_qs')
 
             date_arr = []
             date_arr_obj = []
@@ -266,9 +268,10 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 #"""CELL Panel Profile"""
                 queryListPPCellMonth_1 = queryListPPCell.filter(month = month_1_qs) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = month_1_qs, status = UsableOutlet.USABLE))
+                                                    .filter(country = country, month = month_1_qs, status__iexact = UsableOutlet.USABLE))
 
 
+                # prettyprint_queryset(queryListPPCellMonth_1)
                 temp_dic = {
                     'Category' : category.name,
                     'Cell Name' : queryList[k].name,
@@ -288,7 +291,7 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 for date_obj in date_arr_obj:
                     aggregate_val = queryListPPCell.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, status = UsableOutlet.USABLE)) \
+                                                        .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE)) \
                                                 .aggregate(count = Count('id'))
 
                     temp_dic['store_'+str(date_obj.code)] = aggregate_val['count']
@@ -296,7 +299,7 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 for date_obj in date_arr_obj:
                     aggregate_val = queryListPPCell.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, status = UsableOutlet.USABLE)) \
+                                                        .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE)) \
                                                 .aggregate(acv_sum = Sum('acv'))
 
                     temp_dic['panel_acv_'+str(date_obj.code)] = aggregate_val['acv_sum']
@@ -308,7 +311,7 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 for date_obj in date_arr_obj:
                     aggregate_val = queryListPA.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, status = UsableOutlet.USABLE))  \
+                                                        .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE))  \
                                                 .aggregate(sales = Sum('sales'))
                     temp_dic['sales_'+str(date_obj.code)] = aggregate_val['sales']
                     sales.append(aggregate_val['sales'])
@@ -320,20 +323,33 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
 
                 prv_month = queryListPPCell.filter(month = date_arr_obj[-2]) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = date_arr_obj[-2], status = UsableOutlet.USABLE)) \
+                                                    .filter(country = country, month = date_arr_obj[-2], status__iexact = UsableOutlet.USABLE)) \
                                             .values_list('outlet_id', flat=True)
 
+
+                curr_month = queryListPPCell.filter(month = date_arr_obj[-1]) \
+                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                                                    .filter(country = country, month = date_arr_obj[-1], status__iexact = UsableOutlet.USABLE)) \
+                                            .values_list('outlet_id', flat=True)
+                print(prv_month)
+                cdebug(curr_month)
                 new_outlets = queryListPPCell.filter(month = date_arr_obj[-1]).exclude(outlet_id__in = prv_month) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = date_arr_obj[-1], status = UsableOutlet.USABLE)) \
+                                                    .filter(country = country, month = date_arr_obj[-1], status__iexact = UsableOutlet.USABLE)) \
+                                            .values_list('outlet_id', flat=True)
+
+                lost_outlets = queryListPPCell.filter(month = date_arr_obj[-2]).exclude(outlet_id__in = curr_month) \
+                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                                                    .filter(country = country, month = date_arr_obj[-2], status__iexact = UsableOutlet.USABLE)) \
                                             .values_list('outlet_id', flat=True)
 
                 common_outlets = queryListPPCell.filter(month = date_arr_obj[-1]).filter(outlet_id__in = prv_month) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = date_arr_obj[-1], status = UsableOutlet.USABLE)) \
+                                                    .filter(country = country, month = date_arr_obj[-1], status__iexact = UsableOutlet.USABLE)) \
                                             .values_list('outlet_id', flat=True)
 
 
+                temp_dic['lost_outlets'] = len(lost_outlets)
                 temp_dic['new_outlets'] = len(new_outlets)
                 temp_dic['common_outlets'] = len(common_outlets)
 
@@ -347,7 +363,7 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 for date_obj in date_arr_obj:
                     aggregate_val = queryListPA.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, status = UsableOutlet.USABLE))  \
+                                                        .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE))  \
                                                 .aggregate(sales_vol = Sum('sales_vol'))
                     temp_dic['sales_vol_'+str(date_obj.code)] = aggregate_val['sales_vol']
                     sales_vol.append(aggregate_val['sales_vol'])
@@ -358,7 +374,7 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
                 for date_obj in date_arr_obj:
                     aggregate_val = queryListPA.filter(month = date_obj) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, status = UsableOutlet.USABLE))  \
+                                                        .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE))  \
                                                 .aggregate(sales_val = Sum('sales_val'))
                     temp_dic['sales_val_'+str(date_obj.code)] = aggregate_val['sales_val']
                     sales_val.append(aggregate_val['sales_val'])
@@ -370,15 +386,15 @@ class CellSummaryAJAX(LoginRequiredMixin, generic.View):
 
 
                     for date_obj in date_arr_obj:
-                        smpppp = queryListPA.filter(month = date_obj) \
-                                                    .filter(product_id__in = smp) \
-                                                    .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                            .filter(country = country, month = date_obj, status = UsableOutlet.USABLE))
-                        prettyprint_queryset(smpppp)
+                        # smpppp = queryListPA.filter(month = date_obj) \
+                        #                             .filter(product_id__in = smp) \
+                        #                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+                        #                                     .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE))
+                        # # prettyprint_queryset(smpppp)
                         aggregate_val = queryListPA.filter(month = date_obj) \
                                                     .filter(product_id__in = smp) \
                                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                            .filter(country = country, month = date_obj, status = UsableOutlet.USABLE))  \
+                                                            .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE))  \
                                                     .aggregate(sales = Sum('sales'))
                         temp_dic[sm+'_'+str(date_obj.code)] = aggregate_val['sales']
 
@@ -481,13 +497,13 @@ class CellSummaryOverviewAJAX(LoginRequiredMixin, generic.View):
 
             agg_total_outlets_in_pp_previous = queryListPPAll.filter(month = previous_month_qs) \
                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                            .filter(country = country, month = previous_month_qs, status = UsableOutlet.USABLE)) \
+                                            .filter(country = country, month = previous_month_qs, status__iexact = UsableOutlet.USABLE)) \
                                     .aggregate(count = Count('outlet__id'))
             total_outlets_in_pp_previous = agg_total_outlets_in_pp_previous['count']
 
             agg_total_outlets_in_pp_current = queryListPPAll.filter(month = current_month_qs) \
                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                            .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE)) \
+                                            .filter(country = country, month = current_month_qs, status__iexact = UsableOutlet.USABLE)) \
                                     .aggregate(count = Count('outlet__id'))
             total_outlets_in_pp_current = agg_total_outlets_in_pp_current['count']
 
@@ -525,7 +541,7 @@ class CellSummaryOverviewAJAX(LoginRequiredMixin, generic.View):
 
                     queryListPPRBDAllPrevious = queryListPPRBDAll.filter(month = previous_month_qs) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = previous_month_qs, status = UsableOutlet.USABLE))
+                                                    .filter(country = country, month = previous_month_qs, status__iexact = UsableOutlet.USABLE))
 
 
 
@@ -537,7 +553,7 @@ class CellSummaryOverviewAJAX(LoginRequiredMixin, generic.View):
 
                     queryListPPRBDAllCurrent = queryListPPRBDAll.filter(month = current_month_qs) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
+                                                    .filter(country = country, month = current_month_qs, status__iexact = UsableOutlet.USABLE))
 
 
 
@@ -592,7 +608,7 @@ class CellSummaryOverviewAJAX(LoginRequiredMixin, generic.View):
 
                         queryListPPCellAllPrevious = queryListPPCellAll.filter(month = previous_month_qs) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = previous_month_qs, status = UsableOutlet.USABLE))
+                                                        .filter(country = country, month = previous_month_qs, status__iexact = UsableOutlet.USABLE))
 
 
 
@@ -606,7 +622,7 @@ class CellSummaryOverviewAJAX(LoginRequiredMixin, generic.View):
 
                         queryListPPCellAllCurrent = queryListPPCellAll.filter(month = current_month_qs) \
                                                 .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
+                                                        .filter(country = country, month = current_month_qs, status__iexact = UsableOutlet.USABLE))
 
 
 
@@ -771,7 +787,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
 
                 queryListPPCellCurrentPrevious = queryListPPCell.filter(Q(month = previous_month_qs)| Q(month = current_month_qs)) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(Q(country = country) & Q(status = UsableOutlet.USABLE) & Q(Q(month = previous_month_qs)| Q(month = current_month_qs)))) \
+                                                    .filter(Q(country = country) & Q(status__iexact = UsableOutlet.USABLE) & Q(Q(month = previous_month_qs)| Q(month = current_month_qs)))) \
                                             .values('outlet__code','outlet__id').annotate(outlet_id_count=Count('outlet__code'))
                 # prettyprint_queryset(queryListPPCellCurrentPrevious)
                 outlets  = list(queryListPPCellCurrentPrevious)
@@ -810,12 +826,12 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
 
                     #"""CELL Panel Profile"""
                     is_usable_previous  = list(UsableOutlet.objects.values_list('outlet__code',flat=True) \
-                                                        .filter(country = country, month = previous_month_qs, status = UsableOutlet.USABLE,outlet_id=outlet_id))
+                                                        .filter(country = country, month = previous_month_qs, status__iexact = UsableOutlet.USABLE,outlet_id=outlet_id))
 
                     if(is_usable_previous):
                         queryListPPCellPrevious = queryListPPCell.filter(month = previous_month_qs) \
                                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                            .filter(country = country, month = previous_month_qs, status = UsableOutlet.USABLE))
+                                                            .filter(country = country, month = previous_month_qs, status__iexact = UsableOutlet.USABLE))
 
 
                         # for i in range(0,len(queryListPPCellPrevious)):
@@ -828,7 +844,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
                         #Audit Data
                         queryListPAAllPrevious = queryListPA.filter(month = previous_month_qs) \
                                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                            .filter(country = country, month = previous_month_qs, status = UsableOutlet.USABLE))
+                                                            .filter(country = country, month = previous_month_qs, status__iexact = UsableOutlet.USABLE))
 
                         agg_outlets_audit_all_previous = queryListPAAllPrevious.aggregate(count = Count('outlet__id',distinct=True))
                         total_outlets_in_audit_previous = agg_outlets_audit_all_previous['count']
@@ -883,7 +899,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
                     """-----------------------------------------Current Month Calculatuons-----------------------------------------"""
 
                     is_usable_current  = list(UsableOutlet.objects.values_list('outlet__code',flat=True) \
-                                                        .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE,outlet_id=outlet_id))
+                                                        .filter(country = country, month = current_month_qs, status__iexact = UsableOutlet.USABLE,outlet_id=outlet_id))
 
                     if(is_usable_current):
 
@@ -891,7 +907,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
                         #--Filter Useable Outlets
                         queryListPPCellCurrent = queryListPPCell.filter(month = current_month_qs) \
                                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                            .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
+                                                            .filter(country = country, month = current_month_qs, status__iexact = UsableOutlet.USABLE))
 
                         # for i in range(0,len(queryListPPCellCurrent)):
 
@@ -905,7 +921,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
                         #Audit Data
                         queryListPAAllCurrent = queryListPA.filter(month = current_month_qs) \
                                                     .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                            .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
+                                                            .filter(country = country, month = current_month_qs, status__iexact = UsableOutlet.USABLE))
                         agg_outlets_audit_all_current = queryListPAAllCurrent.aggregate(count = Count('outlet__id',distinct=True))
                         total_outlets_in_audit_current = agg_outlets_audit_all_current['count']  #NPanel Denumerator
 
@@ -1083,8 +1099,275 @@ class ClientReportingView(LoginRequiredMixin, generic.TemplateView):
         })
         return context
 
+
+class SampleMaintenanceViewAjax(AjaxDatatableView):
+    model = PanelProfile
+    initial_order = [["month", "asc"], ]
+    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
+    search_values_separator = '+'
+
+    def get_column_defs(self, request):
+        """
+        Override to customize based of request
+        """
+        self.column_defs = [
+            AjaxDatatableView.render_row_tools_column_def(),
+            {'name': 'id','title':'ID', 'visible': True, },
+
+            {'name': 'month_code', 'foreign_field': 'month__code', 'choices': True,'autofilter': True,},
+            {'name': 'month', 'foreign_field': 'month__name', 'choices': True,'autofilter': True,},
+            {'name': 'year', 'foreign_field': 'month__year', 'choices': True,'autofilter': True,},
+            {'name': 'copy', 'title': 'Copy From', 'placeholder': True, 'searchable': False, 'orderable': False, },
+            {'name': 'outlet_code','title': 'Copy To - Missing Outlet', 'foreign_field': 'outlet__code','width':'50', },
+            {'name': 'outlet_id', 'foreign_field': 'outlet__id','visible': True, },
+            {'name': 'estimate', 'title': 'Estimate', 'placeholder': True, 'searchable': False, 'orderable': False, },
+
+
+
+        ]
+
+        # self.column_defs.append({'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, })
+        return self.column_defs
+
+    def customize_row(self, row, obj):
+            country = Country.objects.get(code=self.kwargs["country_code"])
+            audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('-month__date')[0:2]
+
+            date_arr = []
+            date_arr_obj = []
+            for instance in audit_date_qs:
+                date_arr.append(instance['month__date'])
+
+            if(len(date_arr)==2):
+                month_1 , month_2 = date_arr
+                month_1_qs = Month.objects.get(date=month_1)
+                month_2_qs = Month.objects.get(date=month_2)
+                date_arr_obj.append(month_1_qs)
+                date_arr_obj.append(month_2_qs)
+            else:
+                cdebug('1-Month data')
+                return HttpResponse(json.dumps({'msg','Please load minimum 2 month data.'},cls=DjangoJSONEncoder),content_type="application/json")
+
+
+            # curr_month = PanelProfile.objects.all().filter(country = country,month = date_arr_obj[0]) \
+            #     .values_list('outlet__code', flat=True)
+
+            prv_month = PanelProfile.objects.all().filter(country = country,month = date_arr_obj[1], outlet__code='102') \
+                .values_list('outlet__id','outlet__code')
+
+            outlet_to = row['outlet_id']
+            data_row = obj.id
+
+            # cdebug(prv_month)
+            prv_select_html = ''
+            for p in prv_month:
+                prv_select_html += '<option value="'+str(p[0])+'">'+str(p[1])+'</option>'
+
+            row['copy'] = ('<select class="select2" id="outlet_from_'+str(data_row)+'">%s</select>') % (
+                    prv_select_html,
+                )
+            row['estimate'] = '<a href="javascript:void(0);" title="Estimate" class="btn btn-info estimate_from" data_row="'+str(data_row)+'" month_from="'+str(row['month_code'])+'" outlet_to="'+str(outlet_to)+'">Estimate</a>'
+            row['outlet_code'] = row['outlet_code']+'&nbsp;'+'<a href="javascript:void(0);" title="Copy" class="btn btn-info copy_to" data_row="'+str(data_row)+'" month_from="'+str(row['month_code'])+'" outlet_to="'+str(outlet_to)+'">Copy</a>'
+
+
+    # model._meta.fields
+    def get_initial_queryset(self, request=None):
+        # queryset = self.model.objects.filter(
+        #     country__code=self.kwargs['country_code']
+        # )
+        # return queryset
+        queryList = super().get_initial_queryset(request=request)
+
+        country = Country.objects.get(code=self.kwargs["country_code"])
+
+
+        audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('-month__date')[0:2]
+        # prettyprint_queryset(audit_date_qs)
+
+        date_arr = []
+        date_arr_obj = []
+        for instance in audit_date_qs:
+            date_arr.append(instance['month__date'])
+
+        if(len(date_arr)==2):
+            month_1 , month_2 = date_arr
+            month_1_qs = Month.objects.get(date=month_1)
+            month_2_qs = Month.objects.get(date=month_2)
+            date_arr_obj.append(month_1_qs)
+            date_arr_obj.append(month_2_qs)
+            # cdebug('2-Month data')
+        else:
+            cdebug('1-Month data')
+            return HttpResponse(json.dumps({'msg','Please load minimum 2 month data.'},cls=DjangoJSONEncoder),content_type="application/json")
+        # cdebug(date_arr_obj)
+
+        curr_month = queryList.filter(month = date_arr_obj[0]).values_list('outlet_id', flat=True)
+        # prv_month = queryList.filter(month = date_arr_obj[1]).values_list('outlet_id', flat=True)
+
+        queryList = queryList.filter(month = date_arr_obj[1]).exclude(outlet_id__in = curr_month)
+
+
+        # print(lost_outlets)
+
+
+        return queryList
+
 class SampleMaintenanceView(LoginRequiredMixin, generic.TemplateView):
-    pass
+    template_name = "reports/sample_maintenance.html"
+    PAGE_TITLE = "Sample Maintenance"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super(self.__class__, self).get_context_data(**kwargs)
+        return context
+
+
+class SampleMaintenanceCopyViewAjax(LoginRequiredMixin, generic.CreateView):
+    def post(self, request, country_code):
+        country = Country.objects.get(code=self.kwargs["country_code"])
+        outlet_from = self.request.POST.get("outlet_from")
+        outlet_to = self.request.POST.get("outlet_to")
+        month_from = self.request.POST.get("month_from")
+
+        audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('-month__date')[0:2]
+
+        date_arr = []
+        date_arr_obj = []
+        for instance in audit_date_qs:
+            date_arr.append(instance['month__date'])
+
+        if(len(date_arr)==2):
+            month_1 , month_2 = date_arr
+            month_1_qs = Month.objects.get(date=month_1)
+            month_2_qs = Month.objects.get(date=month_2)
+            date_arr_obj.append(month_1_qs)
+            date_arr_obj.append(month_2_qs)
+        else:
+            cdebug('1-Month data')
+            return HttpResponse(json.dumps({'msg','Please load minimum 2 month data.'},cls=DjangoJSONEncoder),content_type="application/json")
+
+
+        cdebug(outlet_from)
+        cdebug(outlet_to)
+        cdebug(month_from)
+
+
+        # cdebug(obj.audit_date)
+        # cdebug(obj.audit_date+timedelta(days=30))
+
+        obj = PanelProfile.objects.get(outlet__id=outlet_from,month__code=month_from)
+        obj.pk = None # New Copy
+        obj.outlet_id  = outlet_to
+        obj.audit_status  = PanelProfile.COPIED
+        obj.audit_date = obj.audit_date+timedelta(days=30)
+        obj.month = date_arr_obj[0]
+        obj.save()
+
+        objs = ProductAudit.objects.filter(outlet__id=outlet_from, month__code=month_from)
+        for obj in objs:
+            obj.pk = None # New Copy
+            obj.outlet_id  = outlet_to
+            obj.audit_status  = ProductAudit.COPIED
+            obj.audit_date = obj.audit_date+timedelta(days=30)
+            obj.month = date_arr_obj[0]
+            obj.save()
+
+        # obj = UsableOutlet.objects.get(pk=id,country=country)
+        # obj.status  = value
+        # obj.save()
+
+
+        # pp = PanelProfile.objects.filter(month__code='30')
+        # for r in pp:
+        #     r.audit_date = datetime(2021, 6, 1)
+        #     r.save()
+        # pp = PanelProfile.objects.filter(month__code='31')
+        # for r in pp:
+        #     r.audit_date = datetime(2021, 7, 1)
+        #     r.save()
+        # pp = PanelProfile.objects.filter(month__code='32')
+        # for r in pp:
+        #     r.audit_date = datetime(2021, 8, 1)
+        #     r.save()
+
+        # pp = ProductAudit.objects.filter(month__code='30')
+        # for r in pp:
+        #     r.audit_date = datetime(2021, 6, 1)
+        #     r.save()
+        # pp = ProductAudit.objects.filter(month__code='31')
+        # for r in pp:
+        #     r.audit_date = datetime(2021, 7, 1)
+        #     r.save()
+        # pp = ProductAudit.objects.filter(month__code='32')
+        # for r in pp:
+        #     r.audit_date = datetime(2021, 8, 1)
+        #     r.save()
+
+        # cdebug(obj.id,'new_id')
+
+        return HttpResponse(
+            json.dumps(
+                {'data':'success'},
+                cls=DjangoJSONEncoder
+            ),
+            content_type="application/json")
+
+class SampleMaintenanceEstimateViewAjax(LoginRequiredMixin, generic.CreateView):
+    def post(self, request, country_code):
+        country = Country.objects.get(code=self.kwargs["country_code"])
+        outlet_from = self.request.POST.get("outlet_from")
+        outlet_to = self.request.POST.get("outlet_to")
+        month_from = self.request.POST.get("month_from")
+
+        audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('-month__date')[0:2]
+
+        date_arr = []
+        date_arr_obj = []
+        for instance in audit_date_qs:
+            date_arr.append(instance['month__date'])
+
+        if(len(date_arr)==2):
+            month_1 , month_2 = date_arr
+            month_1_qs = Month.objects.get(date=month_1)
+            month_2_qs = Month.objects.get(date=month_2)
+            date_arr_obj.append(month_1_qs)
+            date_arr_obj.append(month_2_qs)
+        else:
+            cdebug('1-Month data')
+            return HttpResponse(json.dumps({'msg','Please load minimum 2 month data.'},cls=DjangoJSONEncoder),content_type="application/json")
+
+
+        cdebug(outlet_from)
+        cdebug(outlet_to)
+        cdebug(month_from)
+
+
+        obj = PanelProfile.objects.get(outlet__id=outlet_from,month__code=month_from)
+        obj.pk = None # New Copy
+        obj.outlet_id  = outlet_to
+        obj.audit_status  = PanelProfile.ESTIMATED
+        obj.audit_date = obj.audit_date+timedelta(days=30)
+        obj.month = date_arr_obj[0]
+        obj.save()
+
+        objs = ProductAudit.objects.filter(outlet__id=outlet_from, month__code=month_from)
+        for obj in objs:
+            obj.pk = None # New Copy
+            obj.outlet_id  = outlet_to
+            obj.audit_status  = ProductAudit.ESTIMATED
+            obj.audit_date = obj.audit_date+timedelta(days=30)
+            obj.month = date_arr_obj[0]
+            obj.save()
+
+        return HttpResponse(
+            json.dumps(
+                {'data':'success'},
+                cls=DjangoJSONEncoder
+            ),
+            content_type="application/json")
 
 
 def getRBDs(request):

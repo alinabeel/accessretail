@@ -29,7 +29,10 @@ urlpatterns = [
     path('<slug:country_code>/client-reporting-view/', ClientReportingView.as_view(), name='client-reporting-view'),
 
     # """ Sample Maintenance """
+    path('<slug:country_code>/sample-maintenance-ajax/', SampleMaintenanceViewAjax.as_view(), name='sample-maintenance-ajax'),
     path('<slug:country_code>/sample-maintenance/', SampleMaintenanceView.as_view(), name='sample-maintenance'),
+    path('<slug:country_code>/sample-maintenance-copy/', SampleMaintenanceCopyViewAjax.as_view(), name='sample-maintenance-copy'),
+        path('<slug:country_code>/sample-maintenance-estimate/', SampleMaintenanceEstimateViewAjax.as_view(), name='sample-maintenance-estimate'),
 
 
 

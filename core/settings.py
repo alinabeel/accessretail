@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django_mptt_admin',
     # 'easyaudit',
     'django_extensions',
+    'eav',
 
     'simple_import',
     'import_export',

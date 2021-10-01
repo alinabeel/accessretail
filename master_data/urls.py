@@ -45,6 +45,14 @@ urlpatterns += [
     path('<slug:country_code>/panel-profile-list/', PanelProfileListView.as_view(), name='panel-profile-list'),
     path('<slug:country_code>/panel-profile-import/', PanelProfileImportView.as_view(), name='panel-profile-import'),
     path('<slug:country_code>/panel-profile-update/', PanelProfileUpdateView.as_view(), name='panel-profile-update'),
+    path('<slug:country_code>/panel-profile-delete/<int:pk>', PanelProfileDeleteView.as_view(), name='panel-profile-delete'),
+]
+
+
+""" Outlets """
+urlpatterns += [
+    path('<slug:country_code>/outlet-list-ajax/', OutletListViewAjax.as_view(), name='outlet-list-ajax'),
+    path('<slug:country_code>/outlet-list/', OutletListView.as_view(), name='outlet-list'),
 ]
 
 """ Usable Outlets """

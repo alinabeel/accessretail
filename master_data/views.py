@@ -232,7 +232,7 @@ class CategoryListViewAjax(AjaxDatatableView):
 
     column_defs = [
          AjaxDatatableView.render_row_tools_column_def(),
-        {'name': 'id', 'visible': False, },
+        {'name': 'id','title':'ID', 'visible': True, },
         {'name': 'code',  },
         {'name': 'name',  },
         {'name': 'parent', 'foreign_field': 'parent__name',   'choices': True, 'autofilter': True,},
@@ -347,33 +347,76 @@ class PanelProfileListViewAjax(AjaxDatatableView):
     length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
     search_values_separator = '+'
 
-    column_defs = [
-         AjaxDatatableView.render_row_tools_column_def(),
-        {'name': 'id', 'visible': False, },
-        {'name': 'month', 'foreign_field': 'month__code', 'choices': True,'autofilter': True,},
-        {'name': 'outlet','title':'Outlet Code',  'foreign_field': 'outlet__code',},
-        {'title':'Outlet Type Code','name': 'outlet_type_code',  'foreign_field': 'outlet_type__code', 'choices': True, 'autofilter': True,},
-        {'title':'Outlet Type Name','name': 'outlet_type_name',  'foreign_field': 'outlet_type__name', 'choices': True, 'autofilter': True,},
+    def get_column_defs(self, request):
+        """
+        Override to customize based of request
+        """
+        self.column_defs = [
+            AjaxDatatableView.render_row_tools_column_def(),
+            {'name': 'id','title':'ID', 'visible': True, },
+            {'name':'audit_status','choices': True, 'autofilter': True,},
+            {'name': 'month code', 'foreign_field': 'month__code', 'choices': True,'autofilter': True,},
+            {'name': 'month', 'foreign_field': 'month__name', 'choices': True,'autofilter': True,},
+            {'name': 'year', 'foreign_field': 'month__year', 'choices': True,'autofilter': True,},
 
+            {'name': 'Index Code', 'foreign_field': 'index__code', },
+            {'name': 'Index Name', 'foreign_field': 'index__name', 'choices': True, 'autofilter': True,},
 
-        {'title':'Outlet Status code','name': 'outlet_status_code',  'foreign_field': 'outlet_status__code', 'choices': True, 'autofilter': True,},
-        {'title':'Outlet Status Name','name': 'outlet_status_name',  'foreign_field': 'outlet_status__name', 'choices': True, 'autofilter': True,},
+            {'name': 'Category Code', 'foreign_field': 'category__code', },
+            {'name': 'Category Name', 'foreign_field': 'category__name','choices': True, 'autofilter': True, },
+            {'name': 'Outlet Code', 'foreign_field': 'outlet__code', },
 
-        {'name': 'index', 'foreign_field': 'index__name',  'choices': True, 'autofilter': True, 'width':'50',},
-        # {'name': 'hand_nhand',  'choices': True,'autofilter': True,},
-        # {'name': 'region',  'choices': True,'autofilter': True,},
-        {'name': 'audit_date', },
-        {'name': 'acv', },
-        # {'name': 'wtd_factor', },
-        # {'name': 'num_factor',  },
-        # {'name': 'turnover',  },
+            {'name': 'Outlet Type Code', 'foreign_field': 'outlet_type__code', },
+            {'name': 'Outlet Type Name', 'foreign_field': 'outlet_type__name', 'choices': True, 'autofilter': True,},
+
+            {'name': 'Outlet Status Code', 'foreign_field': 'outlet_status__code', },
+            {'name': 'Outlet Status Name', 'foreign_field': 'outlet_status__name', 'choices': True, 'autofilter': True,},
+
+            {'name': 'Province Code', 'foreign_field': 'city_village__tehsil__district__province__code', },
+            {'name': 'Province Name', 'foreign_field': 'city_village__tehsil__district__province__name', 'choices': True, 'autofilter': True,},
+            {'name': 'District Code', 'foreign_field': 'city_village__tehsil__district__code',},
+            {'name': 'District Name', 'foreign_field': 'city_village__tehsil__district__name', 'choices': True, 'autofilter': True,},
+
+            {'name': 'Tehsil Code', 'foreign_field': 'city_village__tehsil__code',},
+            {'name': 'Tehsil Name', 'foreign_field': 'city_village__tehsil__name', 'choices': True, 'autofilter': True,},
+            {'name': 'Tehsil Urbanity', 'foreign_field': 'city_village__tehsil__urbanity', 'choices': True, 'autofilter': True,},
+
+            {'name': 'City Code', 'foreign_field': 'city_village__code', },
+            {'name': 'City Name', 'foreign_field': 'city_village__name',},
+            {'name': 'Rc Cut', 'foreign_field': 'city_village__rc_cut', 'choices': True, 'autofilter': True,},
+            {'name':'lms', 'choices': True, 'autofilter': True,},
+            {'name':'cell_description',},
+            {'name':'nra_tagging',},
+            {'name':'ra_tagging',},
+            {'name':'ret_tagging',},
+            {'name':'audit_date',},
+            {'name':'acv'},
 
         ]
-    # for v in model._meta.get_fields():
-    #     if('custom' in v.name):
-    #         column_defs.append({'name':v.name})
 
+        # ('index', 'category', 'hand_nhand', 'region', 'city_village', 'outlet', 'outlet_type', 'outlet_status', , )
+        for v in CityVillage._meta.get_fields():
+            if('extra' in v.name):
+                try:
+                    col_label = ColLabel.objects.only("col_label").get(
+                        country__code = self.kwargs['country_code'],
+                        model_name = 'CityVillage',
+                        col_name = v.name
+                    )
+                except ColLabel.DoesNotExist:
+                    col_label = None
 
+                title = col_label.col_label if col_label else v.name
+                self.column_defs.append({'name': v.name,'title':title, 'foreign_field': 'city_village__'+v.name, 'choices': True, 'autofilter': True, })
+
+        self.column_defs.append({'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, })
+        return self.column_defs
+
+    def customize_row(self, row, obj):
+
+            row['action'] = ('<a href="%s" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+                    reverse('master-data:panel-profile-delete', args=(self.kwargs['country_code'],obj.id)),
+                )
 
     # model._meta.fields
     def get_initial_queryset(self, request=None):
@@ -469,7 +512,31 @@ class PanelProfileImportView(LoginRequiredMixin, generic.CreateView):
         return reverse("master-data:panel-profile-list", kwargs={"country_code": self.kwargs["country_code"]})
 
 
+class PanelProfileDeleteView(LoginRequiredMixin, generic.DeleteView):
+    template_name = "generic_delete.html"
+    PAGE_TITLE = "Delete PanelProfile and Related Data"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
 
+    def get_success_url(self):
+        messages.add_message(self.request, messages.INFO, "Record deleted successfully.")
+        return reverse("master-data:panel-profile-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+    def get_queryset(self):
+        country = Country.objects.get(code=self.kwargs["country_code"])
+        pp =  PanelProfile.objects.get(id=self.kwargs['pk'])
+        month_id = pp.month_id
+        outlet_id = pp.outlet_id
+        cdebug(outlet_id)
+        ProductAudit.objects.filter(country=country,outlet__id = outlet_id, month__id = month_id).delete()
+
+        queryset =  PanelProfile.objects.filter(
+            country__code=self.kwargs['country_code'],
+            pk=self.kwargs['pk'],
+        )
+        return queryset
 
 class PanelProfileListViewAjax2(AjaxDatatableView):
     model = PanelProfile
@@ -480,7 +547,7 @@ class PanelProfileListViewAjax2(AjaxDatatableView):
 
     column_defs = [
          AjaxDatatableView.render_row_tools_column_def(),
-        {'name': 'id', 'visible': False, },
+        {'name': 'id','title':'ID', 'visible': True, },
         {'name': 'month', 'foreign_field': 'month__code', 'choices': True,'autofilter': True,},
         {'name': 'outlet','title':'Outlet Code',  'foreign_field': 'outlet__code',},
         {'name': 'outlet_type',  'foreign_field': 'outlet_type__code', 'choices': True, 'autofilter': True,},
@@ -716,7 +783,47 @@ class UsableOutletDeleteView(LoginRequiredMixin, generic.DeleteView):
         )
         return queryset
 
+""" ------------------------- Outlets ------------------------- """
 
+
+class OutletListViewAjax(AjaxDatatableView):
+    model = Outlet
+    initial_order = [["code", "asc"], ]
+    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
+    search_values_separator = '+'
+
+    def get_column_defs(self, request):
+        """
+        Override to customize based of request
+        """
+
+        self.column_defs = [
+            AjaxDatatableView.render_row_tools_column_def(),
+            {'name': 'id','title':'ID', 'visible': True, },
+            {'name': 'code',  },
+            {'name': 'insert_date'},
+        ]
+
+        return self.column_defs
+
+    def get_initial_queryset(self, request=None):
+
+        queryset = self.model.objects.filter(
+            country__code=self.kwargs['country_code']
+        )
+        return queryset
+
+class OutletListView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "master_data/outlet_list.html"
+    PAGE_TITLE = "Outlets"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+    def get_context_data(self, **kwargs):
+        context = super(self.__class__, self).get_context_data(**kwargs)
+
+        return context
 
 """ ------------------------- Product ------------------------- """
 
@@ -769,20 +876,10 @@ class ProductListViewAjax(AjaxDatatableView):
 
         self.column_defs = [
             AjaxDatatableView.render_row_tools_column_def(),
-            {'name': 'id', 'visible': False, },
+            {'name': 'id','title':'ID', 'visible': True, },
             {'name': 'code',  },
             {'name': 'category code','foreign_field': 'category__code', },
             {'name': 'category name','foreign_field': 'category__name', 'choices': True, 'autofilter': True,},
-            # {'name': 'aggregation_level',  'choices': True, 'autofilter': True,},
-            # {'name': 'company',  'choices': True, 'autofilter': True,},
-            # {'name': 'brand',  'choices': True, 'autofilter': True,},
-            # {'name': 'family',  'choices': True, 'autofilter': True,},
-            # {'name': 'flavour_type',  'choices': True, 'autofilter': True,},
-            # {'name': 'weight',  },
-            # {'name': 'price_segment',  'choices': True, 'autofilter': True,},
-            # {'name': 'length_range',  'choices': True, 'autofilter': True,},
-            # {'name': 'number_in_pack',  },
-            # {'name': 'price_per_stick',  },
         ]
         # ('barcode', 'sku', 'brand', 'variant', 'size', 'packaging', 'weight', 'origin', 'country', 'manufacture', 'price_segment', 'super_manufacture', 'super_brand', 'weight', 'number_in_pack', 'price_per_unit', )
 
@@ -818,7 +915,6 @@ class ProductListViewAjax(AjaxDatatableView):
             country__code=self.kwargs['country_code']
         )
         return queryset
-
 
 class ProductListView(LoginRequiredMixin, generic.TemplateView):
     template_name = "master_data/product_list.html"
@@ -885,16 +981,36 @@ class ProductAuditListViewAjax(AjaxDatatableView):
 
     column_defs = [
          AjaxDatatableView.render_row_tools_column_def(),
-        {'name': 'id', 'visible': False, },
-        {'name': 'month', 'foreign_field': 'month__code', 'choices': True,'autofilter': True,},
-        {'name': 'category', 'foreign_field': 'category__code', 'choices': True,'autofilter': True,},
-        {'name': 'outlet', 'foreign_field': 'outlet__code',},
+        {'name': 'id','title':'ID', 'visible': True, },
+
+        {'name': 'audit_status','choices': True, 'autofilter': True,},
+        {'name': 'month code', 'foreign_field': 'month__code', 'choices': True,'autofilter': True,},
+        {'name': 'month', 'foreign_field': 'month__name', 'choices': True,'autofilter': True,},
+        {'name': 'year', 'foreign_field': 'month__year', 'choices': True,'autofilter': True,},
+
+        {'name': 'Category Code', 'foreign_field': 'category__code', },
+        {'name': 'Category Name', 'foreign_field': 'category__name','choices': True, 'autofilter': True, },
+        {'name': 'Outlet Code', 'foreign_field': 'outlet__code', },
+
+        # {'name': 'Outlet Type Code', 'foreign_field': 'outlet_type__code', },
+        # {'name': 'Outlet Type Name', 'foreign_field': 'outlet_type__name', 'choices': True, 'autofilter': True,},
+
+        # {'name': 'Outlet Status Code', 'foreign_field': 'outlet_status__code', },
+        # {'name': 'Outlet Status Name', 'foreign_field': 'outlet_status__name', 'choices': True, 'autofilter': True,},
+
+
+
+
+
+
+        # {'name': 'category', 'foreign_field': 'category__code', 'choices': True,'autofilter': True,},
+        # {'name': 'outlet', 'foreign_field': 'outlet__code',},
         {'name': 'product','title':'Product Code', 'foreign_field': 'product__code',},
 
         ]
 
     skip_cols = ['id','pk','country','upload','created','updated',
-                 'month', 'period', 'category', 'outlet', 'product',]
+                 'month', 'period', 'category', 'outlet', 'product','audit_status']
 
     for v in model._meta.get_fields():
         if(v.name not in skip_cols):
@@ -942,7 +1058,7 @@ class RBDListViewAjax_backup(AjaxDatatableView):
 
     column_defs = [
          AjaxDatatableView.render_row_tools_column_def(),
-        {'name': 'id', 'visible': False, },
+        {'name': 'id','title':'ID', 'visible': True, },
         {'name': 'code',  },
         {'name': 'name',  },
         {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
@@ -1199,7 +1315,7 @@ class RBDListViewAjax(AjaxDatatableView):
 
     column_defs = [
          AjaxDatatableView.render_row_tools_column_def(),
-        {'name': 'id', 'visible': False, },
+        {'name': 'id','title':'ID', 'visible': True, },
         {'name': 'name',  },
         {'name': 'cell','m2m_foreign_field':'cell__name'  },
         # {'name': 'rbdcode', 'title':'RBD Code', 'foreign_field': 'rbd__code', 'choices': True, 'autofilter': True,},
@@ -1445,17 +1561,13 @@ class CellPanelProfileAJAX(AjaxDatatableView):
     length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
     search_values_separator = '+'
 
-
-    # abc = AjaxDatatableView.get_country
-    # cdebug(abc)
-
     def get_column_defs(self, request):
         """
         Override to customize based of request
         """
         self.column_defs = [
             AjaxDatatableView.render_row_tools_column_def(),
-            {'name': 'id', 'visible': False, },
+            {'name': 'id','title':'ID', 'visible': True, },
 
             {'name': 'Index Code', 'foreign_field': 'index__code', },
             {'name': 'Index Name', 'foreign_field': 'index__name', 'choices': True, 'autofilter': True,},
@@ -1507,30 +1619,19 @@ class CellPanelProfileAJAX(AjaxDatatableView):
                 self.column_defs.append({'name': v.name,'title':title, 'foreign_field': 'city_village__'+v.name, 'choices': True, 'autofilter': True, })
         return self.column_defs
 
-
-    # def filter_queryset(self, params, queryList):
-
-    #     # qs = self.model.objects.filter(
-    #     #     code='10001'
-    #     # )
-    #     return queryList
-
     def get_initial_queryset(self, request=None):
 
-
-        # queryset = self.model.objects.filter(
-        #     country__code=self.kwargs['country_code']
-        # )
         queryList = super().get_initial_queryset(request=request)
 
         country = Country.objects.get(code=self.kwargs["country_code"])
 
-        audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('-audit_date')[0:2]
+        audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('-month__date')[0:2]
+        prettyprint_queryset(audit_date_qs)
         date_arr = []
         for instance in audit_date_qs:
             date_arr.append(instance['month__date'])
         current_month , previous_month = date_arr
-
+        cdebug(date_arr)
         current_month_qs = Month.objects.get(date=current_month)
         previous_month_qs = Month.objects.get(date=previous_month)
 
@@ -1606,114 +1707,191 @@ class PanelProfileCellListing(ListAPIView):
 
         return queryList
 
-class CellListViewAjax(LoginRequiredMixin, generic.View):
+# class CellListViewAjax(LoginRequiredMixin, generic.View):
 
-    def get(self, request, *args, **kwargs):
-        return_dic = {}
-        response_dict = []
-        temp_dic = dict()
+#     def get(self, request, *args, **kwargs):
+#         return_dic = {}
+#         response_dict = []
+#         temp_dic = dict()
 
-        try:
-            #Country Query List
-            country = Country.objects.get(code=self.kwargs["country_code"])
+#         try:
+#             #Country Query List
+#             country = Country.objects.get(code=self.kwargs["country_code"])
 
-            #RBD Query List
-            queryList = Cell.objects.all().filter(country = country).order_by('name')
-            # prettyprint_queryset(queryList)
-            #Calculate Current Month
-            audit_date_qs = PanelProfile.objects.all().filter(country = country).aggregate(current_month=Max('month__date'))
+#             #RBD Query List
+#             queryList = Cell.objects.all().filter(country = country).order_by('name')
+#             # prettyprint_queryset(queryList)
+#             #Calculate Current Month
+#             audit_date_qs = PanelProfile.objects.all().filter(country = country).aggregate(current_month=Max('month__date'))
 
-            current_month = audit_date_qs['current_month']
-            current_month_qs = Month.objects.get(date=current_month)
-
-
-            return_dic['count'] = len(queryList)
-            return_dic['next'] = None
-            return_dic['previous'] = None
+#             current_month = audit_date_qs['current_month']
+#             current_month_qs = Month.objects.get(date=current_month)
 
 
-            #All Panel profile Records
-            queryListPPAll = PanelProfile.objects.all() \
-                                .filter(country = country) \
-                                    .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                        .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
+#             return_dic['count'] = len(queryList)
+#             return_dic['next'] = None
+#             return_dic['previous'] = None
 
 
-            # queryList_json = serialize('json', queryList)
-            last_rbd_pk = ''
-            counter = 0
-            for k in range(0,len(queryList)):
-
-                pk = queryList[k].pk
-                cell_serialize_str = queryList[k].serialize_str
-
-                # print(Colors.BOLD_YELLOW,'Processing Cell: ', queryList[k].name,Colors.WHITE)
+#             #All Panel profile Records
+#             queryListPPAll = PanelProfile.objects.all().filter(country = country)
+#                                     # .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
+#                                     #     .filter(country = country, month = current_month_qs, status = UsableOutlet.USABLE))
 
 
-                cell_group_filter_human = ""
-                if cell_serialize_str != '':
-                    cell_params = parse_qs((cell_serialize_str))
-                    cell_list = getDictArray(cell_params,'field_group[group]')
-                    cell_dic = getDicGroupList(cell_list)
-                    # cdebug(cell_dic,'cell_dic')
-                    cell_group_filter = getGroupFilter(cell_dic)
-                    # cdebug(cell_group_filter,'cell_group_filter')
-                    cell_group_filter_human = getGroupFilterHuman(cell_dic)
+#             # queryList_json = serialize('json', queryList)
+#             last_rbd_pk = ''
+#             counter = 0
+#             for k in range(0,len(queryList)):
+
+#                 pk = queryList[k].pk
+#                 cell_serialize_str = queryList[k].serialize_str
+
+#                 # print(Colors.BOLD_YELLOW,'Processing Cell: ', queryList[k].name,Colors.WHITE)
+
+
+#                 cell_group_filter_human = ""
+#                 if cell_serialize_str != '':
+#                     cell_params = parse_qs((cell_serialize_str))
+#                     cell_list = getDictArray(cell_params,'field_group[group]')
+#                     cell_dic = getDicGroupList(cell_list)
+#                     # cdebug(cell_dic,'cell_dic')
+#                     cell_group_filter = getGroupFilter(cell_dic)
+#                     # cdebug(cell_group_filter,'cell_group_filter')
+#                     cell_group_filter_human = getGroupFilterHuman(cell_dic)
 
 
 
-                # rbd_cell_group_filter = Q(rbd_group_filter) & Q(cell_group_filter)
+#                 # rbd_cell_group_filter = Q(rbd_group_filter) & Q(cell_group_filter)
 
-                filter_human = "Cell( \n {})".format(cell_group_filter_human)
+#                 filter_human = "Cell( \n {})".format(cell_group_filter_human)
 
-                queryListPPAllCell = queryListPPAll.filter(cell_group_filter)
+#                 queryListPPAllCell = queryListPPAll.filter(cell_group_filter)
 
-                # prettyprint_queryset(queryListPPAllRBDCell)
+#                 # prettyprint_queryset(queryListPPAllRBDCell)
 
-                total_outlets_in_cell = queryListPPAllCell.aggregate(count = Count('outlet__id',distinct=True))
+#                 total_outlets_in_cell = queryListPPAllCell.aggregate(count = Count('outlet__id',distinct=True))
 
-                """ Store Cell information with cell conditions """
+#                 """ Store Cell information with cell conditions """
 
-                temp_dic = {
-                    # 'CellCode' : queryList[k].code,
-                    'CellName' : queryList[k].name,
-                    'CellDescription' : queryList[k].description,
-                    'cell_acv' : queryList[k].cell_acv,
-                    'num_universe' : queryList[k].num_universe,
-                    'optimal_panel' : queryList[k].optimal_panel,
-                    'Condition' : "<br />".join(filter_human.split("\n")),
+#                 temp_dic = {
+#                     # 'CellCode' : queryList[k].code,
+#                     'CellName' : queryList[k].name,
+#                     'CellDescription' : queryList[k].description,
+#                     'cell_acv' : queryList[k].cell_acv,
+#                     'num_universe' : queryList[k].num_universe,
+#                     'optimal_panel' : queryList[k].optimal_panel,
+#                     'Condition' : "<br />".join(filter_human.split("\n")),
 
-                    'TotalOutlets' : total_outlets_in_cell['count'],
+#                     'TotalOutlets' : total_outlets_in_cell['count'],
 
 
-                    'Actions' : ('<a href="%s" title="Edit" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
-                                '<a href="%s" title="Duplicate" class="btn btn btn-warning btn-xs dt-duplicate"><span class="mdi mdi-content-duplicate" aria-hidden="true"></span></a>' +
+#                     'Actions' : ('<a href="%s" title="Edit" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
+#                                 '<a href="%s" title="Duplicate" class="btn btn btn-warning btn-xs dt-duplicate"><span class="mdi mdi-content-duplicate" aria-hidden="true"></span></a>' +
+#                                 '<a href="%s" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+#                                     reverse('master-data:cell-update', args=(self.kwargs['country_code'],pk,)),
+#                                     reverse('master-data:cell-duplicate', args=(self.kwargs['country_code'],pk,)),
+#                                     reverse('master-data:cell-delete', args=(self.kwargs['country_code'],pk,)),
+#                                 )
+
+#                     }
+
+#                 response_dict.append( temp_dic )
+
+#             return_dic['results'] = response_dict
+
+
+#         except Exception as e:
+#             exc_type, exc_obj, exc_tb = sys.exc_info()
+#             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+#             print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
+
+
+#         # Prepare response
+#         return HttpResponse(
+#             json.dumps(
+#                 return_dic,
+#                 cls=DjangoJSONEncoder
+#             ),
+#             content_type="application/json")
+
+class CellListViewAjax(AjaxDatatableView):
+    model = Cell
+    initial_order = [["name", "asc"], ]
+    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
+    search_values_separator = '+'
+
+    def get_column_defs(self, request):
+        """
+        Override to customize based of request
+        """
+
+        # ('name', 'description', 'cell_acv', 'num_universe', 'optimal_panel', 'condition_html', 'serialize_str', )
+        self.column_defs = [
+            AjaxDatatableView.render_row_tools_column_def(),
+            {'name': 'id','title':'ID', 'visible': True, },
+            {'name': 'name', },
+            {'name': 'cell_acv', },
+            {'name': 'num_universe', },
+            {'name': 'optimal_panel', },
+            {'name': 'condition', 'title': 'Condition', 'placeholder': True, 'searchable': False, 'orderable': False, },
+            {'name': 'total_outlets', 'title': 'Total Outlets', 'placeholder': True, 'searchable': False, 'orderable': False, },
+            {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
+
+        ]
+
+        return self.column_defs
+
+    def customize_row(self, row, obj):
+            row['action'] = ('<a href="%s" title="Edit" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>' \
+                                '<a href="%s" title="Duplicate" class="btn btn btn-warning btn-xs dt-duplicate"><span class="mdi mdi-content-duplicate" aria-hidden="true"></span></a>' \
                                 '<a href="%s" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
-                                    reverse('master-data:cell-update', args=(self.kwargs['country_code'],pk,)),
-                                    reverse('master-data:cell-duplicate', args=(self.kwargs['country_code'],pk,)),
-                                    reverse('master-data:cell-delete', args=(self.kwargs['country_code'],pk,)),
+                                    reverse('master-data:cell-update', args=(self.kwargs['country_code'],obj.id,)),
+                                    reverse('master-data:cell-duplicate', args=(self.kwargs['country_code'],obj.id,)),
+                                    reverse('master-data:cell-delete', args=(self.kwargs['country_code'],obj.id,)),
                                 )
+            queryListPPAll = PanelProfile.objects.all().filter(country__id = obj.country_id)
+            # cdebug(obj.country_id)
+            cell_serialize_str = obj.serialize_str
+            cell_group_filter_human = ""
+            if cell_serialize_str != '':
+                cell_params = parse_qs((cell_serialize_str))
+                cell_list = getDictArray(cell_params,'field_group[group]')
+                cell_dic = getDicGroupList(cell_list)
+                cell_group_filter = getGroupFilter(cell_dic)
 
-                    }
+                cell_group_filter_human = getGroupFilterHuman(cell_dic)
 
-                response_dict.append( temp_dic )
+            filter_human = "Cell( \n {})".format(cell_group_filter_human)
 
-            return_dic['results'] = response_dict
+            queryListPPAllCell = queryListPPAll.filter(cell_group_filter)
 
+#                 # prettyprint_queryset(queryListPPAllRBDCell)
 
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
+            total_outlets_in_cell = queryListPPAllCell.aggregate(count = Count('outlet__id',distinct=True))
 
 
-        # Prepare response
-        return HttpResponse(
-            json.dumps(
-                return_dic,
-                cls=DjangoJSONEncoder
-            ),
-            content_type="application/json")
+
+            row['condition'] = filter_human
+            row['total_outlets'] = total_outlets_in_cell['count']
+
+    def get_initial_queryset(self, request=None):
+
+        queryset = self.model.objects.filter(
+            country__code=self.kwargs['country_code']
+        )
+        return queryset
+
+        # queryList = super().get_initial_queryset(request=request)
+
+        # country = Country.objects.get(code=self.kwargs["country_code"])
+
+        # queryList = self.model.objects
+        # queryList = queryList.filter(country = country)
+
+
+        # return queryList
+
 
 class CellListView(LoginRequiredMixin, generic.TemplateView):
     template_name = "master_data/cell_list.html"
@@ -2012,7 +2190,7 @@ class OutletTypeListViewAjax(AjaxDatatableView):
 
     column_defs = [
          AjaxDatatableView.render_row_tools_column_def(),
-        {'name': 'id', 'visible': False, },
+        {'name': 'id','title':'ID', 'visible': True, },
         {'name': 'code',  },
         {'name': 'name',  },
         {'name': 'urbanity',  'choices': True,'autofilter': True,},

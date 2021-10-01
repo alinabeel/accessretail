@@ -112,8 +112,6 @@ class Tehsil(CodeNameMixIn,CreateUpdateMixIn,models.Model):
         verbose_name = 'Tehsil'
         verbose_name_plural = 'Tehsils'
 
-
-
 class CityVillage(CodeNameMixIn,CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
@@ -161,8 +159,6 @@ class CityVillage(CodeNameMixIn,CreateUpdateMixIn,models.Model):
         verbose_name_plural = 'CityVillages'
         ordering = ['name']
 
-
-
 class RegionType(CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     name = models.CharField(max_length=150)
@@ -198,7 +194,6 @@ class Region(CodeNameMixIn,CreateUpdateMixIn,MPTTModel):
     def __str__(self):
         return self.name
 
-
 class Category(CreateUpdateMixIn,CodeNameMixIn,MPTTModel):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     upload = models.ForeignKey(Upload, related_name="category_uploads", on_delete=models.CASCADE, null=True, blank=True)
@@ -228,7 +223,6 @@ class IndexCategory(CreateUpdateMixIn,models.Model):
         db_table = 'index_category'
         verbose_name = 'Index Category'
         verbose_name_plural = 'Index Categries'
-
 
 class OutletType(CodeNameMixIn,CreateUpdateMixIn,MPTTModel):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
@@ -352,7 +346,14 @@ class OutletStatus(CodeNameMixIn,CreateUpdateMixIn,models.Model):
         verbose_name_plural = 'OutletStatuses'
 
 class PanelProfile(CreateUpdateMixIn,models.Model):
-
+    AUDITED = 'A'
+    COPIED = 'C'
+    ESTIMATED = 'E'
+    AUDIT_STATUS_CHOICES = (
+        (AUDITED , 'Audited'),
+        (COPIED , 'Copied'),
+        (ESTIMATED , 'Estimated'),
+    )
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
     month = models.ForeignKey(Month,on_delete=models.CASCADE)
@@ -380,6 +381,7 @@ class PanelProfile(CreateUpdateMixIn,models.Model):
     num_factor = models.DecimalField(max_digits=18,decimal_places=6, default=0)
     turnover = models.DecimalField(max_digits=18,decimal_places=6, default=0)
     acv = models.DecimalField(max_digits=18,decimal_places=6, default=0)
+    audit_status = models.CharField(max_length=1, choices=AUDIT_STATUS_CHOICES,default=AUDITED)
 
     class Meta:
         unique_together = (('country','outlet', 'month'))
@@ -388,7 +390,7 @@ class PanelProfile(CreateUpdateMixIn,models.Model):
         verbose_name_plural = 'PanelProfiles'
 
     def __str__(self):
-        return self.country
+        return self.outlet.code
 
 
 
@@ -460,6 +462,14 @@ class Product(CodeNameMixIn,CreateUpdateMixIn,models.Model):
 
 
 class ProductAudit(CreateUpdateMixIn,models.Model):
+    AUDITED = 'A'
+    COPIED = 'C'
+    ESTIMATED = 'E'
+    AUDIT_STATUS_CHOICES = (
+        (AUDITED , 'Audited'),
+        (COPIED , 'Copied'),
+        (ESTIMATED , 'Estimated'),
+    )
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
@@ -492,7 +502,7 @@ class ProductAudit(CreateUpdateMixIn,models.Model):
     sales = models.DecimalField(default=0, max_digits=18, decimal_places=6,)
     sales_vol = models.DecimalField(default=0,max_digits=18,decimal_places=6,)
     sales_val = models.DecimalField(default=0,max_digits=18,decimal_places=6,)
-
+    audit_status = models.CharField(max_length=1, choices=AUDIT_STATUS_CHOICES,default=AUDITED)
 
     # product_details = models.TextField(null=True, blank=True)
     # avaibility = models.BooleanField(default=True)
