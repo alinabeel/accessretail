@@ -690,3 +690,6 @@ class ColLabel(CreateUpdateMixIn,models.Model):
         db_table = 'col_label'
         verbose_name = 'ColLabel'
         verbose_name_plural = 'ColLabels'
+
+
+

@@ -58,7 +58,6 @@ INSTALLED_APPS = [
     # 'easyaudit',
     'django_extensions',
     'eav',
-
     'simple_import',
     'import_export',
     'report_builder',
@@ -72,6 +71,7 @@ INSTALLED_APPS = [
     'master_setups.apps.MasterSetupsConfig',
     'master_data.apps.MasterDataConfig',
     'monthly_setups_and_data.apps.MonthlySetupsAndDataConfig',
+    'reports.apps.ReportsConfig',
 ]
 
 

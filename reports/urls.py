@@ -9,9 +9,10 @@ urlpatterns = [
     path('<slug:country_code>/import-logs-ajax/', ImportsLogsListViewAjax.as_view(), name='import-logs-ajax'),
     path('<slug:country_code>/import-logs/', ImportsLogsListView.as_view(), name='import-logs'),
 
-    # """ RBD """
-    path('<slug:country_code>/rbd-list-ajax/', RBDListViewAjax.as_view(), name='rbd-list-ajax'),
-    path('<slug:country_code>/rbd-list/', RBDListView.as_view(), name='rbd-list'),
+    # """ CellSummaryReportView """
+    path('<slug:country_code>/cell-summary-generate-report-ajax/', CellSummaryGenerateReportAjax.as_view(), name='cell-summary-generate-report-ajax'),
+    path('<slug:country_code>/cell-summary-report-ajax/', CellSummaryReportViewAjax.as_view(), name='cell-summary-report-ajax'),
+    path('<slug:country_code>/cell-summary-report/', CellSummaryReportView.as_view(), name='cell-summary-report'),
 
     # """ Cell Summary """
     path('<slug:country_code>/cell-summary-ajax/<int:pk>/<str:cat>', CellSummaryAJAX.as_view(), name='cell-summary-ajax'),
@@ -32,8 +33,6 @@ urlpatterns = [
     path('<slug:country_code>/sample-maintenance-ajax/', SampleMaintenanceViewAjax.as_view(), name='sample-maintenance-ajax'),
     path('<slug:country_code>/sample-maintenance/', SampleMaintenanceView.as_view(), name='sample-maintenance'),
     path('<slug:country_code>/sample-maintenance-copy/', SampleMaintenanceCopyViewAjax.as_view(), name='sample-maintenance-copy'),
-        path('<slug:country_code>/sample-maintenance-estimate/', SampleMaintenanceEstimateViewAjax.as_view(), name='sample-maintenance-estimate'),
-
-
+    path('<slug:country_code>/sample-maintenance-estimate/', SampleMaintenanceEstimateViewAjax.as_view(), name='sample-maintenance-estimate'),
 
 ]

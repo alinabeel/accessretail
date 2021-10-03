@@ -693,13 +693,7 @@ class UsableOutletStatus(LoginRequiredMixin, generic.CreateView):
         country = Country.objects.get(code=self.kwargs["country_code"])
         id = self.request.POST.get("id")
         value = self.request.POST.get("value")
-        # form_obj = form.save(commit=False)
-        # form_obj.country = country
-        # form_obj.name = self.request.POST.get("name")
-        # form_obj.code = self.request.POST.get("code")
-        # form_obj.description = self.request.POST.get("description")
-        # form_obj.save()
-        # pk = self.kwargs['pk']
+
         obj = UsableOutlet.objects.get(pk=id,country=country)
         obj.status  = value
         obj.save()

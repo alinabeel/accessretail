@@ -52,6 +52,8 @@ from master_data.models import *
 from ajax_datatable.views import AjaxDatatableView
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
+from reports.models import RBDReport
+
 logger = logging.getLogger(__name__)
 
 
@@ -99,36 +101,79 @@ class ImportsLogsListView(LoginRequiredMixin, generic.TemplateView):
         context = super(self.__class__, self).get_context_data(**kwargs)
         return context
 
-""" ------------------------- RBDs  ------------------------- """
+""" ------------------------- CellSummaryGenerateReport  ------------------------- """
 
-class RBDListViewAjax(AjaxDatatableView):
-    model = RBD
-    title = 'RBD'
-    initial_order = [["name", "asc"], ]
+#Generate Report AJAX Action
+class CellSummaryGenerateReportAjax(LoginRequiredMixin, generic.CreateView):
+
+    def post(self, request, country_code):
+        country = Country.objects.get(code=self.kwargs["country_code"])
+        rbd = RBD.objects.get(id=self.request.POST.get("rbd"))
+        category = Category.objects.get(id=self.request.POST.get("category"))
+        month = Month.objects.get(id=self.request.POST.get("month"))
+
+        user = self.request.user
+        # rbd = self.request.POST.get("rbd")
+        # category = self.request.POST.get("category")
+        # month = self.request.POST.get("month")
+        cdebug(self.request.POST)
+        # ('country', 'name', 'rbd', 'category', 'month', 'report_html', 'report_json', 'is_confirmed', 'confirmed_on', 'confirmed_by', 'is_generated', 'generated_on', 'generated_by', )
+        obj, created = RBDReport.objects.get_or_create(
+            country = country, rbd=rbd, category=category, month=month,
+            defaults={
+                'generated_by': user,
+                'generated_on': date.today(),
+                'is_generated': 2
+            },
+
+        )
+        # obj = UsableOutlet.objects.get(pk=id,country=country)
+        # obj.status  = value
+        # obj.save()
+        proc = Popen('python manage.py generate_cell_report '+str(obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+
+        return HttpResponse(
+            json.dumps(
+                {'data':'success'},
+                cls=DjangoJSONEncoder
+            ),
+            content_type="application/json")
+
+#Grid view of generated reports
+class CellSummaryReportViewAjax(AjaxDatatableView):
+    model = RBDReport
+    initial_order = [["category", "asc"],["rbd", "asc"], ]
     length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
     search_values_separator = '+'
 
-
+    # ('country', 'name', 'rbd', 'category', 'month', 'report_html', 'report_json', 'is_confirmed', 'confirmed_on', 'confirmed_by', 'is_generated', 'generated_on', 'generated_by', )
     column_defs = [
-         AjaxDatatableView.render_row_tools_column_def(),
-        {'name': 'id', 'visible': False, },
-        {'name': 'name',  },
-        {'name': 'cell','m2m_foreign_field':'cell__name'  },
-        # {'name': 'rbdcode', 'title':'RBD Code', 'foreign_field': 'rbd__code', 'choices': True, 'autofilter': True,},
+        AjaxDatatableView.render_row_tools_column_def(),
+        {'name': 'id','title':'ID', 'visible': True, },
+        {'name': 'category', 'title':'Category', 'foreign_field': 'category__name', 'choices': True,'autofilter': True,},
+        {'name': 'rbd', 'title':'RBD', 'foreign_field': 'rbd__name', },
+        {'name': 'month code','title':'Month Code', 'foreign_field': 'month__code', },
+        {'name': 'month', 'title':'Month','foreign_field': 'month__name', 'choices': True,'autofilter': True,},
+        {'name': 'year', 'title':'Year','foreign_field': 'month__year', 'choices': True,'autofilter': True,},
+        {'name': 'status', 'title': 'Status', 'placeholder': True, 'searchable': False, 'orderable': False, },
         {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
     ]
 
     def customize_row(self, row, obj):
-            row['action'] = ('<form action="%s" >%s<input type="submit" class="btn btn-primary btn-xs dt-edit" value="View Summary" ></form>'
-                            ) % (
-                            reverse('reports:cell-summary', args=(self.kwargs['country_code'],obj.id,)),
-                            getCategories(self),
-                            # reverse('reports:cell-summary', args=(self.kwargs['country_code'],obj.id,)),
-                            )
 
-            row['cell'] = row['cell'].replace(',','<br>')
+            is_generated = obj.is_generated
+            if  is_generated==1:
+                row['status'] = ('<div class="alert alert-success" role="alert">%s</div>') % ('Generated')
+                row['action'] = ('<a href="%s" class="btn btn-info">View Summary</a>') % (
+                                reverse('reports:cell-summary', args=(self.kwargs['country_code'],obj.id,)),
+                                )
+            elif is_generated==2:
+                row['status'] = ('<div class="alert alert-warning" role="alert">%s</div>') % ('Generating...')
+                row['action'] = ''
 
-
+            elif is_generated==3:
+                row['status'] = ('<div class="alert alert-danger" role="alert">%s</div>') % ('Failed / Retry.')
+                row['action'] = ''
 
 
     def get_initial_queryset(self, request=None):
@@ -138,18 +183,39 @@ class RBDListViewAjax(AjaxDatatableView):
         )
         return queryset
 
-
-class RBDListView(LoginRequiredMixin, generic.TemplateView):
-    template_name = "reports/rbd_list.html"
-    PAGE_TITLE = "Report Break Down"
+#Generate Cell Summary View
+class CellSummaryReportView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "reports/cell_summary_report.html"
+    PAGE_TITLE = "Generate Cell Summary Report"
     extra_context = {
         'page_title': PAGE_TITLE,
         'header_title': PAGE_TITLE
     }
 
+    def get_context_data(self, *args, **kwargs):
+        try:
+            context = super(self.__class__, self).get_context_data(**kwargs)
+
+            rbd_qs = RBD.objects.filter(country__code=self.kwargs['country_code']).order_by('name')
+            category_qs = Category.objects.filter(country__code=self.kwargs['country_code']).order_by('name')
+            month_qs = Month.objects.filter(country__code=self.kwargs['country_code']).order_by('date')
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
+
+        context.update({
+            "rbd_qs": rbd_qs,
+            "category_qs": category_qs,
+            "month_qs": month_qs,
+        })
+        return context
 
 """ ------------------------- Cell Summary ------------------------- """
-class CellSummaryAJAX(LoginRequiredMixin, generic.View):
+
+#Logic shifted to command generate_cell_report
+class CellSummaryAJAX_Backup(LoginRequiredMixin, generic.View):
     def get(self, request, *args, **kwargs):
         return_dic = {}
         response_dict = []
@@ -1152,7 +1218,7 @@ class SampleMaintenanceViewAjax(AjaxDatatableView):
             # curr_month = PanelProfile.objects.all().filter(country = country,month = date_arr_obj[0]) \
             #     .values_list('outlet__code', flat=True)
 
-            prv_month = PanelProfile.objects.all().filter(country = country,month = date_arr_obj[1], outlet__code='102') \
+            prv_month = PanelProfile.objects.all().filter(country = country,month = date_arr_obj[1]) \
                 .values_list('outlet__id','outlet__code')
 
             outlet_to = row['outlet_id']

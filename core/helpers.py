@@ -4,7 +4,7 @@ import csv
 from django.db.models import Q, Avg, Count, Min,Max, Sum
 from decimal import Decimal
 from django.http import (HttpResponseRedirect,HttpResponse,JsonResponse)
-from master_data.models import Category
+from master_data.models import Category, Month
 
 def getDictArray(post, name):
     array =  []
@@ -103,7 +103,16 @@ def getCategories(self):
     queryset = Category.objects.filter(country__code=self.kwargs['country_code']).order_by('name')
     # cdebug(queryset)
     html = '<select name="category">'
-    for cat in queryset:
-        html += '<option value="'+str(cat.id)+'" >' + str(cat.name)+'('+str(cat.code)+')</option>'
+    for obj in queryset:
+        html += '<option value="'+str(obj.id)+'" >' + str(obj.name)+'('+str(obj.code)+')</option>'
+    html += '</select">'
+    return html
+
+def getMonths(self):
+    queryset = Month.objects.filter(country__code=self.kwargs['country_code']).order_by('date')
+    # cdebug(queryset)
+    html = '<select name="month">'
+    for obj in queryset:
+        html += '<option value="'+str(obj.id)+'" >' + str(obj.name)+' : '+str(obj.name)+'('+str(obj.year)+')</option>'
     html += '</select">'
     return html
