@@ -72,6 +72,7 @@ class Command(BaseCommand):
             cdebug(month_id)
 
             rbd_cells = RBD.objects.only('id').filter(country = country,pk=rbd_id).values('cell')
+            # ,cell__name__iexact='National-Total Urban-Sp-Punjab-Multan-Roa-General-Medical Store-Handler-Ttl'
             # category = Category.objects.get(id=cat_id)
 
             #Cell Query List
@@ -83,6 +84,7 @@ class Command(BaseCommand):
             # exit()
             super_manufacture = Product.objects.filter(country = country, category=category).exclude(super_manufacture=None) \
                                 .order_by('category').values_list('super_manufacture', flat=True).distinct()
+
             super_manufacture_products = dict()
             for sm in super_manufacture:
                 smp = Product.objects \
@@ -172,10 +174,13 @@ class Command(BaseCommand):
                 """-------------Month 1 Calculatuons-------------"""
 
                 #"""CELL Panel Profile"""
-                queryListPPCellMonth_1 = queryListPPCell.filter(month = month_1_qs) \
+                queryListPPCellMonth_1 = queryListPPCell.filter(month = date_arr_obj[-1]) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = month_1_qs, status__iexact = UsableOutlet.USABLE))
+                                                    .filter(country = country, month = date_arr_obj[-1], status__iexact = UsableOutlet.USABLE))
 
+                if len(queryListPPCellMonth_1) <= 0 :
+                    log += f"\n Skip Cell: {queryList[k].name} \n"
+                    continue
 
                 # prettyprint_queryset(queryListPPCellMonth_1)
                 temp_dic = {

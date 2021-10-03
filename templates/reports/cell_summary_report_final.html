@@ -60,15 +60,17 @@ var pivot = new WebDataRocks({
         },
         "options": {
             "grid": {
-                "type": "flat"
+                "type": "flat",
+                "showTotals": "off",
+                "showGrandTotals": "off"
             },
-            "showEmptyData": false
+            "showEmptyData": true
         },
         "formats": [{
             "name": "",
             "thousandsSeparator": ",",
             "decimalSeparator": ".",
-            "decimalPlaces": 2,
+            "decimalPlaces": 4,
             "maxSymbols": 20,
             "currencySymbol": "",
             "currencySymbolAlign": "left",
