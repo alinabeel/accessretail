@@ -7,6 +7,7 @@ from datetime import datetime,date,timedelta
 from  decimal import Decimal
 
 import csv
+from csv import DictReader
 import re
 import time, os,sys, signal,logging,json
 from sys import stdout, stdin, stderr
@@ -14,7 +15,6 @@ from pprint import pprint
 from var_dump import var_dump,var_export
 from subprocess import Popen
 from inspect import getmembers
-from csv import DictReader
 from urllib.parse import parse_qs,urlparse
 from itertools import chain
 
@@ -165,7 +165,7 @@ class CellSummaryReportViewAjax(AjaxDatatableView):
             if  is_generated==1:
                 row['status'] = ('<div class="alert alert-success" role="alert">%s</div>') % ('Generated')
                 row['action'] = ('<a href="%s" class="btn btn-info">View Summary</a>') % (
-                                reverse('reports:cell-summary', args=(self.kwargs['country_code'],obj.id,)),
+                                reverse('reports:cell-summary-report-final', args=(self.kwargs['country_code'],obj.id,)),
                                 )
             elif is_generated==2:
                 row['status'] = ('<div class="alert alert-warning" role="alert">%s</div>') % ('Generating...')
@@ -504,14 +504,32 @@ class CellSummaryAJAX_Backup(LoginRequiredMixin, generic.View):
 
 
 class CellSummaryListView(LoginRequiredMixin, generic.TemplateView):
-    template_name = "reports/cell_summary.html"
-    PAGE_TITLE = "Cell Summary"
+    template_name = "reports/cell_summary_report_final.html"
+    PAGE_TITLE = "Cell Summary Report"
     extra_context = {
         'page_title': PAGE_TITLE,
         'header_title': PAGE_TITLE
     }
 
 
+    def get_context_data(self, *args, **kwargs):
+        try:
+            context = super(self.__class__, self).get_context_data(**kwargs)
+            pk=self.kwargs['pk']
+
+            rbd_report_qs = RBDReport.objects.get(country__code=self.kwargs['country_code'],pk=pk)
+            cdebug(rbd_report_qs.country.code)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
+
+        # print(rbd_report_qs.report_csv_source)
+
+        context.update({
+            "rbd_report_qs": rbd_report_qs,
+        })
+        return context
 """ ------------------------- Cell Summary Overview ------------------------- """
 
 class CellSummaryOverviewAJAX(LoginRequiredMixin, generic.View):

@@ -14,6 +14,8 @@ class RBDReport(CreateUpdateMixIn,models.Model):
     month = models.ForeignKey(Month, on_delete=models.CASCADE)
     report_html = models.TextField(null=True, blank=True)
     report_json = JSONField(null=True, blank=True)
+    report_csv_source = models.CharField(null=True, blank=True, max_length=500,)
+
 
     is_confirmed = models.BooleanField(default=False)
     confirmed_on = models.DateField(null=True, blank=True)

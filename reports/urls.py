@@ -15,8 +15,8 @@ urlpatterns = [
     path('<slug:country_code>/cell-summary-report/', CellSummaryReportView.as_view(), name='cell-summary-report'),
 
     # """ Cell Summary """
-    path('<slug:country_code>/cell-summary-ajax/<int:pk>/<str:cat>', CellSummaryAJAX.as_view(), name='cell-summary-ajax'),
-    path('<slug:country_code>/cell-summary/<int:pk>', CellSummaryListView.as_view(), name='cell-summary'),
+    # path('<slug:country_code>/cell-summary-report/<int:pk>/', CellSummaryAJAX.as_view(), name='cell-summary-ajax'),
+    path('<slug:country_code>/cell-summary-report-final/<int:pk>', CellSummaryListView.as_view(), name='cell-summary-report-final'),
 
     # """ Cell Summary Overview """
     path('<slug:country_code>/cell-summary-overview-ajax/', CellSummaryOverviewAJAX.as_view(), name='cell-summary-overview-ajax'),

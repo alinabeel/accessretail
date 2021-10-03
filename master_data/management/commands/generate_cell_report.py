@@ -1,3 +1,4 @@
+import csv
 import re
 import time
 import datetime
@@ -9,6 +10,8 @@ from var_dump import var_dump,var_export
 from dateutil import parser
 from urllib.parse import parse_qs,urlparse
 from csv import DictReader
+from pathlib import Path
+
 
 from django.db.models import Q, Avg, Count, Min,Max, Sum
 from django.utils.dateparse import parse_date
@@ -24,6 +27,9 @@ from core.helpers import (getDictArray,getDicGroupList,getGroupFilter,getGroupFi
 from core.colors import Colors
 from core.settings import MEDIA_ROOT
 from core.utils import cdebug, csvHeadClean, prettyprint_queryset,printr,replaceIndex,convertSecond2Min
+from django.conf import settings
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -231,8 +237,7 @@ class Command(BaseCommand):
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
                                                     .filter(country = country, month = date_arr_obj[-1], status__iexact = UsableOutlet.USABLE)) \
                                             .values_list('outlet_id', flat=True)
-                print(prv_month)
-                cdebug(curr_month)
+
                 new_outlets = queryListPPCell.filter(month = date_arr_obj[-1]).exclude(outlet_id__in = prv_month) \
                                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
                                                     .filter(country = country, month = date_arr_obj[-1], status__iexact = UsableOutlet.USABLE)) \
@@ -306,7 +311,7 @@ class Command(BaseCommand):
 
 
 
-            # return_dic['results'] = response_dict
+            return_dic['results'] = response_dict
             # print(return_dic)
 
 
@@ -316,11 +321,30 @@ class Command(BaseCommand):
             log += ' Report Generated Successfully. '
             log += printr("Total time spent: %s seconds" % (convertSecond2Min(time.time() - start_time)))
 
-            rbd_report_qs.report_json  = json.dumps(response_dict,cls=DjangoJSONEncoder)
+            rbd_report_qs.report_json  = json.dumps(return_dic,cls=DjangoJSONEncoder)
             rbd_report_qs.is_generated = 1
             rbd_report_qs.log = log
             rbd_report_qs.save()
 
+            # response['Content-Disposition'] = 'attachment; filename=cell_shop_inspection.csv'
+            csv_file = f"{rbd_report_qs.id}.csv"
+            report_path = f"{MEDIA_ROOT}/reports/{rbd_report_qs.country.code}/cell_summary/"
+            Path(report_path).mkdir(parents=True, exist_ok=True)
+
+
+
+
+            csv_writer = csv.writer(open(f"{report_path}/{csv_file}","w"))
+            # csv_writer = csv.writer(response)
+            count = 0
+            for d in return_dic['results']:
+                if count == 0:
+                    header = d.keys()
+                    csv_writer.writerow(header)
+                    count += 1
+                csv_writer.writerow(d.values())
+            rbd_report_qs.report_csv_source = f"{csv_file}"
+            rbd_report_qs.save()
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -328,7 +352,8 @@ class Command(BaseCommand):
             print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
             logger.error(Colors.BOLD_RED+' Report generation failed.. Error Msg:'+ str(e)+Colors.WHITE )
 
-            log += 'Report generation failed. Error Msg:'+ str(e)
+            log += "Report generation failed. \n Error Msg:"+ str(e) \
+                    +"\n Exception:" + exc_type+" \n " +fname+" \n " +exc_tb.tb_lineno
             rbd_report_qs.is_generated = 3
             rbd_report_qs.log = log
             rbd_report_qs.save()
