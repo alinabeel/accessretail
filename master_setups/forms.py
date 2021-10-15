@@ -59,10 +59,20 @@ class IndexCategoryModelForm(forms.ModelForm):
     class Meta:
         model = IndexCategory
         fields = (
-            'index_setup',
+            'index',
             'category',
 
         )
+
+class UserIndexModelForm(forms.ModelForm):
+    class Meta:
+        model = UserIndex
+        fields = (
+            'user',
+            'user_index',
+        )
+
+
 
 class UserCountryModelForm(forms.ModelForm):
     # user = forms.MultipleChoiceField(choices=Country.objects.all(), widget=forms.CheckboxSelectMultiple())
@@ -151,4 +161,13 @@ class MonthModelForm(forms.ModelForm):
         model = Month
         fields = ('name','code','year','is_locked')
 
+class ColLabelModelForm(forms.ModelForm):
+    class Meta:
+        model = ColLabel
+        # fields = ('model_name','col_name','col_label')
+        exclude = ('country',)
 
+    def __init__(self, *args, **kwargs):
+        super(ColLabelModelForm, self).__init__(*args, **kwargs)
+        self.fields['model_name'].disabled = True
+        self.fields['col_name'].disabled = True

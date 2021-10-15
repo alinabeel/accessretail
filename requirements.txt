@@ -40,7 +40,6 @@ django-tables2==2.3.4
 djangorestframework==3.12.4
 djangorestframework-jwt==1.11.0
 docopt==0.6.2
-eav @ git+https://github.com/lvm/django-eav2@3f5aa35dd7ea2b8de37657a408f4ba1228944a49
 environ==1.0
 et-xmlfile==1.0.1
 future==0.18.2

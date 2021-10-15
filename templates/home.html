@@ -2,28 +2,81 @@
 {% load static %}
 {% block content %}
 
-        <div class="wrapper-page">
-            <div class="card card-pages shadow-none">
-                <div class="card-body">
-                    <h1>{{ page_title }}</h1>
-                    {% for user in usercountries %}
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="card m-b-30 card-body">
-                                <h4 class="card-title font-16 mt-0">{{ user.country.name}}</h4>
-                                <p class="card-text">{{ user.country.name}} - {{ user.country.code}}</p>
-                                <a href="{% url 'dashboard' country_code=user.country.code %}" class="btn btn-primary waves-effect waves-light">Dashboard</a>
-                            </div>
-                        </div>
+<div class="wrapper-page">
+    <div class="card card-pages shadow-none">
+        <div class="card-body">
+            <h1>{{ page_title }}</h1>
+            <form name="frm1" id="frm1" action="" method="POST">
+                {% csrf_token %}
+                <div class="row m-b-30">
+                    <div class="col-lg-12">
+                        <h4 class="card-title font-16 mt-0">Select Country</h4>
+                        <select class="form-control" id="id_country" name="country" required>
+                            <option value="">Select Country</option>
+                            {% for obj in usercountries %}
+                            <option value="{{ obj.country.code}}">{{ obj.country.name}}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-                    {% endfor %}
-
                 </div>
-            </div>
+
+                <div id="id_index_main" class="row m-b-30" style="display: none;">
+                    <div class="col-lg-12">
+                        <h4 class="card-title font-16 mt-0">Select Index</h4>
+                        <select class="form-control" id="id_index" name="index" required>
+                            <option value="">Select Index</option>
+
+                        </select>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary btn-block btn-lg waves-effect" type="submit">Enter</button>
+                    </div>
+                </div>
+            </form>
+
         </div>
+    </div>
+</div>
 
 
 
 
 {% endblock content %}
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+<script>
+
+$(document).ready(function() {
+    $("#id_country").change(function() {
+        if(!$(this).val()){
+            $('#id_index').html(`<option value="">Select Index</option>`)
+            return;
+        }
+
+        $.ajax({
+            method: 'POST',
+            url: '{% url "home-ajax" %}',
+            data: {'country_code':$(this).val(),'csrfmiddlewaretoken':getCSRFToken()},
+            success: function (result) {
+                if(result.msg=='success'){
+                    $.each(result.data, function(key, value) {
+                        $('#id_index').append(`<option value="${key}">${value}</option>`);
+                    });
+
+                }
+                console.log(result)
+                $('#id_index_main').slideDown()
+                //alertify.success("Something went wrong");
+            },
+            error: function (response) {
+                alertify.error("Something went wrong");
+            }
+        });
+    });
+});
+
+</script>
+{% endblock javascripts %}

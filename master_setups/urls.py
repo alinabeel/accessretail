@@ -92,6 +92,15 @@ urlpatterns += [
 ]
 
 
+""" User Index """
+urlpatterns += [
+    path('<slug:country_code>/userindex-list-ajax/', UserIndexListViewAjax.as_view(), name='userindex-list-ajax'),
+    path('<slug:country_code>/userindex-list/', UserIndexListView.as_view(), name='userindex-list'),
+    path('<slug:country_code>/userindex-add', UserIndexCreateView.as_view(), name='userindex-add'),
+    path('<slug:country_code>/userindex-update/<int:pk>', UserIndexUpdateView.as_view(), name='userindex-update'),
+    path('<slug:country_code>/userindex-delete/<int:pk>', UserIndexDeleteView.as_view(), name='userindex-delete'),
+]
+
 
 """ Outlet Status """
 urlpatterns += [
@@ -102,10 +111,22 @@ urlpatterns += [
     path('<slug:country_code>/outlet-status-delete/<int:pk>', OutletStatusDeleteView.as_view(), name='outlet-status-delete'),
 ]
 
+""" Col Label """
+urlpatterns += [
+    path('<slug:country_code>/col-label-list-ajax/', ColLabelListViewAjax.as_view(), name='col-label-list-ajax'),
+    path('<slug:country_code>/col-label-list/', ColLabelListView.as_view(), name='col-label-list'),
+    path('<slug:country_code>/col-label-update/<int:pk>', ColLabelUpdateView.as_view(), name='col-label-update'),
+    path('<slug:country_code>/update-sync-fields/', UpdateSyncFieldsAjax.as_view(), name='update-sync-fields'),
+    # path('<slug:country_code>/col-label-delete/<int:pk>', ColLabelDeleteView.as_view(), name='col-label-delete'),
+]
+
+""" DB """
+urlpatterns += [
+    path('<slug:country_code>/resetdb/', ResetDBView.as_view(), name='resetdb'),
+]
 
 """ Threshold """
 urlpatterns += [
     path('<slug:country_code>/threshold/', ThresholdListView.as_view(), name='threshold'),
     path('<slug:country_code>/threshold-update/', ThresholdUpdateView.as_view(), name='threshold-update'),
-
 ]

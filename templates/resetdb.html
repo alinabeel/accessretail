@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+{% block action_buttons %}
+
+{% endblock action_buttons %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card m-b-30">
+            <div class="card-body">
+                <form id="frm1" method="post" action="{% url 'master-setups:resetdb' country_code=global.country_code%}" class="mt-5">
+                    {% csrf_token %}
+
+                    <h4>Master Data</h4>
+                    {% for t in mastert_data %}
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">
+                                <input type="checkbox" id="id_{{ t }}" name="{{t}}" value="1">
+                            </div>
+                        </div>
+                        <label class="form-control" for="id_{{ t }}">{{t}}</label>
+                    </div>
+                    {% endfor %}
+
+                    <div class="row">
+                        <div class="col-6">
+                            <button class="btn btn-secondary btn-block btn-lg waves-effect" type="button" onClick="javascript:history.go(-1);">Cancel</button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-danger btn-block btn-lg waves-effect waves-light" type="submit">DELETE</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div> <!-- end col -->
+</div> <!-- end row -->
+{% endblock content %}
+
+{% block javascripts %}
+<script language="javascript">
+    $(document).ready(function () {
+
+        $("#frm1").submit(function(e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+
+            $.ajax({
+                method: 'POST',
+                url: url,
+                data: form.serialize(),
+
+                success: function (result) {
+                    if(result.data=='success'){
+                        alertify.success("Data Removed Successfully");
+                    }else{
+                        alertify.error("Something went wrong");
+                    }
+                },
+                error: function (response) {
+                    alertify.error("Something went wrong");
+                }
+
+            });
+
+        });
+
+    });
+</script>
+{% endblock javascripts %}

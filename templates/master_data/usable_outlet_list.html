@@ -17,24 +17,10 @@
 {% endblock content %}
 
 {% block javascripts %}
-<script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+
 <script language="javascript">
     var dt_ajax_url = '{% url "master-data:usable-outlet-list-ajax" country_code=global.country_code %}';
-    function getCookie(name) {
-        var cookieValue = null;
-        var value = '; ' + document.cookie,
-            parts = value.split('; ' + name + '=');
-        if (parts.length == 2) cookieValue = parts.pop().split(';').shift();
-        return cookieValue;
-    }
 
-    function getCSRFToken() {
-        var csrftoken = getCookie('csrftoken');
-        if (csrftoken == null) {
-            csrftoken = $('input[name=csrfmiddlewaretoken]').val();
-        }
-        return csrftoken;
-    }
 
     $(document).ready(function() {
         AjaxDatatableViewUtils.initialize_table(

@@ -7,6 +7,7 @@ import logging
 from pprint import pprint
 from var_dump import var_dump,var_export
 from dateutil import parser
+from django.db import models
 from django.db.models import Q
 from django.utils.dateparse import parse_date
 from django.core.management.base import BaseCommand
@@ -43,6 +44,18 @@ class Command(BaseCommand):
 
         if(upload.import_mode == Upload.REFRESH):
             PanelProfile.objects.filter(country=upload.country).delete()
+
+
+        valid_fields = []
+        skip_cols = ['id','pk','country','category','productaudit','upload','created','updated',]
+        for field in PanelProfile._meta.get_fields():
+            if(field.name not in skip_cols):
+                if(field.name in skip_cols): continue
+                if isinstance(field, models.ForeignKey): continue
+                if isinstance(field, models.ManyToManyRel): continue
+                if isinstance(field, models.ManyToOneRel): continue
+                valid_fields.append(field.name)
+
 
 
 
@@ -86,7 +99,7 @@ class Command(BaseCommand):
 
                     """First Get or Create Outlet Object"""
                     outlet_obj, created = Outlet.objects.get_or_create(
-                        country=upload.country, code=outlet_code,
+                        country=upload.country, code__iexact=outlet_code,
                         defaults={
                         },
                     )
@@ -99,7 +112,7 @@ class Command(BaseCommand):
                     # mcode = ymd.strftime("%b").upper() + ymd.strftime("%y")
                     # """Get or Create Outlet Month"""
                     # month_obj, created = Month.objects.get_or_create(
-                    #     country=upload.country, code=mcode,
+                    #     country=upload.country, code__iexact=mcode,
                     #     defaults={
                     #         'code':mcode,
                     #         'name':ymd.strftime("%B"),
@@ -109,7 +122,7 @@ class Command(BaseCommand):
                     # )
 
                     try:
-                        month_obj = Month.objects.get(country=country, code=month_code)
+                        month_obj = Month.objects.get(country=country, code__iexact=month_code)
                     except Month.DoesNotExist:
                         month_obj = None
                         log += ('month code not exist, csv row: '+ str(n))
@@ -138,14 +151,14 @@ class Command(BaseCommand):
                         try:
                             outlet_type_qs = OutletType.objects.filter(
                                                 Q(country=upload.country) &
-                                                Q(code=outlet_type_code) | Q(name=outlet_type_code)).get()
+                                                Q(code__iexact=outlet_type_code)).get()
                         except OutletType.DoesNotExist:
                             outlet_type_qs = None
-                            log += printr('OutletType code not exist: '+outlet_type_code)
+                            log += printr('OutletType code not exist: '+str(outlet_type_code))
                             skiped_records+=1
                             continue
                     else:
-                        log += printr('outlet code is empty: '+outlet_type_code)
+                        log += printr('outlet code is empty: '+str(outlet_type_code))
                         skiped_records+=1
                         continue
 
@@ -161,11 +174,11 @@ class Command(BaseCommand):
                                                 Q(country=upload.country) &
                                                 Q(code__iexact=outlet_status_code)).get()
                         except OutletStatus.DoesNotExist:
-                            log += printr('OutletStatus code not exist: '+outlet_status_qs)
+                            log += printr('OutletStatus code not exist: '+str(outlet_status_qs))
                             skiped_records+=1
                             continue
                     else:
-                        log += printr('outlet status is empty: '+outlet_status_code)
+                        log += printr('outlet status is empty: '+str(outlet_status_code))
                         skiped_records+=1
                         continue
 
@@ -270,7 +283,7 @@ class Command(BaseCommand):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
             logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
-
+            cdebug(row,'row')
             log += 'CSV file processing failed. Error Msg:'+ str(e)
             upload.is_processing = Upload.ERROR
             upload.process_message = "CSV file processing failed. Error Msg:"+str(e)

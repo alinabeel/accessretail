@@ -30,7 +30,7 @@ class CategoryAdmin(ImportExportModelAdmin):
 
 @admin.register(IndexCategory)
 class IndexCategoryAdmin(ImportExportModelAdmin):
-    search_fields = ['country', 'index_setup', 'category']
-    list_filter = ['index_setup',  ]
-    list_display = ('index_setup','country',)
+    search_fields = ['country', 'index', 'category']
+    list_filter = ['index',  ]
+    list_display = ('index','country',)
     # filter_horizontal = ['category', ]

@@ -21,32 +21,32 @@
                             <li><a href="{% url 'master-setups:country-list'%}">Countries</a></li>
                             <li><a href="{% url 'master-setups:user-list' country_code=global.country_code %}">Users</a></li>
                             <li><a href="{% url 'master-setups:usercountry-list' country_code=global.country_code %}">Country Users</a></li>
-                            <li><a href="{% url 'master-setups:code-frame-list' country_code=global.country_code %}">Code Frame</a>
-                                <!-- <a href="javascript:void(0);">Code Frame<span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
-                                <ul class="submenu">
-                                    <li><a href="{% url 'master-setups:code-frame-list' country_code=global.country_code %}">Code Frame</a></li>
-                                    <li><a href="javascript:void(0);">Players</a></li>
-                                    <li><a href="javascript:void(0);">Tags</a></li>
-                                    <li><a href="javascript:void(0);">PlayerTags</a></li>
-                                    <li><a href="javascript:void(0);">Province</a></li>
-                                    <li><a href="javascript:void(0);">District</a></li>
-                                    <li><a href="javascript:void(0);">Tehsil</a></li>
-                                    <li><a href="javascript:void(0);">City Village</a></li>
-
-                                </ul> -->
-
-
-
-                            </li>
-
-                            <!-- <li><a href="{% url 'master-setups:region-type-list'  country_code=global.country_code %}">Region Types</a></li>
-                            <li><a href="{% url 'master-setups:region-list' country_code=global.country_code %}">Region</a></li> -->
+                            <li><hr ></li>
+                                <!--
+                                <li> <a href="javascript:void(0);">Code Frame<span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                                    <ul class="submenu">
+                                        <li><a href="{% url 'master-setups:code-frame-list' country_code=global.country_code %}">Code Frame</a></li>
+                                        <li><a href="javascript:void(0);">Players</a></li>
+                                        <li><a href="javascript:void(0);">Tags</a></li>
+                                        <li><a href="javascript:void(0);">PlayerTags</a></li>
+                                        <li><a href="javascript:void(0);">Province</a></li>
+                                        <li><a href="javascript:void(0);">District</a></li>
+                                        <li><a href="javascript:void(0);">Tehsil</a></li>
+                                        <li><a href="javascript:void(0);">City Village</a></li>
+                                    </ul>
+                                </li>
+                                -->
                             <li><a href="{% url 'master-setups:indexsetup-list' country_code=global.country_code %}">Index Setup</a></li>
+                            <li><a href="{% url 'master-setups:userindex-list' country_code=global.country_code %}">User Index</a></li>
+                            <li><hr ></li>
                             <li><a href="{% url 'master-data:category-list' country_code=global.country_code %}">Categories</a></li>
                             <li><a href="{% url 'master-setups:indexcategory-list' country_code=global.country_code %}">Index Category</a></li>
+                            <li><hr ></li>
                             <li><a href="{% url 'master-data:outlet-type-list' country_code=global.country_code %}">Channel/ Outlet Type</a></li>
                             <li><a href="{% url 'master-setups:outlet-status-list' country_code=global.country_code %}">Outlet Status</a></li>
+                            <li><a href="{% url 'master-setups:code-frame-list' country_code=global.country_code %}">Code Frame</a>
                             <li><a href="{% url 'master-setups:month-list' country_code=global.country_code  %}">Months</a></li>
+                            <li><a href="{% url 'master-setups:col-label-list' country_code=global.country_code  %}">Custom Labels</a></li>
                             <li><a href="{% url 'master-setups:threshold' country_code=global.country_code  %}">Threshold</a></li>
                         </ul>
                     </li>
@@ -60,8 +60,8 @@
                             <li><a href="{% url 'master-data:census-list' country_code=global.country_code %}">Census</a></li>
                             <li><a href="{% url 'master-data:outlet-list' country_code=global.country_code %}">Outlets</a></li>
                             <li><a href="{% url 'master-data:panel-profile-list' country_code=global.country_code %}">Panel</a></li>
-                            <li><a href="{% url 'master-data:rbd-list' country_code=global.country_code %}">RBD</a></li>
                             <li><a href="{% url 'master-data:cell-list' country_code=global.country_code %}">Cell</a></li>
+                            <li><a href="{% url 'master-data:rbd-list' country_code=global.country_code %}">RBD</a></li>
                         </ul>
                     </li>
                     <li>
@@ -70,6 +70,7 @@
                                         class="mdi mdi-chevron-right"></i></span> </span></a>
 
                         <ul class="submenu">
+                            <li><a href="{% url 'master-data:cell-month-acv-list' country_code=global.country_code %}">Cell Monthly ACV</a></li>
                             <li><a href="{% url 'master-data:usable-outlet-list' country_code=global.country_code %}">Usable Outlets</a></li>
                             <li><a href="{% url 'master-data:product-list' country_code=global.country_code %}">Products</a></li>
                             <li><a href="{% url 'master-data:product-audit-list' country_code=global.country_code %}">Audit Data</a></li>
@@ -81,21 +82,11 @@
                                         class="mdi mdi-chevron-right"></i></span> </span></a>
 
                         <ul class="submenu">
-                            <!-- <li><a href="{% url 'reports:cell-summary-overview-list-view' country_code=global.country_code %}">Cell Summary Overview</a></li> -->
-                            <li><a href="{% url 'reports:cell-summary-report' country_code=global.country_code %}">Cell Summary</a></li>
                             <li><a href="{% url 'reports:sample-maintenance' country_code=global.country_code %}">Sample Maintenance</a></li>
-
-
-
-
-
-
-
-                            <!-- <li><hr ></li>
-                            <li><a href="{% url 'reports:cell-shop-inspection-list-view' country_code=global.country_code %}">Cell & Shop Inspection</a></li>
                             <li><hr ></li>
-                            <li><a href="{% url 'reports:client-reporting-view' country_code=global.country_code %}">Client Reporting</a></li>
-                            <li><hr ></li> -->
+                            <li><a href="{% url 'reports:report-list' country_code=global.country_code report_type='cell-snapshot' %}">Cell Snapshot</a></li>
+                            <li><a href="{% url 'reports:report-list' country_code=global.country_code report_type='cell-summary' %}">Cell Summary</a></li>
+                            <li><hr ></li>
                             <li><a href="{% url 'reports:import-logs' country_code=global.country_code %}">Import Logs</a></li>
                         </ul>
                     </li>

@@ -19,16 +19,8 @@
 
                     <!-- language-->
                     <li class="dropdown notification-list list-inline-item d-none d-md-inline-block">
-                        <a class="nav-link dropdown-toggle arrow-none waves-effect" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                        {{ request.session.country_name }}<span class="mdi mdi-chevron-down"></span>
-                        </a>
-                        {% if global.usercountries.count > 1 %}
-                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-animated language-switch">
-                            {% for user in global.usercountries %}
-                            <a class="dropdown-item" href="{% url 'dashboard' country_code=user.country.code %}"><span> {{ user.country.name}} </span></a>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
+                        <a class="dropdown-item" href="{% url 'home' %}"><span> {{ global.country_name}} :: {{ global.index_name}} </span></a>
+
                     </li>
 
                     <!-- full screen -->
@@ -47,7 +39,8 @@
                                 <!-- item-->
                                 <a class="dropdown-item" href="#"><i class="mdi mdi-account-circle"></i> Profile</a>
                                 <a class="dropdown-item d-block" href="#"><span class="badge badge-success float-right">11</span><i class="mdi mdi-settings"></i> Settings</a>
-                                <a class="dropdown-item" href="#"><i class="mdi mdi-lock-open-outline"></i> Lock screen</a>
+                                <a class="dropdown-item" href="{% url 'master-setups:resetdb' country_code=global.country_code  %}"><i class="mdi mdi-database-refresh"></i> Reset DB</a>
+
                                 <div class="dropdown-divider"></div>
 
 

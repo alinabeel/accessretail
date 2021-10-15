@@ -3,6 +3,7 @@ from master_setups.models import Country,UserCountry,UserIndex,IndexSetup
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
 import core.settings as settings
+
 from pprint import pprint
 
 def global_context(request,*args):
@@ -21,4 +22,11 @@ def global_context(request,*args):
     context["country_id"] = request.session.get('country_id')
     context["country_code"] = request.session.get('country_code')
     context["country_name"] = request.session.get('country_name')
+
+    context["index_code"] = request.session.get('index_code')
+    context["index_name"] = request.session.get('index_name')
+
+    context["index_name"] = request.session.get('index_name')
+
+
     return {'global': context}

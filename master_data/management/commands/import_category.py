@@ -46,7 +46,7 @@ class Command(BaseCommand):
                     parent = None
                     if(row['parent']!=''):
                         try:
-                            parent = Category.objects.get(country=upload.country, code=row['parent'])
+                            parent = Category.objects.get(country=upload.country, code__iexact=row['parent'])
                         except Category.DoesNotExist:
                             parent = None
 
@@ -55,7 +55,7 @@ class Command(BaseCommand):
                         # In this case, if the Person already exists, its existing name is preserved
                         category, created = Category.objects.get_or_create(
 
-                            country=upload.country, code=row['code'],
+                            country=upload.country, code__iexact=row['code'],
                             defaults={
                                 'upload': upload,
                                 'name':row['name'],
@@ -70,7 +70,7 @@ class Command(BaseCommand):
                     if(upload.import_mode == Upload.APPENDUPDATE ):
                         # In this case, if the Person already exists, its name is updated
                         category, created = Category.objects.update_or_create(
-                            country=upload.country,code=row['code'],
+                            country=upload.country,code__iexact=row['code'],
                             defaults={
                                 'upload': upload,
                                 'name':row['name'],

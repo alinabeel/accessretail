@@ -55,6 +55,9 @@
 
 
                     {% block content %}
+
+                    {% if ajax_data_table %}{% include 'ajax_data_table.html' %}{% endif %}
+
                     {% endblock content %}
                 </div>
                 <!-- container-fluid -->

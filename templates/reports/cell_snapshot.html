@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+{% block action_buttons %}{% endblock action_buttons %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card m-b-30">
+            <div class="card-body">
+                <table id="ajax_datatable" class="datatable table table-striped table-bordered dt-responsive nowrap"
+                    style="border-collapse: collapse; border-spacing: 0; width: 100%;"
+                    data-url='{% url "reports:report-list-ajax" country_code=global.country_code report_type=report_type %}'
+                    >
+                </table>
+            </div>
+        </div>
+    </div> <!-- end col -->
+</div> <!-- end row -->
+{% endblock content %}
+
+{{ report_type }}
+{% block javascripts %}
+
+<script language="javascript">
+    var dt_ajax_url = '{% url "reports:report-list-ajax" country_code=global.country_code report_type=report_type %}';
+    $(document).ready(function () {
+        AjaxDatatableViewUtils.initialize_table(
+            $('#ajax_datatable'),
+            dt_ajax_url,
+            common_dt_options
+        );
+    });
+</script>
+{% endblock javascripts %}

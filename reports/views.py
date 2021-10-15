@@ -38,7 +38,7 @@ from django.views import generic
 from rest_framework.generics import ListAPIView
 
 
-from core.utils import cdebug, prettyprint_queryset, prettyprint_query ,trace, format_datetime
+from core.utils import cdebug, prettyprint_queryset, prettyprint_query ,trace, format_datetime,find_location
 
 from core.pagination import StandardResultsSetPagination
 from core.mixinsViews import PassRequestToFormViewMixin
@@ -85,7 +85,7 @@ class ImportsLogsListViewAjax(AjaxDatatableView):
 
     def get_initial_queryset(self, request=None):
         queryset = self.model.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id']
         )
         return queryset
 
@@ -104,23 +104,26 @@ class ImportsLogsListView(LoginRequiredMixin, generic.TemplateView):
 """ ------------------------- CellSummaryGenerateReport  ------------------------- """
 
 #Generate Report AJAX Action
-class CellSummaryGenerateReportAjax(LoginRequiredMixin, generic.CreateView):
+class GenerateReportAjax(LoginRequiredMixin, generic.CreateView):
 
-    def post(self, request, country_code):
+    def post(self, request, country_code, report_type):
         country = Country.objects.get(code=self.kwargs["country_code"])
         rbd = RBD.objects.get(id=self.request.POST.get("rbd"))
         category = Category.objects.get(id=self.request.POST.get("category"))
         month = Month.objects.get(id=self.request.POST.get("month"))
-
+        report_type = self.request.POST.get("report_type")
         user = self.request.user
+        index_id=self.request.session['index_id']
+
         # rbd = self.request.POST.get("rbd")
         # category = self.request.POST.get("category")
         # month = self.request.POST.get("month")
-        cdebug(self.request.POST)
+
         # ('country', 'name', 'rbd', 'category', 'month', 'report_html', 'report_json', 'is_confirmed', 'confirmed_on', 'confirmed_by', 'is_generated', 'generated_on', 'generated_by', )
         obj, created = RBDReport.objects.get_or_create(
-            country = country, rbd=rbd, category=category, month=month,
+            country = country, report_type = report_type, rbd=rbd, category=category, month=month,
             defaults={
+                'index_id':index_id,
                 'generated_by': user,
                 'generated_on': date.today(),
                 'is_generated': 2
@@ -130,19 +133,30 @@ class CellSummaryGenerateReportAjax(LoginRequiredMixin, generic.CreateView):
         # obj = UsableOutlet.objects.get(pk=id,country=country)
         # obj.status  = value
         # obj.save()
-        proc = Popen('python manage.py generate_cell_report '+str(obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+
+        # cdebug(report_type,"report_type:")
+        # cdebug(RBDReport.CELLSUMMARY)
+        # cdebug('--------------------')
+        if report_type == RBDReport.CELLSUMMARY:
+            command = f"python manage.py generate_cell_summary {obj.pk}"
+
+        if report_type == RBDReport.CELLSNAPSHOT:
+            command = f"python manage.py generate_cell_snapshot {obj.pk}"
+
+        cdebug(command)
+        proc = Popen(command, shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         return HttpResponse(
             json.dumps(
-                {'data':'success'},
+                {'data':'success','msg':'Generating Report, Please Wait.'},
                 cls=DjangoJSONEncoder
             ),
             content_type="application/json")
 
 #Grid view of generated reports
-class CellSummaryReportViewAjax(AjaxDatatableView):
+class ReportListViewAjax(AjaxDatatableView):
     model = RBDReport
-    initial_order = [["category", "asc"],["rbd", "asc"], ]
+    initial_order = [["pk", "desc"], ]
     length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
     search_values_separator = '+'
 
@@ -150,8 +164,9 @@ class CellSummaryReportViewAjax(AjaxDatatableView):
     column_defs = [
         AjaxDatatableView.render_row_tools_column_def(),
         {'name': 'id','title':'ID', 'visible': True, },
-        {'name': 'category', 'title':'Category', 'foreign_field': 'category__name', 'choices': True,'autofilter': True,},
+        {'name': 'report_type','title': 'Report Type', 'choices': True,'autofilter': True, },
         {'name': 'rbd', 'title':'RBD', 'foreign_field': 'rbd__name', },
+        {'name': 'category', 'title':'Category', 'foreign_field': 'category__name', 'choices': True,'autofilter': True,},
         {'name': 'month code','title':'Month Code', 'foreign_field': 'month__code', },
         {'name': 'month', 'title':'Month','foreign_field': 'month__name', 'choices': True,'autofilter': True,},
         {'name': 'year', 'title':'Year','foreign_field': 'month__year', 'choices': True,'autofilter': True,},
@@ -163,43 +178,65 @@ class CellSummaryReportViewAjax(AjaxDatatableView):
 
             is_generated = obj.is_generated
             if  is_generated==1:
-                row['status'] = ('<div class="alert alert-success" role="alert">%s</div>') % ('Generated')
+                row['status'] = ('<button class="btn btn-success" role="alert">%s</button>') % ('Generated')
                 row['action'] = ('<a href="%s" class="btn btn-info">View Summary</a>') % (
-                                reverse('reports:cell-summary-report-final', args=(self.kwargs['country_code'],obj.id,)),
+                                reverse('reports:report', args=(self.kwargs['country_code'],obj.id,)),
                                 )
             elif is_generated==2:
-                row['status'] = ('<div class="alert alert-warning" role="alert">%s</div>') % ('Generating...')
+                row['status'] = ('<button class="btn btn-warning" role="alert">%s</button>') % ('Generating...')
                 row['action'] = ''
 
             elif is_generated==3:
-                row['status'] = ('<div class="alert alert-danger" role="alert">%s</div>') % ('Failed / Retry.')
+                row['status'] = ('<button class="btn btn-danger" role="alert">%s</button>') % ('Failed / Retry.')
                 row['action'] = ''
 
 
-    def get_initial_queryset(self, request=None):
+    def get_initial_queryset(self,report_type, request=None, ):
+        queryset = super().get_initial_queryset(request=request)
 
+
+        report_type = self.kwargs["report_type"]
         queryset = self.model.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id'],
+            index__id=self.request.session['index_id']
         )
+
+        queryset = queryset.filter(report_type__iexact=report_type)
+        # prettyprint_queryset(queryset)
         return queryset
 
 #Generate Cell Summary View
-class CellSummaryReportView(LoginRequiredMixin, generic.TemplateView):
-    template_name = "reports/cell_summary_report.html"
-    PAGE_TITLE = "Generate Cell Summary Report"
+class ReportListView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "reports/report_list.html"
+    PAGE_TITLE = "Generate Report"
     extra_context = {
         'page_title': PAGE_TITLE,
         'header_title': PAGE_TITLE
     }
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, report_type, *args, **kwargs):
+        loc = find_location(report_type,RBDReport.REPORTTYPE_CHOICES)
+        report_type = RBDReport.REPORTTYPE_CHOICES[loc[0]][0]
+        report_type_name = RBDReport.REPORTTYPE_CHOICES[loc[0]][1]
+
         try:
+            self.extra_context = {
+            'page_title': report_type_name,
+            'header_title': report_type_name
+            }
             context = super(self.__class__, self).get_context_data(**kwargs)
+            rbd_qs = RBD.objects.filter(country__id=self.request.session['country_id'],index__id=self.request.session['index_id']).order_by('name')
 
-            rbd_qs = RBD.objects.filter(country__code=self.kwargs['country_code']).order_by('name')
-            category_qs = Category.objects.filter(country__code=self.kwargs['country_code']).order_by('name')
-            month_qs = Month.objects.filter(country__code=self.kwargs['country_code']).order_by('date')
+            try:
+                index_category_qs = IndexCategory.objects.get(country__id=self.request.session['country_id'], index__id=self.request.session['index_id']).get_index_category_list()
+            except IndexCategory.DoesNotExist:
+                index_category_qs = None
 
+            first_month_qs = Month.objects.filter(country__id=self.request.session['country_id']).values('id') \
+                            .annotate(current_month=Min("date")).order_by('date')[0:1]
+
+            month_qs = Month.objects.filter(country__id=self.request.session['country_id']).exclude(id=first_month_qs).order_by('date')
+            # report_type = RBDReport.REPORTTYPE_CHOICES
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -207,305 +244,16 @@ class CellSummaryReportView(LoginRequiredMixin, generic.TemplateView):
 
         context.update({
             "rbd_qs": rbd_qs,
-            "category_qs": category_qs,
+            "index_category_qs": index_category_qs,
+            "report_type": report_type,
             "month_qs": month_qs,
         })
         return context
 
-""" ------------------------- Cell Summary ------------------------- """
 
-#Logic shifted to command generate_cell_report
-class CellSummaryAJAX_Backup(LoginRequiredMixin, generic.View):
-    def get(self, request, *args, **kwargs):
-        return_dic = {}
-        response_dict = []
-        temp_dic = {}
-        month_data = dict()
-        rbd_id = self.kwargs["pk"]
-        cat_id = self.kwargs["cat"]
-        cdebug(rbd_id)
-        cdebug(cat_id)
-        export = False
-        if 'export' in request.GET:
-            export = request.GET['export']
-
-        try:
-            #Country Query List
-            country = Country.objects.get(code=self.kwargs["country_code"])
-
-            rbd_cells = RBD.objects.only('id').filter(country = country,pk=rbd_id).values('cell')
-
-            category = Category.objects.get(id=cat_id)
-
-            #Cell Query List
-            queryList = Cell.objects.all().filter(country = country, id__in=rbd_cells).order_by('name')
-
-            #Product Audit Query List
-            queryListPA = ProductAudit.objects.all().filter(country = country, category=category)
-
-            super_manufacture = Product.objects.filter(country = country, category=category).exclude(super_manufacture=None) \
-                                .order_by('category').values_list('super_manufacture', flat=True).distinct()
-            super_manufacture_products = dict()
-            for sm in super_manufacture:
-                smp = Product.objects \
-                    .filter(country = country, category=category,super_manufacture__iexact=sm) \
-                    .exclude(super_manufacture=None) \
-                    .order_by('category').values_list('id', flat=True)
-                super_manufacture_products[sm] = smp
-
-
-            #Calculate Previous Month, Next Month
-            audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('month__date')[0:3]
-
-            date_arr = []
-            date_arr_obj = []
-            for instance in audit_date_qs:
-                date_arr.append(instance['month__date'])
-
-            if(len(date_arr)==3):
-                month_1 , month_2, month_3 = date_arr
-                month_1_qs = Month.objects.get(date=month_1)
-                month_2_qs = Month.objects.get(date=month_2)
-                month_3_qs = Month.objects.get(date=month_3)
-
-                date_arr_obj.append(month_1_qs)
-                date_arr_obj.append(month_2_qs)
-                date_arr_obj.append(month_3_qs)
-
-                cdebug('3-Month data')
-
-            elif(len(date_arr)==2):
-                month_1 , month_2 = date_arr
-                month_1_qs = Month.objects.get(date=month_1)
-                month_2_qs = Month.objects.get(date=month_2)
-                date_arr_obj.append(month_1_qs)
-                date_arr_obj.append(month_2_qs)
-                cdebug('2-Month data')
-            else:
-                cdebug('1-Month data')
-                return HttpResponse(json.dumps({'msg','Please load minimum 2 month data.'},cls=DjangoJSONEncoder),content_type="application/json")
-
-
-
-
-            # return_dic['previous_month'] = "{}, {}".format(previous_month_qs.name,previous_month_qs.year)
-            # return_dic['current_month'] = "{}, {}".format(current_month_qs.name,current_month_qs.year)
-
-            queryListPPAll = PanelProfile.objects.all().filter(country = country,category__id = cat_id)
-
-            if len(queryListPPAll) == 0 :
-                return_dic['count'] = 0
-                return_dic['next'] = None
-                return_dic['previous'] = None
-                return_dic['results'] = []
-                return HttpResponse(json.dumps(return_dic,cls=DjangoJSONEncoder),content_type="application/json")
-
-            return_dic['count'] = len(queryList)
-            return_dic['next'] = None
-            return_dic['previous'] = None
-
-            # prettyprint_queryset(queryListPPAll)
-            for k in range(0,len(queryList)):
-                queryListPPCell = queryListPPAll
-                cell_serialize_str = queryList[k].serialize_str
-                print(Colors.BOLD_YELLOW,'Processing Cell: ', queryList[k].name,Colors.WHITE)
-
-                """ Rbd and Cell Processing from previous saved serialize string """
-
-                field_group = parse_qs((cell_serialize_str))
-                new_list = getDictArray(field_group,'field_group[group]')
-                new_dic = getDicGroupList(new_list)
-                group_filter = getGroupFilter(new_dic)
-                group_filter_human = getGroupFilterHuman(new_dic)
-
-
-                filter_human = ''
-                if(group_filter != ''):
-                    # filter_human = group_filter_human
-                    queryListPPCell = queryListPPCell.filter(group_filter)
-
-
-                # prettyprint_queryset(queryListPPCell,'queryListPPCell')
-                # N_Numeric_Universe = queryList[k].num_universe
-                # W_Universe = queryList[k].cell_acv
-
-                """-------------Month 1 Calculatuons-------------"""
-
-                #"""CELL Panel Profile"""
-                queryListPPCellMonth_1 = queryListPPCell.filter(month = month_1_qs) \
-                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = month_1_qs, status__iexact = UsableOutlet.USABLE))
-
-
-                # prettyprint_queryset(queryListPPCellMonth_1)
-                temp_dic = {
-                    'Category' : category.name,
-                    'Cell Name' : queryList[k].name,
-                    'Area': queryListPPCellMonth_1[0].city_village.name,
-                    'Urbanity': queryListPPCellMonth_1[0].city_village.tehsil.urbanity,
-                }
-
-
-                for date_obj in date_arr_obj:
-                    cell_month_acv = CellMonthACV.objects.get(country = country,month=date_obj,cell=queryList[k])
-                    temp_dic['cell_acv_'+str(date_obj.code)] = cell_month_acv.cell_acv
-
-                for date_obj in date_arr_obj:
-                    temp_dic['num_universe_'+str(date_obj.code)] = queryList[k].num_universe
-
-
-                for date_obj in date_arr_obj:
-                    aggregate_val = queryListPPCell.filter(month = date_obj) \
-                                                .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE)) \
-                                                .aggregate(count = Count('id'))
-
-                    temp_dic['store_'+str(date_obj.code)] = aggregate_val['count']
-
-                for date_obj in date_arr_obj:
-                    aggregate_val = queryListPPCell.filter(month = date_obj) \
-                                                .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE)) \
-                                                .aggregate(acv_sum = Sum('acv'))
-
-                    temp_dic['panel_acv_'+str(date_obj.code)] = aggregate_val['acv_sum']
-
-
-                temp_dic['optimal_panel'] = queryList[k].optimal_panel
-
-                sales = []
-                for date_obj in date_arr_obj:
-                    aggregate_val = queryListPA.filter(month = date_obj) \
-                                                .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE))  \
-                                                .aggregate(sales = Sum('sales'))
-                    temp_dic['sales_'+str(date_obj.code)] = aggregate_val['sales']
-                    sales.append(aggregate_val['sales'])
-
-                temp_dic['diff'] = sales[-1]  - sales[-2]
-
-
-
-
-                prv_month = queryListPPCell.filter(month = date_arr_obj[-2]) \
-                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = date_arr_obj[-2], status__iexact = UsableOutlet.USABLE)) \
-                                            .values_list('outlet_id', flat=True)
-
-
-                curr_month = queryListPPCell.filter(month = date_arr_obj[-1]) \
-                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = date_arr_obj[-1], status__iexact = UsableOutlet.USABLE)) \
-                                            .values_list('outlet_id', flat=True)
-                print(prv_month)
-                cdebug(curr_month)
-                new_outlets = queryListPPCell.filter(month = date_arr_obj[-1]).exclude(outlet_id__in = prv_month) \
-                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = date_arr_obj[-1], status__iexact = UsableOutlet.USABLE)) \
-                                            .values_list('outlet_id', flat=True)
-
-                lost_outlets = queryListPPCell.filter(month = date_arr_obj[-2]).exclude(outlet_id__in = curr_month) \
-                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = date_arr_obj[-2], status__iexact = UsableOutlet.USABLE)) \
-                                            .values_list('outlet_id', flat=True)
-
-                common_outlets = queryListPPCell.filter(month = date_arr_obj[-1]).filter(outlet_id__in = prv_month) \
-                                            .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                    .filter(country = country, month = date_arr_obj[-1], status__iexact = UsableOutlet.USABLE)) \
-                                            .values_list('outlet_id', flat=True)
-
-
-                temp_dic['lost_outlets'] = len(lost_outlets)
-                temp_dic['new_outlets'] = len(new_outlets)
-                temp_dic['common_outlets'] = len(common_outlets)
-
-
-                for date_obj in date_arr_obj:
-                    panel_acv = temp_dic['panel_acv_'+str(date_obj.code)] if temp_dic['panel_acv_'+str(date_obj.code)] is not None else 1
-                    temp_dic['acv_pf_'+str(date_obj.code)] = temp_dic['cell_acv_'+str(date_obj.code)] / panel_acv
-
-
-                sales_vol = []
-                for date_obj in date_arr_obj:
-                    aggregate_val = queryListPA.filter(month = date_obj) \
-                                                .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE))  \
-                                                .aggregate(sales_vol = Sum('sales_vol'))
-                    temp_dic['sales_vol_'+str(date_obj.code)] = aggregate_val['sales_vol']
-                    sales_vol.append(aggregate_val['sales_vol'])
-
-                temp_dic['weighted_change'] = sales_vol[-1]  - sales_vol[-2]
-
-                sales_val = []
-                for date_obj in date_arr_obj:
-                    aggregate_val = queryListPA.filter(month = date_obj) \
-                                                .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                        .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE))  \
-                                                .aggregate(sales_val = Sum('sales_val'))
-                    temp_dic['sales_val_'+str(date_obj.code)] = aggregate_val['sales_val']
-                    sales_val.append(aggregate_val['sales_val'])
-
-                temp_dic['val_change'] = sales_val[-1]  - sales_val[-2]
-
-                for sm,smp in super_manufacture_products.items():
-
-
-
-                    for date_obj in date_arr_obj:
-                        # smpppp = queryListPA.filter(month = date_obj) \
-                        #                             .filter(product_id__in = smp) \
-                        #                             .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                        #                                     .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE))
-                        # # prettyprint_queryset(smpppp)
-                        aggregate_val = queryListPA.filter(month = date_obj) \
-                                                    .filter(product_id__in = smp) \
-                                                    .filter(outlet_id__in = UsableOutlet.objects.values_list('outlet_id', flat=True) \
-                                                            .filter(country = country, month = date_obj, status__iexact = UsableOutlet.USABLE))  \
-                                                    .aggregate(sales = Sum('sales'))
-                        temp_dic[sm+'_'+str(date_obj.code)] = aggregate_val['sales']
-
-
-
-
-
-                response_dict.append( temp_dic )
-
-            return_dic['results'] = response_dict
-            # response_dict['queryList_json'] = queryList_json
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(Colors.RED, "Exception:",str(e),', File: ',exc_type, fname,', Line: ',exc_tb.tb_lineno, Colors.WHITE)
-
-
-        # Prepare response
-
-        if export is not False:
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename=cell_summary.csv'
-            csv_writer = csv.writer(response)
-            count = 0
-            for d in return_dic['results']:
-                if count == 0:
-                    header = d.keys()
-                    csv_writer.writerow(header)
-                    count += 1
-                csv_writer.writerow(d.values())
-
-            return response
-        else:
-            return HttpResponse(
-                json.dumps(
-                    return_dic,
-                    cls=DjangoJSONEncoder
-                ),
-                content_type="application/json")
-
-
-class CellSummaryListView(LoginRequiredMixin, generic.TemplateView):
-    template_name = "reports/cell_summary_report_final.html"
-    PAGE_TITLE = "Cell Summary Report"
+class ReportView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "reports/report.html"
+    PAGE_TITLE = "Report"
     extra_context = {
         'page_title': PAGE_TITLE,
         'header_title': PAGE_TITLE
@@ -517,7 +265,7 @@ class CellSummaryListView(LoginRequiredMixin, generic.TemplateView):
             context = super(self.__class__, self).get_context_data(**kwargs)
             pk=self.kwargs['pk']
 
-            rbd_report_qs = RBDReport.objects.get(country__code=self.kwargs['country_code'],pk=pk)
+            rbd_report_qs = RBDReport.objects.get(country__id=self.request.session['country_id'],pk=pk)
             cdebug(rbd_report_qs.country.code)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -530,6 +278,7 @@ class CellSummaryListView(LoginRequiredMixin, generic.TemplateView):
             "rbd_report_qs": rbd_report_qs,
         })
         return context
+
 """ ------------------------- Cell Summary Overview ------------------------- """
 
 class CellSummaryOverviewAJAX(LoginRequiredMixin, generic.View):
@@ -1107,9 +856,9 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
                     # cdebug(temp_dic)
                     response_dict.append( temp_dic )
 
-            sourceFile = open('debug.txt', 'w')
-            print(temp_dic, file = sourceFile)
-            sourceFile.close()
+            # # sourceFile = open('__debug.txt', 'w')
+            # print(temp_dic, file = sourceFile)
+            # sourceFile.close()
 
             return_dic['results'] = response_dict
             # response_dict['queryList_json'] = queryList_json
@@ -1150,7 +899,6 @@ class CellShopInspectionListView(LoginRequiredMixin, generic.TemplateView):
         'header_title': PAGE_TITLE
     }
 
-
 """ ------------------------- Client Reporting ------------------------- """
 
 class ClientReportingView(LoginRequiredMixin, generic.TemplateView):
@@ -1164,7 +912,7 @@ class ClientReportingView(LoginRequiredMixin, generic.TemplateView):
 
     def get_queryset(self):
         queryset = Upload.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id']
         )
         return queryset
 
@@ -1172,7 +920,7 @@ class ClientReportingView(LoginRequiredMixin, generic.TemplateView):
         context = super(ClientReportingView, self).get_context_data(**kwargs)
         censusupload = ''
         # censusupload = Upload.objects.filter(
-        #     country__code=self.kwargs['country_code'], frommodel='census'
+        #     country__id=self.request.session['country_id'], frommodel='census'
         # ).last()
         # if(censusupload is not None and  censusupload.is_processing != Upload.COMPLETED):
         #     messages.add_message(self.request, messages.SUCCESS, censusupload.is_processing +' : '+ censusupload.process_message)
@@ -1183,7 +931,7 @@ class ClientReportingView(LoginRequiredMixin, generic.TemplateView):
         })
         return context
 
-
+""" ------------------------- Sample Maintenance ------------------------- """
 class SampleMaintenanceViewAjax(AjaxDatatableView):
     model = PanelProfile
     initial_order = [["month", "asc"], ]
@@ -1257,15 +1005,19 @@ class SampleMaintenanceViewAjax(AjaxDatatableView):
     # model._meta.fields
     def get_initial_queryset(self, request=None):
         # queryset = self.model.objects.filter(
-        #     country__code=self.kwargs['country_code']
+        #     country__id=self.request.session['country_id']
         # )
         # return queryset
         queryList = super().get_initial_queryset(request=request)
 
-        country = Country.objects.get(code=self.kwargs["country_code"])
+        # country = Country.objects.get(country__id=self.request.session['country_id'])
+        country_id = self.request.session['country_id']
+        index_id = self.request.session['index_id']
 
 
-        audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('-month__date')[0:2]
+        audit_date_qs = PanelProfile.objects.all().filter(country__id = country_id, index__id=index_id) \
+                    .values('month__date').annotate(current_month=Max('audit_date')) \
+                    .order_by('-month__date')[0:2]
         # prettyprint_queryset(audit_date_qs)
 
         date_arr = []
@@ -1282,6 +1034,7 @@ class SampleMaintenanceViewAjax(AjaxDatatableView):
             # cdebug('2-Month data')
         else:
             cdebug('1-Month data')
+            raise Exception('Please load minimum 2 month data.')
             return HttpResponse(json.dumps({'msg','Please load minimum 2 month data.'},cls=DjangoJSONEncoder),content_type="application/json")
         # cdebug(date_arr_obj)
 
@@ -1339,12 +1092,47 @@ class SampleMaintenanceCopyViewAjax(LoginRequiredMixin, generic.CreateView):
         cdebug(month_from)
 
 
+
+        # print('PS')
+        # pp = PanelProfile.objects.filter(month__code='JAN-21')
+        # for r in pp:
+        #     r.audit_date = datetime(2021, 1, 1)
+        #     r.save()
+        # pp = PanelProfile.objects.filter(month__code='FEB-21')
+        # for r in pp:
+        #     r.audit_date = datetime(2021, 2, 1)
+        #     r.save()
+        # pp = PanelProfile.objects.filter(month__code='MAR-21')
+        # for r in pp:
+        #     r.audit_date = datetime(2021, 3, 1)
+        #     r.save()
+        # print('PE')
+
+        # pp = ProductAudit.objects.filter(month__code='JAN-21')
+        # for r in pp:
+        #     r.audit_date = datetime(2021, 1, 1)
+        #     r.save()
+        # pp = ProductAudit.objects.filter(month__code='FEB-21')
+        # for r in pp:
+        #     r.audit_date = datetime(2021, 2, 1)
+        #     r.save()
+        # pp = ProductAudit.objects.filter(month__code='MAR-21')
+        # for r in pp:
+        #     r.audit_date = datetime(2021, 3, 1)
+        #     r.save()
+        # print('.')
+
+        # return
+
         # cdebug(obj.audit_date)
         # cdebug(obj.audit_date+timedelta(days=30))
 
-        obj = PanelProfile.objects.get(outlet__id=outlet_from,month__code=month_from)
+
+        # TODO: copy from any month but ad 30 days from last month
+
+        obj = PanelProfile.objects.get(outlet__id=outlet_to,month__code=month_from)
         obj.pk = None # New Copy
-        obj.outlet_id  = outlet_to
+        # obj.outlet_id  = outlet_to
         obj.audit_status  = PanelProfile.COPIED
         obj.audit_date = obj.audit_date+timedelta(days=30)
         obj.month = date_arr_obj[0]
@@ -1454,6 +1242,7 @@ class SampleMaintenanceEstimateViewAjax(LoginRequiredMixin, generic.CreateView):
             content_type="application/json")
 
 
+""" ------------------------- AJAX Functions for Cell Creation Dropdown ------------------------- """
 def getRBDs(request):
     # get all the countreis from the database excluding
     # null and blank values

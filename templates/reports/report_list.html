@@ -7,22 +7,25 @@
     <div class="col-12">
         <div class="card m-b-30">
             <div class="card-body">
-                <form name="frm_generate" id="frm_generate" action="{% url 'reports:cell-summary-generate-report-ajax' country_code=global.country_code%}" method="POST">
+                <form name="frm_generate" id="frm_generate" action="{% url 'reports:generate-report-ajax' country_code=global.country_code report_type=report_type %}" method="POST">
                     {% csrf_token %}
                     <div class="form-group row" style="margin:10px 0">
+
                         <div class="col">
                             <select class="form-control" name="rbd"  id="rbd" required>
                                 <option value="">Select RBD</option>
+
                                 {% for obj in rbd_qs %}
-                                <option value="{{ obj.id }}">{{ obj.name }}</option>
+
+                                <option value="{{ obj.id }}">{{ obj.name }} </option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="col">
                             <select class="form-control" name="category" id="category" required>
                                 <option value="">Select Category</option>
-                                {% for obj in category_qs %}
-                                <option value="{{ obj.id }}">{{ obj.name }}</option>
+                                {% for key,val in index_category_qs.items %}
+                                <option value="{{ key }}">{{ val }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -35,6 +38,7 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <input type="hidden" name="report_type" value="{{ report_type }}" >
                         <div class="col">
                             <button id="generate_report" type="submit" class="btn btn-primary" >Generate</button>
                         </div>
@@ -70,10 +74,14 @@
 
 {% endblock content %}
 
+{{ report_type }}
 {% block javascripts %}
-<script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+
 <script language="javascript">
-    var dt_ajax_url = '{% url "reports:cell-summary-report-ajax" country_code=global.country_code %}';
+
+
+
+    var dt_ajax_url = '{% url "reports:report-list-ajax" country_code=global.country_code report_type=report_type %}';
     $(document).ready(function () {
         AjaxDatatableViewUtils.initialize_table(
             $('#ajax_datatable'),
@@ -86,18 +94,24 @@
             var form = $(this);
             var url = form.attr('action');
 
+            const interval = setInterval(function() {
+                $.fn.dataTable.tables({
+                    api: true
+                }).draw();
+                clearInterval(interval);
+            }, 5000);
+
+
+
             var datastring = $("#frm_generate").serialize();
             $.ajax({
                 method: 'POST',
-                //headers: { "X-CSRFToken": getCookie("csrftoken") },
                 url: url,
                 data: form.serialize(),
                 success: function (result) {
                     if(result.data=='success'){
-                        alertify.success("Status changed successfully");
-                        $.fn.dataTable.tables({
-                            api: true
-                        }).draw();
+                        alertify.success("Generating Report...");
+
                     }else{
                         alertify.error("Something went wrong");
                     }

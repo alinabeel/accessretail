@@ -107,8 +107,12 @@ class UserIndex(CreateUpdateMixIn,models.Model):
     def get_user_indexes(self):
         return ", ".join([a.code for a in self.user_index.all()])
 
+    def get_user_indexe_list(self):
+        ui ={a.code:a.name for a in self.user_index.all()}
+        return ui
+
     def __str__(self):
-        return str('{0} :: {1}'.format(self.country, self.user.email))
+        return str('{0} :: {1} :: {2}'.format(self.country, self.user.email, self.user_index))
 
     class Meta:
         unique_together = (('country', 'user',))

@@ -50,7 +50,7 @@
 
 .multiselect-search .ul-el .list-items{
     border-bottom:1px solid rgb(230, 227, 227) ;
-    padding:.5em;
+
 }
 
 .multiselect-search .list-items .check{
@@ -59,4 +59,7 @@
 
 .multiselect-search .list-items .mcheckbox-label{
     margin: 0;
+    display: inline-block;
+    width: 100%;
+    padding:.5em;
 }

@@ -14,7 +14,7 @@
 {% endblock content %}
 
 {% block javascripts %}
-<script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+
 <script language="javascript">
     var dt_ajax_url = '{% url "reports:import-logs-ajax" country_code=global.country_code %}';
     $(document).ready(function() {

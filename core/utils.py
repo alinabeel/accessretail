@@ -138,6 +138,16 @@ def cdebug(message,title='Debug'):
     text = pprint.pformat(message)
     termcolor.cprint(text, color='cyan', on_color=None, attrs=None)
 
+
+def find_location(text,RECIPES):
+    try:
+        return next((i, j)
+            for i, t in enumerate(RECIPES)
+            for j, v in enumerate(t)
+            if v == text)
+    except StopIteration:
+        return (None, None)  # not found
+
 def csvHeadClean(c):
     c = str(c.lower())
     c = c.strip()

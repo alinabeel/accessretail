@@ -6,7 +6,7 @@ import dateutil.parser
 from django.utils.dateparse import parse_date
 from django.core.management.base import BaseCommand
 from csv import DictReader
-from master_data.models import Upload,Cell,Month,CellMonthACV
+from master_data.models import Outlet, Upload,Cell,Month,CellMonthACV,UsableOutlet,PanelProfile
 from master_setups.models import Country,IndexSetup
 import json
 from collections import OrderedDict
@@ -52,7 +52,7 @@ class Command(BaseCommand):
                     row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
 
                     cell_name = row['cell_name']
-                    cell_acv = row['cell_acv']
+                    # cell_acv = row['cell_acv']
                     # num_universe = row['num_universe']
                     # optimal_panel = row['optimal_panel']
                     del row["cell_name"]
@@ -68,12 +68,24 @@ class Command(BaseCommand):
                         skiped_records+=1
                         continue
 
+                    valid_cols = [
+                        'upload',
+                        'index',
+                        'description',
+                        'cell_name',
+                        'cell_acv',
+                        'num_universe',
+                        'optimal_panel',
+                    ]
+
+                    new_row = { key:value for (key,value) in row.items() if key in valid_cols}
+
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
 
                         # In this case, if the Person already exists, its existing name is preserved
                         obj, created = Cell.objects.get_or_create(
                             country=upload.country, name=cell_name,
-                            defaults=row
+                            defaults = new_row
                         )
                         if(created): created_records+=1
 
@@ -81,8 +93,8 @@ class Command(BaseCommand):
                     if(upload.import_mode == Upload.APPENDUPDATE ):
                         # In this case, if the Person already exists, its name is updated
                         obj, created = Cell.objects.update_or_create(
-                            country=upload.country, name=cell_name,
-                            defaults=row
+                            country = upload.country, name=cell_name,
+                            defaults = new_row
                         )
                         if(created): created_records+=1
                         else: updated_records+=1

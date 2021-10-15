@@ -11,34 +11,42 @@ from csv import DictReader
 
 from urllib.parse import parse_qs,urlparse
 
-from django.contrib import messages
+
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 
-
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.db.models import Q
+from django.db import models
+from django.db.models import Q, Avg, Count, Min,Max, Sum
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse,reverse_lazy
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import (HttpResponseRedirect,
-                        JsonResponse)
+from django.core.serializers import serialize
+from django.core.serializers.json import DjangoJSONEncoder
+from django.http import (HttpResponseRedirect,HttpResponse,JsonResponse)
 from django.views import generic
+from rest_framework.generics import ListAPIView
+
+
 
 from core.helpers import getDictArray,getDicGroupList,getGroupFilter
 from core.utils import prettyprint_queryset, trace, format_datetime,cdebug
 from core.colors import Colors
 from core.mixinsViews import PassRequestToFormViewMixin
 from master_setups.models import User,Country,UserCountry,IndexSetup,UserIndex,Threshold,CountrySetting
+
 from master_setups.forms import UserCreateModelForm,UserChangeModelForm,CountryModelForm,IndexSetupModelForm, \
                                 IndexCategoryModelForm,UserCountryModelForm,ThresholdModelForm, \
-                                RegionTypeModelForm,RegionModelForm,MonthModelForm
+                                RegionTypeModelForm,RegionModelForm,MonthModelForm,ColLabelModelForm, \
+                                UserIndexModelForm
 
 from master_data.models import Upload,RegionType,Region,Category,IndexCategory,OutletType,Outlet, \
                                 CensusManager,Census,Month,UsableOutlet,PanelProfile,Product,ProductAudit, \
                                 RBD,Cell,Province,District,Tehsil,CityVillage,ColLabel,OutletStatus
+
 from master_data.forms import UploadCensusForm,CensusForm,UploadModalForm,UploadFormUpdate,CategoryListFormHelper, \
                                 CategoryModelForm,OutletTypeModelForm,RBDModelForm,CellModelForm,UsableOutletModelForm, \
                                 OutletStatusModelForm
@@ -54,20 +62,59 @@ class IndexPageView(generic.TemplateView):
         else:
             return redirect("login")
 
-class HomeView(LoginRequiredMixin, generic.TemplateView):
+class HomeAjax(generic.View):
+    def post(self, request):
+        country_code = self.request.POST.get("country_code")
+        country = Country.objects.get(code=country_code)
+        user = self.request.user
+        userindexs = UserIndex.objects.filter(country=country,user=user)
+        userindexs = userindexs[0].get_user_indexe_list()
+
+        return HttpResponse(
+            json.dumps(
+                {'data':userindexs,'msg':'success'},
+                cls=DjangoJSONEncoder
+            ),
+            content_type="application/json")
+
+class HomeView(generic.TemplateView):
     template_name = "home.html"
-    PAGE_TITLE = "Select Country"
+    PAGE_TITLE = "Enter Into:"
     extra_context = {
         'page_title': PAGE_TITLE,
         'header_title': PAGE_TITLE
     }
+
+    def post(self, request):
+
+        country = self.request.POST.get("country")
+        index = self.request.POST.get("index")
+
+        index = IndexSetup.objects.get(code=index)
+
+        country = Country.objects.only('id','code','name').get(code=country)
+
+        self.request.session['country_id'] =  country.id
+        self.request.session['country_code'] =  country.code
+        self.request.session['country_name'] =  country.name
+
+        self.request.session['index_id'] =  index.id
+        self.request.session['index_code'] =  index.code
+        self.request.session['index_name'] =  index.name
+
+        return HttpResponseRedirect(reverse("dashboard",kwargs={"country_code": country.code }))
+
+
     def get_context_data(self, **kwargs):
-        context = super(HomeView, self).get_context_data(**kwargs)
+        context = super(self.__class__, self).get_context_data(**kwargs)
         user = self.request.user
 
         usercountries = UserCountry.objects.filter(user=user)
+        # userindexs = UserIndex.objects.filter(user=user)
+
         context.update({
-            "usercountries": usercountries
+            "usercountries": usercountries,
+            # "userindexs": userindexs
         })
 
         return context
@@ -75,25 +122,24 @@ class HomeView(LoginRequiredMixin, generic.TemplateView):
 
 class DashboardView(LoginRequiredMixin, generic.TemplateView):
     template_name = "dashboard.html"
-    PAGE_TITLE = "Dashboard - "
+    PAGE_TITLE = "Dashboard"
     extra_context = {
         'page_title': PAGE_TITLE,
         'header_title': PAGE_TITLE
     }
 
     def get_context_data(self, **kwargs):
-        context = super(DashboardView, self).get_context_data(**kwargs)
-        country = Country.objects.only('id','code','name').get(code=self.kwargs['country_code'])
+        context = super(self.__class__, self).get_context_data(**kwargs)
+        # country = Country.objects.only('id','code','name').get(code=self.kwargs['country_code'])
 
-        self.request.session['country_id'] =  country.id
-        self.request.session['country_code'] =  country.code
-        self.request.session['country_name'] =  country.name
+        # self.request.session['country_id'] =  country.id
+        # self.request.session['country_code'] =  country.code
+        # self.request.session['country_name'] =  country.name
 
-        context.update({
-            "total_lead_count": 1,
-            "total_in_past30": 2,
-            "converted_in_past30": 3
-        })
+        # context.update({
+
+        # })
+
         return context
 
 
@@ -175,7 +221,7 @@ class CountryDeleteView(LoginRequiredMixin, generic.DeleteView):
 
     def get_queryset(self):
         queryset = Country.objects.filter(
-            country__code=self.kwargs['country_code'],
+            country__id=self.request.session['country_id'],
             pk=self.kwargs['pk']
         )
         return queryset
@@ -193,7 +239,7 @@ class IndexSetupListView(LoginRequiredMixin, generic.ListView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = IndexSetup.objects.filter(country__code=self.kwargs['country_code'])
+        queryset = IndexSetup.objects.filter(country__id=self.request.session['country_id'])
         return queryset
 
 
@@ -210,9 +256,8 @@ class IndexSetupCreateView(LoginRequiredMixin,  generic.CreateView):
         return reverse("master-setups:indexsetup-list", kwargs={"country_code": self.kwargs["country_code"]})
 
     def form_valid(self, form):
-        country = Country.objects.get(code=self.kwargs["country_code"])
         form_obj = form.save(commit=False)
-        form_obj.country = country
+        form_obj.country_id = self.request.session['country_id']
         form_obj.save()
         messages.add_message(self.request, messages.SUCCESS, "Record created successfully.")
         return super(self.__class__, self).form_valid(form)
@@ -229,7 +274,7 @@ class IndexSetupUpdateView(LoginRequiredMixin, generic.UpdateView):
     def get_queryset(self):
         user = self.request.user
         # initial queryset of leads for the entire organisation
-        queryset = IndexSetup.objects.filter(country__code=self.kwargs['country_code'])
+        queryset = IndexSetup.objects.filter(country__id=self.request.session['country_id'])
         return queryset
 
     def get_success_url(self):
@@ -251,7 +296,7 @@ class IndexSetupDeleteView(LoginRequiredMixin, generic.DeleteView):
 
     def get_queryset(self):
         queryset = IndexSetup.objects.filter(
-            country__code=self.kwargs['country_code'],
+            country__id=self.request.session['country_id'],
             pk=self.kwargs['pk']
         )
         return queryset
@@ -287,7 +332,7 @@ class IndexCategoryListViewAjax(AjaxDatatableView):
     def get_initial_queryset(self, request=None):
 
         queryset = self.model.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id']
         )
         return queryset
 
@@ -303,7 +348,7 @@ class IndexCategoryListView(LoginRequiredMixin, generic.ListView):
     }
 
     def get_queryset(self):
-        queryset = IndexCategory.objects.filter(country__code=self.kwargs['country_code'])
+        queryset = IndexCategory.objects.filter(country__id=self.request.session['country_id'])
 
         return queryset
 
@@ -324,9 +369,8 @@ class IndexCategoryCreateView(LoginRequiredMixin, generic.CreateView):
         return reverse("master-setups:indexcategory-list", kwargs={"country_code": self.kwargs["country_code"]})
 
     def form_valid(self, form):
-        country = Country.objects.get(code=self.kwargs["country_code"])
         form_obj = form.save(commit=False)
-        form_obj.country = country
+        form_obj.country_id = self.request.session['country_id']
         form_obj.save()
         return super(self.__class__, self).form_valid(form)
 
@@ -340,7 +384,7 @@ class IndexCategoryUpdateView(LoginRequiredMixin, generic.UpdateView):
     }
 
     def get_queryset(self):
-        queryset = IndexCategory.objects.filter(country__code=self.kwargs['country_code'])
+        queryset = IndexCategory.objects.filter(country__id=self.request.session['country_id'])
         return queryset
 
     def get_success_url(self):
@@ -365,7 +409,7 @@ class IndexCategoryDeleteView(LoginRequiredMixin, generic.DeleteView):
 
     def get_queryset(self):
         queryset = IndexCategory.objects.filter(
-            country__code=self.kwargs['country_code'],
+            country__id=self.request.session['country_id'],
             pk=self.kwargs['pk']
         )
         return queryset
@@ -410,7 +454,7 @@ class UserListViewAjax(AjaxDatatableView):
     # def get_initial_queryset(self, request=None):
 
     #     queryset = self.model.objects.filter(
-    #         country__code=self.kwargs['country_code']
+    #         country__id=self.request.session['country_id']
     #     )
     #     return queryset
 
@@ -486,7 +530,7 @@ class UserUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def get_queryset(self):
         queryset = User.objects.filter(
-            # country__code=self.kwargs['country_code']
+            # country__id=self.request.session['country_id']
         )
         return queryset
 
@@ -513,7 +557,7 @@ class UserDeleteView(LoginRequiredMixin, generic.DeleteView):
 
     def get_queryset(self):
         queryset = User.objects.filter(
-            country__code=self.kwargs['country_code'],
+            country__id=self.request.session['country_id'],
             pk=self.kwargs['pk']
         )
         return queryset
@@ -534,7 +578,7 @@ class UserCountryListView(LoginRequiredMixin, generic.ListView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = UserCountry.objects.filter(country__code=self.kwargs['country_code'])
+        queryset = UserCountry.objects.filter(country__id=self.request.session['country_id'])
 
         return queryset
 
@@ -551,12 +595,122 @@ class UserCountryUpdateView(LoginRequiredMixin, generic.UpdateView):
     def get_queryset(self):
         user = self.request.user
         # initial queryset of leads for the entire organisation
-        queryset = UserCountry.objects.filter(country__code=self.kwargs['country_code'])
+        queryset = UserCountry.objects.filter(country__id=self.request.session['country_id'])
         return queryset
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, "Record updated successfully.")
         return reverse("master-setups:usercountry-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+""" ------------------------- UserIndex ------------------------- """
+
+
+class UserIndexListViewAjax(AjaxDatatableView):
+    model = UserIndex
+    title = 'UserIndex'
+    initial_order = [["user", "asc"], ]
+    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
+    search_values_separator = '+'
+
+    column_defs = [
+         AjaxDatatableView.render_row_tools_column_def(),
+        {'name': 'id', 'visible': False, },
+        {'name': 'user',  },
+        {'name': 'user_index',  },
+        {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
+    ]
+
+    def customize_row(self, row, obj):
+            row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
+                             '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+                    reverse('master-setups:userindex-update', args=(self.kwargs['country_code'],obj.id,)),
+                    reverse('master-setups:userindex-delete', args=(self.kwargs['country_code'],obj.id,)),
+                )
+                # <a href="{1}" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
+
+
+    def get_initial_queryset(self, request=None):
+
+        queryset = self.model.objects.filter(
+            country__id=self.request.session['country_id']
+        )
+        return queryset
+
+
+class UserIndexListView(LoginRequiredMixin, generic.ListView):
+    template_name = "master_setups/userindex_list.html"
+    PAGE_TITLE = "User Index"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE,
+    }
+
+    def get_queryset(self):
+        queryset = UserIndex.objects.filter(country__id=self.request.session['country_id'])
+        return queryset
+
+
+
+class UserIndexCreateView(LoginRequiredMixin, generic.CreateView):
+    template_name = "master_setups/userindex_create.html"
+    form_class = UserIndexModelForm
+    PAGE_TITLE = "Create User Index"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Record saved successfully.")
+        return reverse("master-setups:userindex-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+    def form_valid(self, form):
+        form_obj = form.save(commit=False)
+        form_obj.country_id = self.request.session['country_id']
+        form_obj.save()
+        return super(self.__class__, self).form_valid(form)
+
+class UserIndexUpdateView(LoginRequiredMixin, generic.UpdateView):
+    template_name = "master_setups/userindex_update.html"
+    form_class = UserIndexModelForm
+    PAGE_TITLE = "Update User Index"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_queryset(self):
+        queryset = UserIndex.objects.filter(country__id=self.request.session['country_id'])
+        return queryset
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Record updated successfully.")
+        return reverse("master-setups:userindex-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+    def form_valid(self, form):
+        form.save()
+        return super(self.__class__, self).form_valid(form)
+
+class UserIndexDeleteView(LoginRequiredMixin, generic.DeleteView):
+    template_name = "generic_delete.html"
+    PAGE_TITLE = "Delete User Index"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.INFO, "Record deleted successfully.")
+        return reverse("master-setups:userindex-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+    def get_queryset(self):
+        queryset = UserIndex.objects.filter(
+            country__id=self.request.session['country_id'],
+            pk=self.kwargs['pk']
+        )
+        return queryset
+
+
 
 """ ------------------------- Threshold ------------------------- """
 
@@ -570,9 +724,9 @@ class ThresholdListView(LoginRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
 
-        context = super(ThresholdListView, self).get_context_data(**kwargs)
+        context = super(self.__class__, self).get_context_data(**kwargs)
         threshold = Threshold.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id']
         )
         context.update({
             "threshold": threshold,
@@ -580,7 +734,7 @@ class ThresholdListView(LoginRequiredMixin, generic.TemplateView):
         return context
 
     def get_queryset(self):
-        queryset = Threshold.objects.filter(country__code=self.kwargs['country_code'])
+        queryset = Threshold.objects.filter(country__id=self.request.session['country_id'])
 
 
         # return redirect('master-setups:threshold-update', country_code = self.kwargs["country_code"])
@@ -599,22 +753,21 @@ class ThresholdUpdateView(LoginRequiredMixin, generic.UpdateView):
 
 
     def form_valid(self, form):
-        country = Country.objects.get(code=self.kwargs["country_code"])
 
         try:
-            threshold = Threshold.objects.get(country=country)
+            threshold = Threshold.objects.get(country__id = self.request.session['country_id'])
         except Threshold.DoesNotExist:
             threshold = None
 
         if  threshold is None:
             form_obj = form.save(commit=False)
-            form_obj.country = country
+            form_obj.country_id = self.request.session['country_id']
             form_obj.save()
         else:
             form_obj = form.save(commit=False)
             form_obj.created = datetime.now()
             form_obj.pk = threshold.id
-            form_obj.country = country
+            form_obj.country_id = self.request.session['country_id']
             form_obj.save()
 
         # management.call_command('import_census',self.kwargs["country_code"])
@@ -625,12 +778,12 @@ class ThresholdUpdateView(LoginRequiredMixin, generic.UpdateView):
         return reverse("master-setups:threshold", kwargs={"country_code": self.kwargs["country_code"]})
 
     def get_object(self, queryset=None):
-        return self.model.objects.filter(country__code=self.kwargs['country_code']).first()
+        return self.model.objects.filter(country__id=self.request.session['country_id']).first()
 
     def get_queryset(self):
         user = self.request.user
         # initial queryset of leads for the entire organisation
-        queryset = Threshold.objects.filter(country__code=self.kwargs['country_code'])
+        queryset = Threshold.objects.filter(country__id=self.request.session['country_id'])
         return queryset
 
     # def get_success_url(self):
@@ -652,21 +805,18 @@ class RegionTypeImportView(LoginRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
-        # queryset = Upload.objects.filter(country__code=self.kwargs['country_code'])
+        # queryset = Upload.objects.filter(country__id=self.request.session['country_id'])
         return context
 
     def form_valid(self, form):
 
-        country = Country.objects.get(code=self.kwargs["country_code"])
-
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
         form_obj.process_message = "Records are processing in background, check back soon."
-        form_obj.country = country
+        form_obj.country_id = self.request.session['country_id']
         form_obj.frommodel = "region_type"
         form_obj.save()
 
-        cdebug(form_obj.pk)
         proc = Popen('python manage.py import_region_type '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         # management.call_command('import_census',self.kwargs["country_code"])
@@ -705,7 +855,7 @@ class RegionTypeListViewAjax(AjaxDatatableView):
     def get_initial_queryset(self, request=None):
 
         queryset = self.model.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id']
         )
         return queryset
 
@@ -724,7 +874,7 @@ class RegionTypeListView(LoginRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
         upload = Upload.objects.filter(
-            country__code=self.kwargs['country_code'], frommodel='region_type'
+            country__id=self.request.session['country_id'], frommodel='region_type'
         ).last()
         if(upload is not None and  upload.is_processing != Upload.COMPLETED):
             messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
@@ -746,9 +896,9 @@ class RegionTypeCreateView(LoginRequiredMixin, generic.CreateView):
         return reverse("master-setups:region-type-list", kwargs={"country_code": self.kwargs["country_code"]})
 
     def form_valid(self, form):
-        country = Country.objects.get(code=self.kwargs["country_code"])
+
         form_obj = form.save(commit=False)
-        form_obj.country = country
+        form_obj.country_id = self.request.session['country_id']
         form_obj.save()
         return super(self.__class__, self).form_valid(form)
 
@@ -764,7 +914,7 @@ class RegionTypeUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def get_queryset(self):
         queryset = RegionType.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id']
         )
         return queryset
 
@@ -791,7 +941,7 @@ class RegionTypeDeleteView(LoginRequiredMixin, generic.DeleteView):
 
     def get_queryset(self):
         queryset = RegionType.objects.filter(
-            country__code=self.kwargs['country_code'],
+            country__id=self.request.session['country_id'],
             pk=self.kwargs['pk']
         )
         return queryset
@@ -811,21 +961,18 @@ class RegionImportView(LoginRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
-        # queryset = Upload.objects.filter(country__code=self.kwargs['country_code'])
+        # queryset = Upload.objects.filter(country__id=self.request.session['country_id'])
         return context
 
     def form_valid(self, form):
 
-        country = Country.objects.get(code=self.kwargs["country_code"])
-
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
         form_obj.process_message = "Records are processing in background, check back soon."
-        form_obj.country = country
+        form_obj.country_id = self.request.session['country_id']
         form_obj.frommodel = "region"
         form_obj.save()
 
-        cdebug(form_obj.pk)
         proc = Popen('python manage.py import_region '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         # management.call_command('import_census',self.kwargs["country_code"])
@@ -867,7 +1014,7 @@ class RegionListViewAjax(AjaxDatatableView):
     def get_initial_queryset(self, request=None):
 
         queryset = self.model.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id']
         )
         return queryset
 
@@ -885,7 +1032,7 @@ class RegionListView(LoginRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
         upload = Upload.objects.filter(
-            country__code=self.kwargs['country_code'], frommodel='region'
+            country__id=self.request.session['country_id'], frommodel='region'
         ).last()
         if(upload is not None and  upload.is_processing != Upload.COMPLETED):
             messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
@@ -914,9 +1061,9 @@ class RegionCreateView(LoginRequiredMixin, generic.CreateView):
         return reverse("master-setups:region-list", kwargs={"country_code": self.kwargs["country_code"]})
 
     def form_valid(self, form):
-        country = Country.objects.get(code=self.kwargs["country_code"])
+
         form_obj = form.save(commit=False)
-        form_obj.country = country
+        form_obj.country_id = self.request.session['country_id']
         form_obj.save()
         return super(self.__class__, self).form_valid(form)
 
@@ -936,7 +1083,7 @@ class RegionUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def get_queryset(self):
         queryset = Region.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id']
         )
         return queryset
 
@@ -963,7 +1110,7 @@ class RegionDeleteView(LoginRequiredMixin, generic.DeleteView):
 
     def get_queryset(self):
         queryset = Region.objects.filter(
-            country__code=self.kwargs['country_code'],
+            country__id=self.request.session['country_id'],
             pk=self.kwargs['pk']
         )
         return queryset
@@ -983,27 +1130,18 @@ class MonthImportView(LoginRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
-        # queryset = Upload.objects.filter(country__code=self.kwargs['country_code'])
+        # queryset = Upload.objects.filter(country__id=self.request.session['country_id'])
         return context
 
     def form_valid(self, form):
 
-        country = Country.objects.get(code=self.kwargs["country_code"])
-
-        # try:
-        #     censusupload = Upload.objects.get(country=country,frommodel='month')
-        # except Upload.DoesNotExist:
-        #     censusupload = None
-
-        # if  censusupload is None:
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
         form_obj.process_message = "Records are processing in background, check back soon."
-        form_obj.country = country
+        form_obj.country_id = self.request.session['country_id']
         form_obj.frommodel = "month"
         form_obj.save()
 
-        cdebug(form_obj.pk)
         proc = Popen('python manage.py import_month '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         # management.call_command('import_census',self.kwargs["country_code"])
@@ -1047,7 +1185,7 @@ class MonthListViewAjax(AjaxDatatableView):
     def get_initial_queryset(self, request=None):
 
         queryset = self.model.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id']
         )
         return queryset
 
@@ -1062,7 +1200,7 @@ class MonthListView(LoginRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
         upload = Upload.objects.filter(
-            country__code=self.kwargs['country_code'], frommodel='month'
+            country__id=self.request.session['country_id'], frommodel='month'
         ).last()
         if(upload is not None and  upload.is_processing != Upload.COMPLETED):
             messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
@@ -1091,10 +1229,10 @@ class MonthCreateView(LoginRequiredMixin, generic.CreateView):
     def form_valid(self, form):
         print(self.request.POST.get("is_current_month"))
         month_name = self.request.POST.get("name")
-        month_number = datetime.strptime(month_name, '%B').month
-        country = Country.objects.get(code=self.kwargs["country_code"])
+        month_number = strptime(month_name,'%B').tm_mon
+
         form_obj = form.save(commit=False)
-        form_obj.country = country
+        form_obj.country_id = self.request.session['country_id']
         form_obj.month = month_number
         form_obj.save()
         return super(self.__class__, self).form_valid(form)
@@ -1114,20 +1252,18 @@ class MonthUpdateView(LoginRequiredMixin, generic.UpdateView):
         return kwargs
 
     def form_valid(self, form):
-        print(self.request.POST.get("is_current_month"))
         month_name = self.request.POST.get("name")
-        month_number = datetime.strptime(month_name, '%B').month
-        country = Country.objects.get(code=self.kwargs["country_code"])
+        month_number = strptime(month_name,'%B').tm_mon
 
         form_obj = form.save(commit=False)
-        form_obj.country = country
+        form_obj.country_id = self.request.session['country_id']
         form_obj.month = month_number
         form.save()
         return super(self.__class__, self).form_valid(form)
 
     def get_queryset(self):
         queryset = Month.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id']
         )
         return queryset
 
@@ -1150,7 +1286,7 @@ class MonthDeleteView(LoginRequiredMixin, generic.DeleteView):
 
     def get_queryset(self):
         queryset = Month.objects.filter(
-            country__code=self.kwargs['country_code'],
+            country__id=self.request.session['country_id'],
             pk=self.kwargs['pk']
         )
         return queryset
@@ -1170,17 +1306,15 @@ class CodeFrameImportView(LoginRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
-        # queryset = Upload.objects.filter(country__code=self.kwargs['country_code'])
+        # queryset = Upload.objects.filter(country__id=self.request.session['country_id'])
         return context
 
     def form_valid(self, form):
 
-        country = Country.objects.get(code=self.kwargs["country_code"])
-
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
         form_obj.process_message = "Records are processing in background, check back soon."
-        form_obj.country = country
+        form_obj.country_id = self.request.session['country_id']
         form_obj.frommodel = "code_frame"
         form_obj.save()
 
@@ -1207,7 +1341,7 @@ class CodeFrameListView(LoginRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
         upload = Upload.objects.filter(
-            country__code=self.kwargs['country_code'], frommodel='code_frame'
+            country__id=self.request.session['country_id'], frommodel='code_frame'
         ).last()
         if(upload is not None and  upload.is_processing != Upload.COMPLETED):
             messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
@@ -1252,7 +1386,7 @@ class CodeFrameListViewAjax(AjaxDatatableView):
                 try:
                     col_label = ColLabel.objects.only("col_label").get(
                         country__code = self.kwargs['country_code'],
-                        model_name = 'CityVillage',
+                        model_name = ColLabel.CityVillage,
                         col_name = v.name
                     )
                 except ColLabel.DoesNotExist:
@@ -1264,7 +1398,7 @@ class CodeFrameListViewAjax(AjaxDatatableView):
 
     def get_initial_queryset(self, request=None):
         queryset = self.model.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id']
         )
 
         return queryset
@@ -1299,7 +1433,7 @@ class OutletStatusListViewAjax(AjaxDatatableView):
     def get_initial_queryset(self, request=None):
 
         queryset = self.model.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id']
         )
         return queryset
 
@@ -1314,9 +1448,9 @@ class OutletStatusListView(LoginRequiredMixin, generic.TemplateView):
     }
 
     def get_context_data(self, **kwargs):
-        context = super(OutletStatusListView, self).get_context_data(**kwargs)
+        context = super(self.__class__, self).get_context_data(**kwargs)
         upload = Upload.objects.filter(
-            country__code=self.kwargs['country_code'], frommodel='outlet_status'
+            country__id=self.request.session['country_id'], frommodel='outlet_status'
         ).last()
         if(upload is not None and  upload.is_processing != Upload.COMPLETED):
             messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
@@ -1338,9 +1472,8 @@ class OutletStatusCreateView(LoginRequiredMixin, generic.CreateView):
         return reverse("master-setups:outlet-status-list", kwargs={"country_code": self.kwargs["country_code"]})
 
     def form_valid(self, form):
-        country = Country.objects.get(code=self.kwargs["country_code"])
         form_obj = form.save(commit=False)
-        form_obj.country = country
+        form_obj.country_id = self.request.session['country_id']
         form_obj.save()
         return super(self.__class__, self).form_valid(form)
     # #Forward Country Code in Forms
@@ -1361,7 +1494,7 @@ class OutletStatusUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def get_queryset(self):
         queryset = OutletStatus.objects.filter(
-            country__code=self.kwargs['country_code']
+            country__id=self.request.session['country_id']
         )
         return queryset
 
@@ -1388,7 +1521,170 @@ class OutletStatusDeleteView(LoginRequiredMixin, generic.DeleteView):
 
     def get_queryset(self):
         queryset = OutletStatus.objects.filter(
-            country__code=self.kwargs['country_code'],
+            country__id=self.request.session['country_id'],
             pk=self.kwargs['pk']
         )
         return queryset
+
+""" ------------------------- ColLabel ------------------------- """
+class ColLabelListViewAjax(AjaxDatatableView):
+    model = ColLabel
+    initial_order = [["model_name", "asc"],["col_name", "asc"], ]
+    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
+    search_values_separator = '+'
+
+
+    column_defs = [
+         AjaxDatatableView.render_row_tools_column_def(),
+        {'name': 'id', 'title':'ID', 'visible': True, },
+        {'name': 'model_name', 'choices': True, 'autofilter': True,},
+        {'name': 'col_name',  },
+        {'name': 'col_label',  },
+
+        {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
+    ]
+
+    def customize_row(self, row, obj):
+            row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>') % (
+                    reverse('master-setups:col-label-update', args=(self.kwargs['country_code'],obj.id,)),
+                )
+                # <a href="{1}" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
+
+
+    def get_initial_queryset(self, request=None):
+
+        queryset = self.model.objects.filter(
+            country__id=self.request.session['country_id']
+        )
+        return queryset
+
+
+
+class ColLabelListView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "master_setups/col_label_list.html"
+    PAGE_TITLE = "Col Labels"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super(self.__class__, self).get_context_data(**kwargs)
+        return context
+
+
+class UpdateSyncFieldsAjax(LoginRequiredMixin, generic.CreateView):
+    def post(self, request, country_code):
+        country = Country.objects.get(code=self.kwargs["country_code"])
+        action = self.request.POST.get("action")
+
+        # for v in Product._meta.get_fields():
+        #     if(v.name not in skip_cols):
+        #         product_fields.append(v.name)
+
+        skip_cols = ['id','pk','code','name','country','upload','created','updated',]
+        for m,mm in ColLabel.MODEL_CHOICES:
+            for field in eval(m)._meta.get_fields():
+                if(field.name in skip_cols): continue
+                if isinstance(field, models.ForeignKey): continue
+                if isinstance(field, models.ManyToManyRel): continue
+                if isinstance(field, models.ManyToOneRel): continue
+
+                label = field.name
+                label = label.replace('_',' ')
+                label = label.title()
+                col_label_qs, created = ColLabel.objects.get_or_create(
+                    country=country, model_name=m,col_name=field.name,
+                    defaults={'col_label':label}
+                )
+
+        # for key, val in list(temp_row.items()):
+        #     if('extra' in key and extra_count <= max_extra):
+        #         # print(key,val)
+        #         extra  = key.replace('extra_','')
+        #         extra  = extra.replace('_', ' ')
+        #         extra  = extra.title()
+
+        #         col_name = 'extra_'+str(extra_count)
+
+        #         row[col_name] = val
+        #         cdebug(key,'row')
+        #         del row[key]
+        #         if n==1:
+        #             col_label_qs, created = ColLabel.objects.update_or_create(
+        #                 country=upload.country, model_name=ColLabel.Product,col_name=col_name,
+        #                 defaults={'col_label':extra},
+        #             )
+
+        #         extra_count += 1
+        # obj = ColLabel.objects.get(pk=id,country=country)
+        # obj.status  = value
+        # obj.save()
+
+        return HttpResponse(
+            json.dumps(
+                {'data':'success'},
+                cls=DjangoJSONEncoder
+            ),
+            content_type="application/json")
+
+class ColLabelUpdateView(LoginRequiredMixin, generic.UpdateView):
+    template_name = "generic_update.html"
+    form_class = ColLabelModelForm
+    PAGE_TITLE = "Update Col Labels"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_queryset(self):
+        queryset = ColLabel.objects.filter(
+            country__id=self.request.session['country_id']
+        )
+        return queryset
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Record updated successfully.")
+        return reverse("master-setups:col-label-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+    def form_valid(self, form):
+        form.save()
+        return super(self.__class__, self).form_valid(form)
+
+class ResetDBView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "resetdb.html"
+    PAGE_TITLE = "Reset Datbase"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super(self.__class__, self).get_context_data(**kwargs)
+
+        mastert_data = ['RBD','Cell','CellMonthACV','Product','ProductAudit','PanelProfile','Outlet','UsableOutlet']
+        # mastert_setups = ['Upload','Province','District','Tehsil','CityVillage','Category','IndexCategory','OutletType','Census','Month','OutletStatus','ColLabel',]
+
+        context.update({
+            "mastert_setups": mastert_setups,
+            "mastert_data": mastert_data
+        })
+
+        return context
+    def post(self, request, country_code, *args, **kwargs):
+        country_id = self.request.session['country_id']
+        reset = self.request.POST
+        # reset = self.request.POST
+        cdebug(type(reset))
+        cdebug(reset)
+        for key, value in reset.items():
+            if key in 'csrfmiddlewaretoken': continue
+            eval(key).objects.filter(country__id=self.request.session['country_id']).delete()
+            print(key, value)
+
+        return HttpResponse(
+            json.dumps(
+                {'data':'success'},
+                cls=DjangoJSONEncoder
+            ),
+            content_type="application/json")

@@ -1,3 +1,19 @@
+function getCookie(name) {
+    var cookieValue = null;
+    var value = '; ' + document.cookie,
+        parts = value.split('; ' + name + '=');
+    if (parts.length == 2) cookieValue = parts.pop().split(';').shift();
+    return cookieValue;
+}
+
+function getCSRFToken() {
+    var csrftoken = getCookie('csrftoken');
+    if (csrftoken == null) {
+        csrftoken = $('input[name=csrfmiddlewaretoken]').val();
+    }
+    return csrftoken;
+}
+
 function newexportaction(e, dt, button, config) {
     var self = this;
     var oldStart = dt.settings()[0]._iDisplayStart;
@@ -57,7 +73,6 @@ var common_dt_options = {
     ],
 
 };
-
 
 function ucword(words) {
     var separateWord = words.toLowerCase().split('_');

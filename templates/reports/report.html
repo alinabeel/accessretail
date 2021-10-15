@@ -13,7 +13,6 @@
 {% endblock stylesheets %}
 
 {% block content %}
-{{ rbd_report_qs.country }}
 <div class="row">
     <div class="col-12">
         <div class="card m-b-30">
@@ -51,12 +50,12 @@
 
 var pivot = new WebDataRocks({
     container: "#wdr-component",
-    height: 395,
+    height: 600,
     toolbar: true,
     report: {
         "dataSource": {
             "dataSourceType": "csv",
-            filename: "{{ MEDIA_URL }}/reports/{{ rbd_report_qs.country.code }}/cell_summary/{{rbd_report_qs.report_csv_source}}"
+            filename: "{{ MEDIA_URL }}/reports/{{ rbd_report_qs.country.code }}/{{rbd_report_qs.report_csv_source}}"
         },
         "options": {
             "grid": {

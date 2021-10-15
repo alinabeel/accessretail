@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+{% block action_buttons %}
+<a href="javascript:void(0)"
+    id="update_sync_fields"
+    class="btn btn-info btn-lg waves-effect waves-light">
+    Update/Sync Fields</a>
+{% endblock action_buttons %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card m-b-30">
+            <div class="card-body">
+
+                <table id="ajax_datatable" class="datatable table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                </table>
+
+            </div>
+        </div>
+    </div> <!-- end col -->
+</div> <!-- end row -->
+{% endblock content %}
+
+{% block javascripts %}
+
+<script language="javascript">
+    var dt_ajax_url = '{% url "master-setups:col-label-list-ajax" country_code=global.country_code %}';
+    $(document).ready(function() {
+        AjaxDatatableViewUtils.initialize_table(
+            $('#ajax_datatable'),
+            dt_ajax_url,
+            common_dt_options
+        );
+
+
+
+        $("body").on( "click", "#update_sync_fields", function() {
+            $.ajax({
+                method: 'POST',
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
+                url: "{% url 'master-setups:update-sync-fields' country_code=global.country_code%}",
+                data: {'action':'update-sync-fields','csrfmiddlewaretoken':getCSRFToken()},
+                success: function (result) {
+                    if(result.data=='success'){
+                        alertify.success("Fields syned successfully.");
+                        $.fn.dataTable.tables({
+                            api: true
+                        }).draw();
+                    }else{
+                        alertify.error("Something went wrong");
+                    }
+                },
+                error: function (response) {
+                    alertify.error("Something went wrong");
+                }
+            });
+
+        });
+
+
+
+    });
+
+</script>
+{% endblock javascripts %}

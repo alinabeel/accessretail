@@ -82,7 +82,7 @@ class Command(BaseCommand):
 
                     """Get or Skip Month Object"""
                     try:
-                        month_obj = Month.objects.get(country=country, code=month_code)
+                        month_obj = Month.objects.get(country=country, code__iexact=month_code)
                     except Month.DoesNotExist:
                         month_obj = None
                         log += ('month code not exist, csv row: '+ str(n))
@@ -112,7 +112,7 @@ class Command(BaseCommand):
 
                     """Get or Skip Outlet Object"""
                     try:
-                        outlet_obj = Outlet.objects.get(country=upload.country, code=outlet_code)
+                        outlet_obj = Outlet.objects.get(country=upload.country, code__iexact=outlet_code)
                     except Outlet.DoesNotExist:
                         outlet_obj = None
                         log += printr('Outlet code not exist: '+outlet_code)

@@ -111,7 +111,7 @@ class Command(BaseCommand):
                             city_village_row[col_name] = tag
                             if n==1:
                                 col_label_qs, created = ColLabel.objects.update_or_create(
-                                    country=upload.country, model_name='CityVillage',col_name=col_name,
+                                    country=upload.country, model_name=ColLabel.CityVillage,col_name=col_name,
                                     defaults={'col_label':player},
                                 )
 
@@ -126,17 +126,17 @@ class Command(BaseCommand):
                     ## Handle APPEND and REFRESH
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
                         province_qs, created = Province.objects.get_or_create(
-                            country=upload.country, code=province_code,
+                            country=upload.country, code__iexact=province_code,
                             defaults={'name':province_name},
                         )
 
                         district_qs, created = District.objects.get_or_create(
-                            country=upload.country, code=district_code,
+                            country=upload.country, code__iexact=district_code,
                             defaults={'name':district_name,'province':province_qs}
                         )
 
                         tehsil_qs, created = Tehsil.objects.get_or_create(
-                            country=upload.country, code=tehsil_code,
+                            country=upload.country, code__iexact=tehsil_code,
                             defaults={'urbanity' : urbanity,
                                     'district' : district_qs,
                                     'name' : tehsil_name}
@@ -152,19 +152,19 @@ class Command(BaseCommand):
                     ## Handle APPENDUPDATE
                     if(upload.import_mode == Upload.APPENDUPDATE ):
                         province_qs, created = Province.objects.update_or_create(
-                            country=upload.country, code=province_code,
+                            country=upload.country, code__iexact=province_code,
                             defaults={'name':province_name},
                         )
 
                         # Get / Add District
                         district_qs, created = District.objects.update_or_create(
-                            country=upload.country, code=district_code,
+                            country=upload.country, code__iexact=district_code,
                             defaults={'name':district_name,'province':province_qs}
                         )
 
                         # Get / Add Tehsil
                         tehsil_qs, created = Tehsil.objects.update_or_create(
-                            country=upload.country, code=tehsil_code,
+                            country=upload.country, code__iexact=tehsil_code,
                             defaults={'urbanity' : urbanity,
                                     'district' : district_qs,
                                     'name' : tehsil_name}

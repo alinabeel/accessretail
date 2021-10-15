@@ -66,6 +66,11 @@ class OutletTypeModelForm(forms.ModelForm):
         model = OutletType
         fields = ('name','code', 'parent','urbanity' ,'description', 'is_active', )
 
+class CellMonthACVModelForm(forms.ModelForm):
+    class Meta:
+        model = CellMonthACV
+        fields = ('month','cell', 'cell_acv')
+
 
 class OutletStatusModelForm(forms.ModelForm):
     class Meta:

@@ -1,5 +1,5 @@
 from django.urls import path
-from master_data.views import *
+from .views import *
 
 app_name = "master-data"
 
@@ -111,4 +111,9 @@ urlpatterns += [
     path('<slug:country_code>/cell-duplicate/<int:pk>', CellDuplicateView.as_view(), name='cell-duplicate'),
     path('<slug:country_code>/cell-update/<int:pk>', CellUpdateView.as_view(), name='cell-update'),
     path('<slug:country_code>/cell-delete/<int:pk>', CellDeleteView.as_view(), name='cell-delete'),
+
+    path('<slug:country_code>/cell-month-acv-ajax/', CellMonthACVListViewAjax.as_view(), name='cell-month-acv-ajax'),
+    path('<slug:country_code>/cell-month-acv-list/', CellMonthACVListView.as_view(), name='cell-month-acv-list'),
+    path('<slug:country_code>/cell-month-acv-update/<int:pk>', CellMonthACVUpdateView.as_view(), name='cell-month-acv-update'),
+
 ]

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+{% load crispy_forms_tags %}
+{% block stylesheets %}{{ form.media.css }}{% endblock stylesheets %}
+<div class="row justify-content-center align-items-center">
+    <div class="col-lg-10">
+        <div class="card m-b-30">
+            <div class="card-body">
+                <form method="post" class="mt-5">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+
+                    <div class="form-group"> <label for="id_cell_master">Update Master Cell: </label>
+                        <input type="checkbox" name="cell_master" value="1" class=""
+                                id="id_cell_master">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <button class="btn btn-warning btn-block btn-lg waves-effect" type="button"
+                                onClick="javascript:history.go(-1);">Cancel</button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-primary btn-block btn-lg waves-effect" type="submit">Update</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> {% endblock content %}

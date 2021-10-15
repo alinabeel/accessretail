@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 {% load crispy_forms_tags %}
 <div class="row justify-content-center align-items-center">
@@ -8,7 +9,20 @@
             <div class="card-body">
                 <form method="post" class="mt-5">
                     {% csrf_token %}
-                    {{ form|crispy }}
+
+                    <!-- Multiselect Search Start -->
+                    <div class="multiselect-search">
+                      <input type="text" class="form-control" id="searchInput" aria-describedby="Search"
+                        placeholder="Search Names">
+
+                      <div class="btn-li-items">
+                        <p><span id="selected-check">Selected Items : 0</span> of <span id="visibleNum">0</span></p>
+                        <button type="button" class="btn btn-info checkall">Toggle Select</button>
+                      </div>
+                      {{ form.user|as_crispy_field }}
+                    </div>
+                    <!-- Multiselect Search Ends -->
+
                     <div class="row">
                         <div class="col-6">
                             <button class="btn btn-warning btn-block btn-lg waves-effect" type="button" onClick="javascript:history.go(-1);">Cancel</button>
@@ -23,68 +37,12 @@
     </div>
 </div>
 {% endblock content %}
-
 {% block javascripts %}
+<script src="{% static 'assets/js/mselect2mcheckbox.js' %}"></script>
 <script language="javascript">
-
-(function($) {
-
-  // convert a multiple select in a multiple checkbox
-  var mselectTOmcheckbox = function mselectTOmcheckbox(selector) {
-
-    var elements = $(selector);
-
-    elements.each(function(index, item) {
-      var id = $(item).attr('id'),
-          name = $(item).attr('name'),
-          options = $(item).children();
-
-      var mcheckbox_table = $('<table/>', {
-        id: 'mcheckbox-' + id,
-        className: 'table table-striped table-bordered dt-responsive nowrap mcheckbox-table'
-      }).appendTo(
-        mcheckbox_container = $('<div/>', {
-            className: 'mcheckbox-container'
-        })
-      );
-
-      options.each(function(index, option) {
-        var value = $(option).attr('value'),
-            label = $(option).text(),
-            selected = $(option).attr('selected');
-
-        var checkbox_row = $(
-            '<tr>'
-          + '<td><label for="' + name +'_' + value + '" class="mcheckbox-label">' + label + '</td>'
-          + '<td><input type="checkbox" id="' + name + '_' + value + '" name="' + name +'" value="' + value + '" ' + (selected ? 'checked="checked"' : '') + '/></td>'
-          + '</tr>'
-        ).appendTo(mcheckbox_table);
-      })
-
-      mcheckbox_container.insertAfter(item);
-
-      try {
-        mcheckbox_container.resizable({handles: "se"});
-      }
-      catch(e) {
-        // resizing not supported
-        console.log('resizing not supported');
-      }
-
-      $(item).nextAll('.help').hide();
-      $(item).remove();
-
-    })
-
-  };
-
-  // apply the conversion to the desired elements (change the selector)
-  $(document).ready(function() {
-    mselectTOmcheckbox('select[id="id_user"]');
-  })
-
-})(jQuery)
+$(document).ready(function () {
+    $('select[id="id_user"]').mselectTOmcheckbox();
+});
 
 </script>
 {% endblock javascripts %}
-

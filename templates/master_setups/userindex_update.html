@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+{% load crispy_forms_tags %}
+<div class="row justify-content-center align-items-center">
+    <div class="col-lg-10">
+
+        <div class="card m-b-30">
+            <div class="card-body">
+                <form method="post" class="mt-5">
+                    {% csrf_token %}
+                    {{ form.user|as_crispy_field }}
+
+                    <!-- Multiselect Search Start -->
+                    <div class="multiselect-search">
+                      <input type="text" class="form-control" id="searchInput" aria-describedby="Search"
+                        placeholder="Search Names">
+
+                      <div class="btn-li-items">
+                        <p><span id="selected-check">Selected Items : 0</span> of <span id="visibleNum">0</span></p>
+                        <button type="button" class="btn btn-info checkall">Toggle Select</button>
+                      </div>
+                      {{ form.user_index|as_crispy_field }}
+                    </div>
+                    <!-- Multiselect Search Ends -->
+                    <div class="row">
+                        <div class="col-6">
+                            <button class="btn btn-warning btn-block btn-lg waves-effect" type="button" onClick="javascript:history.go(-1);">Cancel</button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-primary btn-block btn-lg waves-effect" type="submit">Update</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script src="{% static 'assets/js/mselect2mcheckbox.js' %}"></script>
+<script language="javascript">
+$(document).ready(function () {
+    $('select[id="id_user_index"]').mselectTOmcheckbox();
+});
+
+</script>
+
+{% endblock javascripts %}
+

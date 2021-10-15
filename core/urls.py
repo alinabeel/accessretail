@@ -22,7 +22,7 @@ from django.contrib.auth.views import (
 )
 from django.urls import path, include,re_path
 from accounts.views import SignupView,adminLoginProcess,NoCountry
-from master_setups.views import DashboardView, IndexPageView,HomeView,change_password
+from master_setups.views import DashboardView, IndexPageView,HomeView,HomeAjax,change_password
 import debug_toolbar
 
 
@@ -43,6 +43,7 @@ urlpatterns = [
 
     path('token-auth/', obtain_jwt_token),
     path('home/', HomeView.as_view(), name='home'),
+    path('home-ajax/', HomeAjax.as_view(), name='home-ajax'),
 
     path('<slug:country_code>/dashboard/', DashboardView.as_view(), name='dashboard'),
     path('master-setups/',  include('master_setups.urls', namespace="master-setups")),

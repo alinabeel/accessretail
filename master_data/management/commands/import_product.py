@@ -116,7 +116,7 @@ class Command(BaseCommand):
                             del row[key]
                             if n==1:
                                 col_label_qs, created = ColLabel.objects.update_or_create(
-                                    country=upload.country, model_name='Product',col_name=col_name,
+                                    country=upload.country, model_name=ColLabel.Product,col_name=col_name,
                                     defaults={'col_label':extra},
                                 )
 

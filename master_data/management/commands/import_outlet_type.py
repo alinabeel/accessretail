@@ -58,7 +58,7 @@ class Command(BaseCommand):
                     parent = None
                     if(row['parent'] != ''):
                         try:
-                            parent = OutletType.objects.get(country=upload.country, code=row['parent'])
+                            parent = OutletType.objects.get(country=upload.country, code__iexact=row['parent'])
                         except OutletType.DoesNotExist:
                             parent = None
 
@@ -67,7 +67,7 @@ class Command(BaseCommand):
                         # In this case, if the Person already exists, its existing name is preserved
                         category, created = OutletType.objects.get_or_create(
 
-                            country = upload.country, code=code,
+                            country = upload.country, code__iexact=code,
                             defaults={
                                 'upload': upload,
                                 'name': name,
@@ -83,7 +83,7 @@ class Command(BaseCommand):
                     if(upload.import_mode == Upload.APPENDUPDATE ):
                         # In this case, if the Person already exists, its name is updated
                         category, created = OutletType.objects.update_or_create(
-                            country=upload.country,code=code,
+                            country=upload.country,code__iexact=code,
                             defaults={
                                 'upload': upload,
                                 'name': name,

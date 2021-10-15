@@ -4,11 +4,17 @@ from django.core.exceptions import ValidationError
 
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
+from django.db.models.indexes import Index
 from django.utils.translation import ugettext_lazy as _
 
 from mptt.models import MPTTModel, TreeForeignKey
 from core.mixinsModels import UpperCaseCharField,CodeNameMixIn,CreateUpdateMixIn
 from core.colors import Colors
+try:
+    from core.dynamic_model.cityVillageModels import CityVillageMixIn
+except ImportError:
+    CityVillageMixIn = None
+
 from master_setups.models import Country,IndexSetup,UserCountry,User,UserIndex,Threshold, CountrySetting
 
 UserModel = get_user_model()
@@ -53,7 +59,9 @@ class Upload(CreateUpdateMixIn, models.Model):
         (ERROR, 'Error'),
     ]
 
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    country = models.ForeignKey(Country, on_delete=models.DO_NOTHING)
+    index = models.ForeignKey(IndexSetup, on_delete=models.DO_NOTHING)
+
     import_mode = models.CharField(max_length=20, choices=CHOICES)
     frommodel = models.CharField(max_length=50)
     file = models.FileField(upload_to=handle_upload_logs)
@@ -62,6 +70,7 @@ class Upload(CreateUpdateMixIn, models.Model):
     skiped_records = models.IntegerField(blank=True, null=True)
     updated_records = models.IntegerField(blank=True, null=True)
     created_records = models.IntegerField(blank=True, null=True)
+    other = JSONField(blank=True, null=True)
     log = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -112,7 +121,7 @@ class Tehsil(CodeNameMixIn,CreateUpdateMixIn,models.Model):
         verbose_name = 'Tehsil'
         verbose_name_plural = 'Tehsils'
 
-class CityVillage(CodeNameMixIn,CreateUpdateMixIn,models.Model):
+class CityVillage(CodeNameMixIn,CreateUpdateMixIn,CityVillageMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
     tehsil = models.ForeignKey(Tehsil, on_delete=models.CASCADE)
@@ -213,11 +222,18 @@ class Category(CreateUpdateMixIn,CodeNameMixIn,MPTTModel):
 
 class IndexCategory(CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    index_setup = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
-    category = models.ManyToManyField(Category)
+    index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
+    category = models.ManyToManyField(Category,related_name='index_category',)
 
+    def get_index_category_list(self):
+        cl ={a.id : a.name for a in self.category.all()}
+        return cl
+
+    def get_index_category_ids(self):
+        cl =[a.id for a in self.category.all()]
+        return cl
     def __str__(self):
-        return str('{0}'.format(self.index_setup.name))
+        return str('{0}'.format(self.index.name))
 
     class Meta:
         db_table = 'index_category'
@@ -331,7 +347,6 @@ class Month(CreateUpdateMixIn,models.Model):
 
     def save(self, *args, **kwargs):
             self.date ='{0}-{1}-{2}'.format(self.year, self.month,1)
-            self.is_locked = True
             super(self.__class__, self).save(*args, **kwargs)
 
 
@@ -382,6 +397,36 @@ class PanelProfile(CreateUpdateMixIn,models.Model):
     turnover = models.DecimalField(max_digits=18,decimal_places=6, default=0)
     acv = models.DecimalField(max_digits=18,decimal_places=6, default=0)
     audit_status = models.CharField(max_length=1, choices=AUDIT_STATUS_CHOICES,default=AUDITED)
+    extra_1 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_2 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_3 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_4 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_5 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_6 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_7 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_8 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_9 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_10 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_11 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_12 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_13 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_14 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_15 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_16 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_17 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_18 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_19 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_20 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_21 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_22 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_23 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_24 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_25 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_26 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_27 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_28 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_29 =  models.CharField(max_length=500, null=True, blank=True)
+    extra_30 =  models.CharField(max_length=500, null=True, blank=True)
 
     class Meta:
         unique_together = (('country','outlet', 'month'))
@@ -406,16 +451,12 @@ class Product(CodeNameMixIn,CreateUpdateMixIn,models.Model):
     variant = models.CharField(max_length=150, null=True, blank=True)
     size = models.CharField(max_length=150, null=True, blank=True)
     packaging = models.CharField(max_length=150, null=True, blank=True)
-
     origin = models.CharField(max_length=150, null=True, blank=True)
     country_of_origin = models.CharField(max_length=150, null=True, blank=True)
-
     manufacture = models.CharField(max_length=150, null=True, blank=True)
-
     price_segment = models.CharField(max_length=150, null=True, blank=True)
     super_manufacture = models.CharField(max_length=150, null=True, blank=True)
     super_brand = models.CharField(max_length=150, null=True, blank=True)
-
     weight = models.DecimalField(max_digits=18,decimal_places=6, null=True, blank=True)
     number_in_pack = models.IntegerField(null=True, blank=True)
     price_per_unit = models.DecimalField(max_digits=18,decimal_places=6, null=True, blank=True)
@@ -480,7 +521,6 @@ class ProductAudit(CreateUpdateMixIn,models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     outlet = models.ForeignKey(Outlet, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-
 
     audit_date = models.DateField(null=True, blank=True)
     purchase_1 = models.IntegerField(default=0,null=True, blank=True)
@@ -553,40 +593,13 @@ class ProductAudit(CreateUpdateMixIn,models.Model):
         verbose_name_plural = 'Audit Data'
 
     def __str__(self):
-        return self.country
-
-
-class CellStructure(CreateUpdateMixIn,models.Model):
-
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
-
-    name = models.CharField(max_length=500,)
-    description = models.TextField(null=True, blank=True)
-
-    cell_acv = models.DecimalField(max_digits=18,decimal_places=6,default=0)
-    num_universe = models.DecimalField(max_digits=18,decimal_places=6,default=0)
-    optimal_panel = models.IntegerField(default=0)
-
-    condition_html = models.TextField(null=True, blank=True)
-    serialize_str = models.TextField(null=True, blank=True)
-    condition_json = models.TextField(null=True, blank=True)
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        unique_together = (('country','name'))
-        db_table = 'cell_structure'
-        verbose_name = 'CellStructure'
-        verbose_name_plural = 'CellStructures'
-
-    def __str__(self):
-        return self.name
+        return self.id
 
 class Cell(CreateUpdateMixIn,models.Model):
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
-
+    index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
     name = models.CharField(max_length=500,)
     description = models.TextField(null=True, blank=True)
 
@@ -617,6 +630,7 @@ class Cell(CreateUpdateMixIn,models.Model):
 class CellMonthACV(CreateUpdateMixIn,models.Model):
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
     month = models.ForeignKey(Month, on_delete=models.CASCADE)
     cell = models.ForeignKey(Cell, on_delete=models.CASCADE)
     cell_acv = models.DecimalField(max_digits=18,decimal_places=6,default=0)
@@ -633,6 +647,7 @@ class CellMonthACV(CreateUpdateMixIn,models.Model):
 
 class RBD(CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
     name = models.CharField(max_length=500,)
     description = models.TextField(null=True, blank=True)
     cell = models.ManyToManyField(Cell)
@@ -659,10 +674,10 @@ class UsableOutlet(CreateUpdateMixIn,models.Model):
         (QUARANTINE , 'Quarantine'),
     )
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
     upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
     month = models.ForeignKey(Month,on_delete=models.CASCADE)
     outlet = models.ForeignKey(Outlet, on_delete=models.CASCADE)
-    index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
     cell = models.ForeignKey(Cell, on_delete=models.CASCADE)
     status = models.CharField(max_length=2, choices=USABLE_STATUS_CHOICES,default=USABLE)
     # is_active = models.BooleanField(default=True)
@@ -677,8 +692,19 @@ class UsableOutlet(CreateUpdateMixIn,models.Model):
 
 
 class ColLabel(CreateUpdateMixIn,models.Model):
+
+    CityVillage = 'CityVillage'
+    Product = 'Product'
+    PanelProfile = 'PanelProfile'
+
+    MODEL_CHOICES = (
+        (CityVillage , 'CityVillage'),
+        (Product , 'Product'),
+        (PanelProfile, 'PanelProfile'),
+    )
+
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    model_name = models.CharField(max_length=150)
+    model_name = models.CharField(max_length=150, choices=MODEL_CHOICES,default=CityVillage)
     col_name =  models.CharField(max_length=150)
     col_label =  models.CharField(max_length=150)
 

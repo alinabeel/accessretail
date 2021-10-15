@@ -17,7 +17,7 @@
 {% endblock content %}
 
 {% block javascripts %}
-<script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+
 <script language="javascript">
     var dt_ajax_url = '{% url "reports:sample-maintenance-ajax" country_code=global.country_code %}';
     function getCookie(name) {
