@@ -64,15 +64,21 @@ class IndexPageView(generic.TemplateView):
 
 class HomeAjax(generic.View):
     def post(self, request):
+
         country_code = self.request.POST.get("country_code")
         country = Country.objects.get(code=country_code)
         user = self.request.user
         userindexs = UserIndex.objects.filter(country=country,user=user)
-        userindexs = userindexs[0].get_user_indexe_list()
+
+        if len(userindexs) >= 0:
+            userindexs = userindexs[0].get_user_indexe_list()
+            data = {'data':userindexs,'msg':'success'}
+        else:
+            data = {'data':'','msg':'failed'}
 
         return HttpResponse(
             json.dumps(
-                {'data':userindexs,'msg':'success'},
+                data,
                 cls=DjangoJSONEncoder
             ),
             content_type="application/json")
@@ -1666,7 +1672,6 @@ class ResetDBView(LoginRequiredMixin, generic.TemplateView):
         # mastert_setups = ['Upload','Province','District','Tehsil','CityVillage','Category','IndexCategory','OutletType','Census','Month','OutletStatus','ColLabel',]
 
         context.update({
-            "mastert_setups": mastert_setups,
             "mastert_data": mastert_data
         })
 

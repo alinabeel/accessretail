@@ -32,7 +32,7 @@ class Command(BaseCommand):
         upload = Upload.objects.get(pk=upload_id)
         country = Country.objects.get(pk=upload.country.id)
         log = ""
-
+        index = upload.index
         if(upload.import_mode == Upload.REFRESH):
             Cell.objects.filter(country=upload.country).delete()
 
@@ -52,7 +52,7 @@ class Command(BaseCommand):
                     row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
 
                     cell_name = row['cell_name']
-                    # cell_acv = row['cell_acv']
+                    cell_acv = row['cell_acv']
                     # num_universe = row['num_universe']
                     # optimal_panel = row['optimal_panel']
                     del row["cell_name"]
@@ -84,7 +84,7 @@ class Command(BaseCommand):
 
                         # In this case, if the Person already exists, its existing name is preserved
                         obj, created = Cell.objects.get_or_create(
-                            country=upload.country, name=cell_name,
+                            country=upload.country, name=cell_name,index=index,
                             defaults = new_row
                         )
                         if(created): created_records+=1
@@ -93,7 +93,7 @@ class Command(BaseCommand):
                     if(upload.import_mode == Upload.APPENDUPDATE ):
                         # In this case, if the Person already exists, its name is updated
                         obj, created = Cell.objects.update_or_create(
-                            country = upload.country, name=cell_name,
+                            country = upload.country, name=cell_name,index=index,
                             defaults = new_row
                         )
                         if(created): created_records+=1
