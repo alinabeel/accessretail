@@ -1668,7 +1668,7 @@ class ResetDBView(LoginRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
 
-        mastert_data = ['RBD','Cell','CellMonthACV','Product','ProductAudit','PanelProfile','Outlet','UsableOutlet']
+        mastert_data = ['RBD','Cell','Product','ProductAudit','PanelProfile','Outlet','UsableOutlet','Upload']
         # mastert_setups = ['Upload','Province','District','Tehsil','CityVillage','Category','IndexCategory','OutletType','Census','Month','OutletStatus','ColLabel',]
 
         context.update({
@@ -1684,7 +1684,7 @@ class ResetDBView(LoginRequiredMixin, generic.TemplateView):
         cdebug(reset)
         for key, value in reset.items():
             if key in 'csrfmiddlewaretoken': continue
-            eval(key).objects.filter(country__id=self.request.session['country_id']).delete()
+            eval(f"{key}").objects.filter(country__id=self.request.session['country_id']).delete()
             print(key, value)
 
         return HttpResponse(

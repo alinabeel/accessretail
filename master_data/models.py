@@ -59,8 +59,8 @@ class Upload(CreateUpdateMixIn, models.Model):
         (ERROR, 'Error'),
     ]
 
-    country = models.ForeignKey(Country, on_delete=models.DO_NOTHING)
-    index = models.ForeignKey(IndexSetup, on_delete=models.DO_NOTHING)
+    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True)
+    index = models.ForeignKey(IndexSetup, on_delete=models.SET_NULL, null=True, blank=True)
 
     import_mode = models.CharField(max_length=20, choices=CHOICES)
     frommodel = models.CharField(max_length=50)
@@ -123,7 +123,7 @@ class Tehsil(CodeNameMixIn,CreateUpdateMixIn,models.Model):
 
 class CityVillage(CodeNameMixIn,CreateUpdateMixIn,CityVillageMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
+    upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
     tehsil = models.ForeignKey(Tehsil, on_delete=models.CASCADE)
 
     rc_cut =  models.CharField(max_length=500, null=True, blank=True)
@@ -184,7 +184,7 @@ class RegionType(CreateUpdateMixIn,models.Model):
 
 class Region(CodeNameMixIn,CreateUpdateMixIn,MPTTModel):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    upload = models.ForeignKey(Upload, related_name="region_uplaod", on_delete=models.CASCADE, null=True, blank=True)
+    upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
     region_type = models.ForeignKey(RegionType, on_delete=models.CASCADE,)
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True,blank=True, related_name='child')
     description = models.TextField(blank=True,default='')
@@ -205,7 +205,7 @@ class Region(CodeNameMixIn,CreateUpdateMixIn,MPTTModel):
 
 class Category(CreateUpdateMixIn,CodeNameMixIn,MPTTModel):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    upload = models.ForeignKey(Upload, related_name="category_uploads", on_delete=models.CASCADE, null=True, blank=True)
+    upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True,blank=True, related_name='child')
     description = models.TextField(blank=True,default='')
     is_active = models.BooleanField(default=True)
@@ -242,7 +242,7 @@ class IndexCategory(CreateUpdateMixIn,models.Model):
 
 class OutletType(CodeNameMixIn,CreateUpdateMixIn,MPTTModel):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
+    upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True,blank=True, related_name='child')
     urbanity = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True,  blank=True,default='')
@@ -277,7 +277,7 @@ class CensusManager(models.Manager):
 
 class Census(CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    upload = models.ForeignKey(Upload, related_name="census_uploads", on_delete=models.CASCADE)
+    upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
     censusdata = JSONField()
     heads = JSONField()
     objects = CensusManager()
@@ -370,7 +370,7 @@ class PanelProfile(CreateUpdateMixIn,models.Model):
         (ESTIMATED , 'Estimated'),
     )
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
+    upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
     month = models.ForeignKey(Month,on_delete=models.CASCADE)
 
     index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
@@ -442,7 +442,7 @@ class PanelProfile(CreateUpdateMixIn,models.Model):
 class Product(CodeNameMixIn,CreateUpdateMixIn,models.Model):
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
+    upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
 
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     barcode = models.CharField(max_length=150, null=True, blank=True)
@@ -513,7 +513,7 @@ class ProductAudit(CreateUpdateMixIn,models.Model):
     )
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
+    upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
     month = models.ForeignKey(Month,on_delete=models.CASCADE)
 
     period = models.CharField(max_length=50, null=True, blank=True)
@@ -598,7 +598,7 @@ class ProductAudit(CreateUpdateMixIn,models.Model):
 class Cell(CreateUpdateMixIn,models.Model):
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
+    upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
     index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
     name = models.CharField(max_length=500,)
     description = models.TextField(null=True, blank=True)
@@ -675,7 +675,7 @@ class UsableOutlet(CreateUpdateMixIn,models.Model):
     )
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
-    upload = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
+    upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
     month = models.ForeignKey(Month,on_delete=models.CASCADE)
     outlet = models.ForeignKey(Outlet, on_delete=models.CASCADE)
     cell = models.ForeignKey(Cell, on_delete=models.CASCADE)
