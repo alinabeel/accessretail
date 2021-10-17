@@ -27,18 +27,6 @@ class Command(BaseCommand):
         if(upload.import_mode == Upload.REFRESH):
             PanelProfile.objects.filter(country=upload.country, index=upload.index).delete()
 
-
-        # valid_fields = []
-        # skip_cols = ['id','pk','country','category','productaudit','upload','created','updated',]
-        # for field in PanelProfile._meta.get_fields():
-        #     if(field.name not in skip_cols):
-        #         if(field.name in skip_cols): continue
-        #         if isinstance(field, models.ForeignKey): continue
-        #         if isinstance(field, models.ManyToManyRel): continue
-        #         if isinstance(field, models.ManyToOneRel): continue
-        #         valid_fields.append(field.name)
-
-
         # Get Valid Model Fields
         valid_fields = modelValidFields("PanelProfile")
         foreign_fields = modelForeignFields("PanelProfile")
@@ -46,10 +34,7 @@ class Command(BaseCommand):
 
         for ff in foreign_fields:
                 valid_fields_all.append(f"{ff}_id")
-        # cdebug(valid_fields_all)
-        # print(valid_fields)
-        # print(foreign_fields)
-        # exit()
+
         outlet_status_list = IdCodeModel(upload.country.id,'OutletStatus')
         outlet_type_list = IdCodeModel(upload.country.id,'OutletType')
         month_list = IdCodeModel(upload.country.id,'Month')
@@ -80,27 +65,6 @@ class Command(BaseCommand):
                             row[f"{ff}"] = row.pop(f"{ff}_code", None)
 
 
-                    audit_date = row['audit_date']
-
-                    # month_code = row['month_code']
-                    # category = row['category']
-                    # index = row['index']
-                    # city_village_code = row['city_village_code']
-
-
-                    # outlet_code = row['outlet_code']
-                    # outlet_type_code = row['outlet_type_code']
-                    # outlet_status_code = row['outlet_status_code']
-
-
-                    # del row["month_code"]
-                    # del row["index"]
-                    # del row["category"]
-                    # del row["outlet_code"]
-                    # del row["outlet_type_code"]
-                    # del row["outlet_status_code"]
-                    # del row["city_village_code"]
-
                     """Get Month"""
                     if(row['month'] != ''):
                         try:
@@ -123,130 +87,92 @@ class Command(BaseCommand):
                     del row['month']
 
 
+
                     """ Audit Date """
                     if('audit_date' in row and row['audit_date'] != ''):
                         row['audit_date'] = parser.parse(row['audit_date'],dayfirst=True)
-                    else:
-                        log += printr(f'audit_date is empty/not exist at row at: {n}')
-                        skiped_records+=1
-                        continue
+
 
                     """ Select Outlet Type or Skip  """
-                    if(row['outlet_type'] != ''):
-                        try:
-                            row['outlet_type_id'] = outlet_type_list[str(row['outlet_type']).lower()]
-                        except KeyError:
-                            log += printr(f'outlet_type not exist at: {n}')
+                    if('outlet_type' in row):
+                        if(row['outlet_type'] != ''):
+                            try:
+                                row['outlet_type_id'] = outlet_type_list[str(row['outlet_type']).lower()]
+                            except KeyError:
+                                log += printr(f'outlet_type not exist at: {n}')
+                                skiped_records+=1
+                                continue
+                        else:
+                            log += printr(f'outlet_type is empty at row at: {n}')
                             skiped_records+=1
                             continue
-                    else:
-                        log += printr(f'outlet_type is empty at row at: {n}')
-                        skiped_records+=1
-                        continue
-                    del row['outlet_type']
+                        del row['outlet_type']
 
 
                     """ Select Outlet Status or Skip  """
-                    outlet_status_qs = None
-                    if(row['outlet_status'] != ''):
-                        try:
-                            row['outlet_status_id'] = outlet_status_list[str(row['outlet_status']).lower()]
-                        except KeyError:
-                            log += printr(f'outlet_status not exist at: {n}')
+                    if('outlet_status' in row):
+                        if(row['outlet_status'] != ''):
+                            try:
+                                row['outlet_status_id'] = outlet_status_list[str(row['outlet_status']).lower()]
+                            except KeyError:
+                                log += printr(f'outlet_status not exist at: {n}')
+                                skiped_records+=1
+                                continue
+                        else:
+                            log += printr(f'outlet_status is empty at row at: {n}')
                             skiped_records+=1
                             continue
-                    else:
-                        log += printr(f'outlet_status is empty at row at: {n}')
-                        skiped_records+=1
-                        continue
-                    del row['outlet_status']
-
-                    # row.pop(row['outlet_status'])
-                    # print(row['outlet_status_id'])
-                    # exit()
-                    # row['outlet_status'] = outlet_status_qs
-
-                    # """ Select Inex or Skip  """
-                    # index_qs = None
-                    # if(row['index'] != ''):
-                    #     try:
-                    #         index_qs = IndexSetup.objects.filter(
-                    #                             Q(country=upload.country) &
-                    #                             Q(code__iexact = row['index'])).get()
-                    #     except IndexSetup.DoesNotExist:
-                    #         log += printr('index code not exist: '+row['index'])
-                    #         skiped_records+=1
-                    #         continue
-                    # else:
-                    #     skiped_records+=1
-                    #     log += printr('index code is empty: '+row['index'])
-                    #     continue
-
-                    # row['index'] = index_qs
-
-                    # """ Select Category or Skip  """
-                    # category_qs = None
-                    # if(row['category'] != ''):
-                    #     try:
-                    #         category_qs = Category.objects.filter(
-                    #                             Q(country=upload.country) &
-                    #                             Q(code__iexact=str(row['category']))).get()
-                    #     except Category.DoesNotExist:
-                    #         log += printr('category code not exist: '+row['category'])
-                    #         skiped_records+=1
-                    #         continue
-                    # else:
-                    #     skiped_records+=1
-                    #     log += printr('category code is empty: '+row['category'])
-                    #     continue
-
-                    # row['category'] = category_qs
-
-
-
+                        del row['outlet_status']
 
                     """ Select CityVillage or Skip  """
-                    city_village_qs = None
-                    if(row['city_village'] != ''):
+                    if('city_village' in row):
+                        if(row['city_village'] != ''):
+                            try:
+                                row['city_village_id'] = city_village_list[str(row['city_village']).lower()]
+                            except KeyError:
+                                log += printr(f'city_village not exist at: {n}')
+                                skiped_records+=1
+                                continue
+                        else:
+                            log += printr(f'outlet status is empty at row at: {n}')
+                            skiped_records+=1
+                            continue
+                        del row['city_village']
+
+                    """Get Outlet Object"""
+                    if('outlet' in row and row['outlet'] != ''):
                         try:
-                            row['city_village_id'] = city_village_list[str(row['city_village']).lower()]
-                        except KeyError:
-                            log += printr(f'city_village not exist at: {n}')
+                            outlet_obj = Outlet.objects.get(
+                                country=upload.country, code__iexact=str(row['outlet'])
+                            )
+                            row['outlet'] = outlet_obj
+                        except Outlet.DoesNotExist:
+                            outlet_obj = None
+                            log += printr('Outlet code not exist: '+row["outlet"])
                             skiped_records+=1
                             continue
                     else:
-                        log += printr(f'outlet status is empty at row at: {n}')
+                        log += printr(f'outlet is empty or not exist at row at: {n}')
                         skiped_records+=1
                         continue
-                    del row['city_village']
-
-                    """Get or Create Outlet Object"""
-                    outlet_obj, created = Outlet.objects.get_or_create(
-                        country=upload.country, code__iexact=str(row['outlet']),
-                        defaults={'code':row['outlet'],}
-                    )
-                    row['outlet'] = outlet_obj
 
                     new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
+                    print(new_row)
+                    cdebug(row)
+                    # exit()
 
-                    if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
+                    if(upload.import_mode == Upload.UPDATE ):
 
                         """In this case, if the Person already exists, its existing name is preserved"""
-                        obj, created = PanelProfile.objects.get_or_create(
-                            country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
-                            defaults=new_row
-                        )
-                        if(created): created_records+=1
-
-
-                    if(upload.import_mode == Upload.APPENDUPDATE ):
-                        """In this case, if the Person already exists, its name is updated"""
                         obj, created = PanelProfile.objects.update_or_create(
                             country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
                             defaults=new_row
                         )
                         if(created): created_records+=1
-                        else: updated_records+=1
+                    print(obj.id)
+                    cdebug(created)
+                    exit()
+
 
                     upload.skiped_records = skiped_records
                     upload.created_records = created_records

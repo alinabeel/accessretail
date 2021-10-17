@@ -28,11 +28,15 @@ class Command(BaseCommand):
                             category__id__in = index_category) \
                             .delete()
 
-        product_fields = []
-        skip_cols = ['id','pk','country','category','productaudit','upload','created','updated',]
-        for v in Product._meta.get_fields():
-            if(v.name not in skip_cols):
-                product_fields.append(v.name)
+        # Get Valid Model Fields
+        valid_fields = modelValidFields("Product")
+        foreign_fields = modelForeignFields("Product")
+        valid_fields_all = valid_fields + foreign_fields
+
+        for ff in foreign_fields:
+                valid_fields_all.append(f"{ff}_id")
+
+        category_list = IdCodeModel(upload.country.id,'Category')
 
         # printr(Colors.BRIGHT_PURPLE,form_obj.file)
         try:
@@ -46,82 +50,87 @@ class Command(BaseCommand):
                     n+=1
                     temp_row = dict()
                     # printr(n,end=' ',flush=True)
-                    row = {csvHeadClean(k): v.strip() for (k, v) in row.items()}
-
-                    temp_row = row
-                    # product_code	product	pack_type	aggregation_level	category_code	company	brand	family	flavour_type	weight	price_segment	length_range	number_in_pack	price_per_stick
-                    # ('pack_type', 'aggregation_level', 'category_code', 'company', 'brand', 'family', 'flavour_type', 'weight', 'price_segment', 'length_range', 'number_in_pack', 'price_per_stick', )
-                    for (k, v) in row.items():
-                        # k = re.sub('[^A-Za-z0-9]+', '_', k).lower().strip('_')
-                        v = str(v.strip())
-                        if(str(v.lower()) in ['-','na','nill','','null','n/a']):
-                            v = None
-                        else:
-                            v = str(v)
-                        row[k] = v
-                    # cdebug(row,'Line:70')
-                    product_code = row['product_code']
-                    product_name = row.pop("product_name", "")
-                    category_code = row['category_code']
-                    row['code'] = product_code
-                    row['name'] = product_name
+                    row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
                     row["upload"] = upload
 
-                    row.pop("product_code", None)
-                    row.pop("category_code", None)
-                    row.pop("category_name", None)
+                    # Conver Foreign fields into row
+                    for ff in foreign_fields:
+                        if f"{ff}_code" in row:
+                            row[f"{ff}"] = row.pop(f"{ff}_code", None)
 
-                    #remove extra fields
-                    for v in product_fields:
-                        if(v not in row.keys()):
-                            row.pop(v, None)
-                    cdebug(row,'Line:86')
-                    cdebug(product_fields)
+                    # temp_row = row
+                    # product_code	product	pack_type	aggregation_level	category_code	company	brand	family	flavour_type	weight	price_segment	length_range	number_in_pack	price_per_stick
+                    # ('pack_type', 'aggregation_level', 'category_code', 'company', 'brand', 'family', 'flavour_type', 'weight', 'price_segment', 'length_range', 'number_in_pack', 'price_per_stick', )
+                    # for (k, v) in row.items():
+                    #     # k = re.sub('[^A-Za-z0-9]+', '_', k).lower().strip('_')
+                    #     v = str(v.strip())
+                    #     if(str(v.lower()) in ['-','na','nill','','null','n/a']):
+                    #         v = None
+                    #     else:
+                    #         v = str(v)
+                    #     row[k] = v
+                    # # cdebug(row,'Line:70')
+                    product_code = row['product_code']
+                    product_name = row.pop("product_name", "")
+                    # category_code = row['category_code']
+                    # row['code'] = product_code
+                    row['name'] = product_name
+                    # row["upload"] = upload
 
-                    category_qs = None
-                    if(category_code != ''):
+                    # row.pop("product_code", None)
+                    # row.pop("category_code", None)
+                    # row.pop("category_name", None)
+
+                    # #remove extra fields
+                    # for v in product_fields:
+                    #     if(v not in row.keys()):
+                    #         row.pop(v, None)
+                    # cdebug(row,'Line:86')
+                    # cdebug(product_fields)
+
+                    """ Select Outlet Type or Skip  """
+                    if(row['category'] != ''):
                         try:
-                            category_qs = Category.objects.get(country=upload.country, code__iexact=category_code)
-                        except Category.DoesNotExist:
-                            category_qs = None
-
-                    if(category_qs is None):
-                        log += printr('skip category: ' + category_code)
+                            row['category_id'] = category_list[str(row['category']).lower()]
+                        except KeyError:
+                            log += printr(f'category not exist at: {n}')
+                            skiped_records+=1
+                            continue
+                    else:
+                        log += printr(f'category is empty at row at: {n}')
                         skiped_records+=1
                         continue
+                    del row['category']
 
-                    row['category'] = category_qs
+                    # extra_count = 1
+                    # max_extra = 30
+                    # for key, val in list(temp_row.items()):
+                    #     if('extra' in key and extra_count <= max_extra):
+                    #         # print(key,val)
+                    #         extra  = key.replace('extra_','')
+                    #         extra  = extra.replace('_', ' ')
+                    #         extra  = extra.title()
 
-                    extra_count = 1
-                    max_extra = 30
-                    for key, val in list(temp_row.items()):
-                        if('extra' in key and extra_count <= max_extra):
-                            # print(key,val)
-                            extra  = key.replace('extra_','')
-                            extra  = extra.replace('_', ' ')
-                            extra  = extra.title()
+                    #         col_name = 'extra_'+str(extra_count)
 
-                            col_name = 'extra_'+str(extra_count)
+                    #         row[col_name] = val
+                    #         cdebug(key,'row')
+                    #         del row[key]
+                    #         if n==1:
+                    #             col_label_qs, created = ColLabel.objects.update_or_create(
+                    #                 country=upload.country, model_name=ColLabel.Product,col_name=col_name,
+                    #                 defaults={'col_label':extra},
+                    #             )
 
-                            row[col_name] = val
-                            cdebug(key,'row')
-                            del row[key]
-                            if n==1:
-                                col_label_qs, created = ColLabel.objects.update_or_create(
-                                    country=upload.country, model_name=ColLabel.Product,col_name=col_name,
-                                    defaults={'col_label':extra},
-                                )
+                    #         extra_count += 1
+                    new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
 
-                            extra_count += 1
-
-
-                    cdebug(row)
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
 
                         # In this case, if the Person already exists, its existing name is preserved
                         obj, created = Product.objects.get_or_create(
                             country=upload.country, code=product_code,
-                            defaults=row
+                            defaults=new_row
                         )
                         if(created): created_records+=1
 
@@ -130,29 +139,30 @@ class Command(BaseCommand):
                         # In this case, if the Person already exists, its name is updated
                         obj, created = Product.objects.update_or_create(
                             country=upload.country, code=product_code,
-                            defaults=row
+                            defaults=new_row
                         )
                         if(created): created_records+=1
                         else: updated_records+=1
 
-
+                    upload.skiped_records = skiped_records
+                    upload.created_records = created_records
+                    upload.updated_records = updated_records
+                    upload.save()
 
             logger.error('CSV file processed successfully.')
             log += 'CSV file processed successfully.'
-            log += printr("Total time spent: %s seconds" % (time.time() - start_time))
+            log += printr("Total time spent: %s seconds" % (convertSecond2Min(time.time() - start_time)))
             upload.is_processing = Upload.COMPLETED
             upload.process_message = "CSV file processed successfully."
             upload.log  = log
-            upload.skiped_records = skiped_records
-            upload.created_records = created_records
-            upload.updated_records = updated_records
             upload.save()
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-            logger.error('CSV file processing failed. Error Msg:'+ str(e))
+            print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
+            logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
+            cdebug(row,'row')
             log += 'CSV file processing failed. Error Msg:'+ str(e)
             upload.is_processing = Upload.ERROR
             upload.process_message = "CSV file processing failed. Error Msg:"+str(e)

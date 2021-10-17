@@ -17,6 +17,8 @@ class Command(BaseCommand):
             Category.objects.filter(country=upload.country).delete()
 
 
+        # Get Valid Model Fields
+        valid_fields = modelValidFields("Category")
 
         # print(Colors.BRIGHT_PURPLE,form_obj.file)
         try:
@@ -29,34 +31,31 @@ class Command(BaseCommand):
                     print(n,end=' ',flush=True)
                     row = {k.strip(): v.strip() for (k, v) in row.items()}
 
-                    code = row['code']
+                    row['upload'] = upload
+                    row['code'] = row.pop("category_code", None)
+                    row['name'] = row.pop("category_name", None)
 
                     if(row['is_active'].lower() in ['t','y','yes','',1,'1','']):
-                        is_active = True
+                        row['is_active'] = True
                     else:
-                        is_active = False
+                        row['is_active'] = False
 
 
                     parent = None
                     if(row['parent']!=''):
                         try:
-                            parent = Category.objects.get(country=upload.country, code__iexact=row['parent'])
+                            row['parent'] = Category.objects.get(country=upload.country, code__iexact=row['parent'])
                         except Category.DoesNotExist:
                             parent = None
 
+                    new_row = { key:value for (key,value) in row.items() if key in valid_fields}
 
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
                         # In this case, if the Person already exists, its existing name is preserved
                         category, created = Category.objects.get_or_create(
 
                             country=upload.country, code__iexact=row['code'],
-                            defaults={
-                                'upload': upload,
-                                'name':row['name'],
-                                'description':row['description'],
-                                'is_active': is_active,
-                                'parent': parent,
-                            },
+                            defaults=new_row
 
                         )
 
@@ -65,13 +64,7 @@ class Command(BaseCommand):
                         # In this case, if the Person already exists, its name is updated
                         category, created = Category.objects.update_or_create(
                             country=upload.country,code__iexact=row['code'],
-                            defaults={
-                                'upload': upload,
-                                'name':row['name'],
-                                'description':row['description'],
-                                'is_active': is_active,
-                                'parent': parent,
-                            },
+                            defaults=new_row
                         )
 
                     n+=1

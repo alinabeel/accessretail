@@ -72,16 +72,21 @@ class Command(BaseCommand):
 
                     n+=1
 
+
             logger.error('CSV file processed successfully.')
+            log += 'CSV file processed successfully.'
+            log += printr("Total time spent: %s seconds" % (convertSecond2Min(time.time() - start_time)))
             upload.is_processing = Upload.COMPLETED
             upload.process_message = "CSV file processed successfully."
+            upload.log  = log
             upload.save()
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-            print(('CSV file processing failed at %s Error Msg: %s')%(n,str(e)))
-            cdebug(row)
+            print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
+            logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
+            cdebug(row,'row')
             log += 'CSV file processing failed. Error Msg:'+ str(e)
             upload.is_processing = Upload.ERROR
             upload.process_message = "CSV file processing failed. Error Msg:"+str(e)

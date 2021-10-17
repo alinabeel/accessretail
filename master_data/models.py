@@ -133,11 +133,16 @@ class Tehsil(CodeNameMixIn,CreateUpdateMixIn,models.Model):
         verbose_name = 'Tehsil'
         verbose_name_plural = 'Tehsils'
 
-class CityVillage(CodeNameMixIn,CreateUpdateMixIn,CityVillageMixIn,models.Model):
+class CityVillageDefault(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
     tehsil = models.ForeignKey(Tehsil, on_delete=models.CASCADE)
     rc_cut =  models.CharField(max_length=500, null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+class CityVillage(CodeNameMixIn,CityVillageDefault,CityVillageMixIn,CreateUpdateMixIn,models.Model):
 
     def __str__(self):
         return self.name
@@ -341,7 +346,7 @@ class OutletStatus(CodeNameMixIn,CreateUpdateMixIn,models.Model):
         verbose_name = 'OutletStatus'
         verbose_name_plural = 'OutletStatuses'
 
-class PanelProfile(CreateUpdateMixIn,PanelProfileMixIn,models.Model):
+class PanelProfileDefault(models.Model):
     AUDITED = 'A'
     COPIED = 'C'
     ESTIMATED = 'E'
@@ -380,6 +385,10 @@ class PanelProfile(CreateUpdateMixIn,PanelProfileMixIn,models.Model):
     audit_status = models.CharField(max_length=1, choices=AUDIT_STATUS_CHOICES,default=AUDITED)
 
     class Meta:
+        abstract = True
+
+class PanelProfile(PanelProfileDefault,PanelProfileMixIn,CreateUpdateMixIn,models.Model):
+    class Meta:
         unique_together = (('country','outlet', 'month','index'))
         db_table = 'panel_profile'
         verbose_name = 'PanelProfile'
@@ -389,8 +398,7 @@ class PanelProfile(CreateUpdateMixIn,PanelProfileMixIn,models.Model):
         return self.outlet.code
 
 
-
-class Product(CodeNameMixIn,CreateUpdateMixIn,ProductMixin,models.Model):
+class ProductDefault(models.Model):
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
@@ -411,7 +419,10 @@ class Product(CodeNameMixIn,CreateUpdateMixIn,ProductMixin,models.Model):
     weight = models.DecimalField(max_digits=18,decimal_places=6, null=True, blank=True)
     number_in_pack = models.IntegerField(null=True, blank=True)
     price_per_unit = models.DecimalField(max_digits=18,decimal_places=6, null=True, blank=True)
+    class Meta:
+        abstract = True
 
+class Product(CreateUpdateMixIn,CodeNameMixIn,ProductDefault,ProductMixin,models.Model):
     class Meta:
         unique_together = (('country','code'))
         db_table = 'product'
@@ -422,7 +433,7 @@ class Product(CodeNameMixIn,CreateUpdateMixIn,ProductMixin,models.Model):
         return self.country
 
 
-class ProductAudit(CreateUpdateMixIn,models.Model):
+class AuditData(CreateUpdateMixIn,models.Model):
     AUDITED = 'A'
     COPIED = 'C'
     ESTIMATED = 'E'
@@ -436,11 +447,11 @@ class ProductAudit(CreateUpdateMixIn,models.Model):
     upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
     month = models.ForeignKey(Month,on_delete=models.CASCADE)
 
-    period = models.CharField(max_length=50, null=True, blank=True)
-
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     outlet = models.ForeignKey(Outlet, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    period = models.CharField(max_length=50, null=True, blank=True)
 
     audit_date = models.DateField(null=True, blank=True)
     purchase_1 = models.IntegerField(default=0,null=True, blank=True)
@@ -464,51 +475,9 @@ class ProductAudit(CreateUpdateMixIn,models.Model):
     sales_val = models.DecimalField(default=0,max_digits=18,decimal_places=6,)
     audit_status = models.CharField(max_length=1, choices=AUDIT_STATUS_CHOICES,default=AUDITED)
 
-    # product_details = models.TextField(null=True, blank=True)
-    # avaibility = models.BooleanField(default=True)
-    # facing_empty = models.IntegerField(default=0,null=True, blank=True)
-    # facing_not_empty = models.IntegerField(default=0)
-    # forward = models.IntegerField(default=0)
-    # reserve = models.IntegerField(default=0)
-    # total_none_empty_facing_forward_reserve = models.IntegerField(default=0)
-    # purchaseother1 = models.IntegerField(default=0)
-    # purchaseother2 = models.IntegerField(default=0)
-    # purchasediary = models.IntegerField(default=0)
-    # purchaseinvoice = models.IntegerField(default=0)
-    # price_in_unit = models.DecimalField(max_digits=18,decimal_places=6,)
-    # price_in_pack = models.DecimalField(max_digits=18,decimal_places=6,)
-    # priceother = models.DecimalField(max_digits=18,decimal_places=6,)
-    # cash_discount = models.DecimalField(max_digits=18,decimal_places=6,)
-    # product_foc = models.IntegerField(default=0)
-    # gift_with_purchase = models.IntegerField(default=0)
-    # appreciation_award = models.IntegerField(default=0)
-    # other_trade_promotion = models.IntegerField(default=0)
-
-    # sales_unprojected_volume = models.DecimalField(max_digits=18,decimal_places=6,default=0)
-    # sales_unprojected_value = models.DecimalField(max_digits=18,decimal_places=6,default=0)
-    # sales_unprojected_units = models.DecimalField(max_digits=18,decimal_places=6,default=0)
-
-    # sales_projected_volume = models.DecimalField(max_digits=18,decimal_places=6,default=0)
-    # sales_projected_value = models.DecimalField(max_digits=18,decimal_places=6,default=0)
-    # sales_projected_units = models.DecimalField(max_digits=18,decimal_places=6,default=0)
-
-    # pack_without_graphic_health_warning = models.IntegerField(default=0,)
-    # no_of_pack_without_graphic_health_warning_facing = models.IntegerField(default=0)
-    # no_of_pack_without_graphic_health_warning_total_stock = models.IntegerField(default=0)
-    # no_of_pack_without_none_tax_stamp = models.IntegerField(default=0)
-    # point_of_sales_signboard = models.IntegerField(default=0)
-    # point_of_sales_poster = models.IntegerField(default=0)
-    # point_of_sales_counter_shield = models.IntegerField(default=0)
-    # point_of_sales_price_sticker = models.IntegerField(default=0)
-    # point_of_sales_umbrella = models.IntegerField(default=0)
-    # point_of_sales_counter_top_display = models.IntegerField(default=0)
-    # point_of_sales_lighter = models.IntegerField(default=0)
-    # point_of_sales_others = models.IntegerField(default=0)
-    # point_of_sales_none = models.IntegerField(default=0)
-
     class Meta:
         unique_together = (('country','outlet','product','month'))
-        db_table = 'product_audit'
+        db_table = 'audit_data'
         verbose_name = 'Audit Data'
         verbose_name_plural = 'Audit Data'
 

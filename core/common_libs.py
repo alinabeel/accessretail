@@ -8,7 +8,7 @@ import logging
 from inspect import CO_OPTIMIZED
 from csv import DictReader
 from collections import OrderedDict
-from dateutil.relativedelta import *
+from dateutil.relativedelta import relativedelta
 from dateutil.rrule import *
 from dateutil.parser import *
 from dateutil import parser
@@ -32,5 +32,5 @@ from core.utils import (trace,prettyprint_query,prettyprint_queryset,
 
 from core.helpers import (getDictArray,getDicGroupList,getGroupFilter,getGroupFilterHuman,
             dropzeros,remove_exponent,getCategories,getMonths,modelValidFields,modelForeignFields,
-            uploadStatusMessage,IdCodeModel,chkMonthLocked)
+            uploadStatusMessage,IdCodeModel,chkMonthLocked,getCode2AnyModelFieldList)
 logger = logging.getLogger(__name__)

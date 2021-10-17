@@ -49,8 +49,8 @@ class Command(BaseCommand):
             #Cell Query List
             queryList = Cell.objects.all().filter(country_id = country_id, id__in=rbd_cells).order_by('name')
 
-            #Product Audit Query List
-            queryListPA = ProductAudit.objects.all().filter(country_id = country_id, category=category)
+            #Audit  Data Query List
+            queryListPA = AuditData.objects.all().filter(country_id = country_id, category=category)
             # prettyprint_queryset(queryListPA)
             # exit()
             super_manufacture = Product.objects.filter(country_id = country_id, category=category).exclude(super_manufacture=None) \

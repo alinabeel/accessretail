@@ -29,7 +29,7 @@ class Command(BaseCommand):
 
 
         # valid_fields = []
-        # skip_cols = ['id','pk','country','category','productaudit','upload','created','updated',]
+        # skip_cols = ['id','pk','country','category','AuditData','upload','created','updated',]
         # for field in PanelProfile._meta.get_fields():
         #     if(field.name not in skip_cols):
         #         if(field.name in skip_cols): continue
@@ -72,34 +72,10 @@ class Command(BaseCommand):
                     row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
                     row["upload"] = upload
 
-                    # ['month', 'index', 'category', 'city_village', 'outlet', 'outlet_type', 'outlet_status']
-
                     # Conver Foreign fields into row
                     for ff in foreign_fields:
                         if f"{ff}_code" in row:
                             row[f"{ff}"] = row.pop(f"{ff}_code", None)
-
-
-                    audit_date = row['audit_date']
-
-                    # month_code = row['month_code']
-                    # category = row['category']
-                    # index = row['index']
-                    # city_village_code = row['city_village_code']
-
-
-                    # outlet_code = row['outlet_code']
-                    # outlet_type_code = row['outlet_type_code']
-                    # outlet_status_code = row['outlet_status_code']
-
-
-                    # del row["month_code"]
-                    # del row["index"]
-                    # del row["category"]
-                    # del row["outlet_code"]
-                    # del row["outlet_type_code"]
-                    # del row["outlet_status_code"]
-                    # del row["city_village_code"]
 
                     """Get Month"""
                     if(row['month'] != ''):
@@ -161,50 +137,6 @@ class Command(BaseCommand):
                         continue
                     del row['outlet_status']
 
-                    # row.pop(row['outlet_status'])
-                    # print(row['outlet_status_id'])
-                    # exit()
-                    # row['outlet_status'] = outlet_status_qs
-
-                    # """ Select Inex or Skip  """
-                    # index_qs = None
-                    # if(row['index'] != ''):
-                    #     try:
-                    #         index_qs = IndexSetup.objects.filter(
-                    #                             Q(country=upload.country) &
-                    #                             Q(code__iexact = row['index'])).get()
-                    #     except IndexSetup.DoesNotExist:
-                    #         log += printr('index code not exist: '+row['index'])
-                    #         skiped_records+=1
-                    #         continue
-                    # else:
-                    #     skiped_records+=1
-                    #     log += printr('index code is empty: '+row['index'])
-                    #     continue
-
-                    # row['index'] = index_qs
-
-                    # """ Select Category or Skip  """
-                    # category_qs = None
-                    # if(row['category'] != ''):
-                    #     try:
-                    #         category_qs = Category.objects.filter(
-                    #                             Q(country=upload.country) &
-                    #                             Q(code__iexact=str(row['category']))).get()
-                    #     except Category.DoesNotExist:
-                    #         log += printr('category code not exist: '+row['category'])
-                    #         skiped_records+=1
-                    #         continue
-                    # else:
-                    #     skiped_records+=1
-                    #     log += printr('category code is empty: '+row['category'])
-                    #     continue
-
-                    # row['category'] = category_qs
-
-
-
-
                     """ Select CityVillage or Skip  """
                     city_village_qs = None
                     if(row['city_village'] != ''):
@@ -221,11 +153,17 @@ class Command(BaseCommand):
                     del row['city_village']
 
                     """Get or Create Outlet Object"""
-                    outlet_obj, created = Outlet.objects.get_or_create(
-                        country=upload.country, code__iexact=str(row['outlet']),
-                        defaults={'code':row['outlet'],}
-                    )
-                    row['outlet'] = outlet_obj
+
+                    if('outlet' in row and row['outlet'] != ''):
+                        outlet_obj, created = Outlet.objects.get_or_create(
+                            country=upload.country, code__iexact=str(row['outlet']),
+                            defaults={'code':row['outlet'],}
+                        )
+                        row['outlet'] = outlet_obj
+                    else:
+                        log += printr(f'outlet is empty at row at: {n}')
+                        skiped_records+=1
+                        continue
 
                     new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
 
@@ -252,9 +190,6 @@ class Command(BaseCommand):
                     upload.created_records = created_records
                     upload.updated_records = updated_records
                     upload.save()
-
-
-
 
 
             logger.error('CSV file processed successfully.')

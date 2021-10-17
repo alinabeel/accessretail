@@ -4,6 +4,7 @@ import json
 import csv
 from django.contrib import messages
 from django.db import models
+from dateutil.relativedelta import relativedelta
 from django.db.models import Q, Avg, Count, Min,Max, Sum
 from decimal import Decimal
 from django.http import (HttpResponseRedirect,HttpResponse,JsonResponse)
@@ -161,15 +162,41 @@ def uploadStatusMessage(self,country_id,frommodel):
         elif upload.is_processing in (Upload.PROCESSING,Upload.UPLOADING):
             messages.add_message(self.request, messages.INFO, str(upload.is_processing +' : '+ upload.process_message))
 
-def IdCodeModel(country_id,model):
-    objs = eval(f"{model}").objects.filter(country=country_id).values('id','code')
+def IdCodeModel(country_qs,model):
+    objs = eval(f"{model}").objects.filter(country=country_qs).values('id','code')
     result = dict()
     for obj in objs:
         result[str(obj['code']).lower()] = obj['id']
     return result
-def chkMonthLocked(country_id):
-    objs = Month.objects.filter(country=country_id).values('code','is_locked')
+
+def getCode2AnyModelFieldList(country_qs,model,field):
+    objs = eval(f"{model}").objects.filter(country=country_qs).values('code',f"{field}")
+    result = dict()
+    for obj in objs:
+        result[str(obj['code']).lower()] = obj[f"{field}"]
+    return result
+
+
+def chkMonthLocked(country_qs):
+    objs = Month.objects.filter(country=country_qs).values('code','is_locked')
     result = dict()
     for obj in objs:
         result[str(obj['code']).lower()] = obj['is_locked']
     return result
+
+def getPrvMonthDate(country_qs,current_month_id,outlet_id):
+
+    # NOW = datetime.date.today().replace(day=1)
+    # previous_month = NOW + relativedelta(months=-1)
+
+    month_obj = Month.objects.filter(country=country_qs, id=current_month_id).values('code','is_locked').first()
+    current_month_qs = month_obj
+
+    current_month = current_month_qs.date
+    previous_month = current_month + relativedelta(months=-1)
+
+    try:
+        previous_month_qs = Month.objects.get(country=country_qs, date=previous_month)
+    except Month.DoesNotExist:
+        previous_month_qs = None
+

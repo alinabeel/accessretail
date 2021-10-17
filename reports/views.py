@@ -543,8 +543,8 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
             if export is False:
                 queryList = queryList[0:1]
 
-            #Product Audit Query List
-            queryListPA = ProductAudit.objects.all().filter(country = country)
+            #Audit  Data Query List
+            queryListPA = AuditData.objects.all().filter(country = country)
 
             #Calculate Previous Month, Next Month
             audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('-audit_date')[0:2]
@@ -687,7 +687,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
                             Unprojected Sales (Volume)	Unprojected Sales (Value)	projected Sales (Volume)	projected Sales (Value)
                         """
 
-                        #Get outlets from Product Audit
+                        #Get outlets from Audit  Data
                         #--- Only This Changed to individulal outlet rest remains same ---
                         # outlet_id = queryListPPCellPrevious[i].outlet.id
                         # outlet_code = queryListPPCellPrevious[i].outlet.code
@@ -763,7 +763,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
                             Unprojected Sales (Volume)	Unprojected Sales (Value)	projected Sales (Volume)	projected Sales (Value)
                         """
 
-                        #Get outlets from Product Audit
+                        #Get outlets from Audit  Data
                         #--- Only This Changed to individulal outlet rest remains same ---
                         # outlet_id = queryListPPCellCurrent[i].outlet.id
                         # outlet_code = queryListPPCellCurrent[i].outlet.code
@@ -1108,15 +1108,15 @@ class SampleMaintenanceCopyViewAjax(LoginRequiredMixin, generic.CreateView):
         #     r.save()
         # print('PE')
 
-        # pp = ProductAudit.objects.filter(month__code='JAN-21')
+        # pp = AuditData.objects.filter(month__code='JAN-21')
         # for r in pp:
         #     r.audit_date = datetime(2021, 1, 1)
         #     r.save()
-        # pp = ProductAudit.objects.filter(month__code='FEB-21')
+        # pp = AuditData.objects.filter(month__code='FEB-21')
         # for r in pp:
         #     r.audit_date = datetime(2021, 2, 1)
         #     r.save()
-        # pp = ProductAudit.objects.filter(month__code='MAR-21')
+        # pp = AuditData.objects.filter(month__code='MAR-21')
         # for r in pp:
         #     r.audit_date = datetime(2021, 3, 1)
         #     r.save()
@@ -1138,11 +1138,11 @@ class SampleMaintenanceCopyViewAjax(LoginRequiredMixin, generic.CreateView):
         obj.month = date_arr_obj[0]
         obj.save()
 
-        objs = ProductAudit.objects.filter(outlet__id=outlet_from, month__code=month_from)
+        objs = AuditData.objects.filter(outlet__id=outlet_from, month__code=month_from)
         for obj in objs:
             obj.pk = None # New Copy
             obj.outlet_id  = outlet_to
-            obj.audit_status  = ProductAudit.COPIED
+            obj.audit_status  = AuditData.COPIED
             obj.audit_date = obj.audit_date+timedelta(days=30)
             obj.month = date_arr_obj[0]
             obj.save()
@@ -1165,15 +1165,15 @@ class SampleMaintenanceCopyViewAjax(LoginRequiredMixin, generic.CreateView):
         #     r.audit_date = datetime(2021, 8, 1)
         #     r.save()
 
-        # pp = ProductAudit.objects.filter(month__code='30')
+        # pp = AuditData.objects.filter(month__code='30')
         # for r in pp:
         #     r.audit_date = datetime(2021, 6, 1)
         #     r.save()
-        # pp = ProductAudit.objects.filter(month__code='31')
+        # pp = AuditData.objects.filter(month__code='31')
         # for r in pp:
         #     r.audit_date = datetime(2021, 7, 1)
         #     r.save()
-        # pp = ProductAudit.objects.filter(month__code='32')
+        # pp = AuditData.objects.filter(month__code='32')
         # for r in pp:
         #     r.audit_date = datetime(2021, 8, 1)
         #     r.save()
@@ -1225,11 +1225,11 @@ class SampleMaintenanceEstimateViewAjax(LoginRequiredMixin, generic.CreateView):
         obj.month = date_arr_obj[0]
         obj.save()
 
-        objs = ProductAudit.objects.filter(outlet__id=outlet_from, month__code=month_from)
+        objs = AuditData.objects.filter(outlet__id=outlet_from, month__code=month_from)
         for obj in objs:
             obj.pk = None # New Copy
             obj.outlet_id  = outlet_to
-            obj.audit_status  = ProductAudit.ESTIMATED
+            obj.audit_status  = AuditData.ESTIMATED
             obj.audit_date = obj.audit_date+timedelta(days=30)
             obj.month = date_arr_obj[0]
             obj.save()

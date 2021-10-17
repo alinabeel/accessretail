@@ -49,8 +49,8 @@ class Command(BaseCommand):
             #Cell Query List
             queryList = Cell.objects.all().filter(country = country, id__in=rbd_cells).order_by('name')
 
-            #Product Audit Query List
-            queryListPA = ProductAudit.objects.all().filter(country = country, category=category)
+            #Audit  Data Query List
+            queryListPA = AuditData.objects.all().filter(country = country, category=category)
             cdebug(len(queryListPA),'total audit data')
             # prettyprint_queryset(queryListPA)
             # exit()
@@ -63,8 +63,8 @@ class Command(BaseCommand):
             #Cell Query List
             # queryList = Cell.objects.all().filter(country = country).order_by('rbd__name')
 
-            #Product Audit Query List
-            # queryListPA = ProductAudit.objects.all().filter(country = country)
+            #Audit  Data Query List
+            # queryListPA = AuditData.objects.all().filter(country = country)
 
             #Calculate Previous Month, Next Month
             # audit_date_qs = PanelProfile.objects.all().filter(country = country).values('month__date').annotate(current_month=Max('audit_date')).order_by('-audit_date')[0:2]
@@ -191,7 +191,7 @@ class Command(BaseCommand):
                     Unprojected Sales (Volume)	Unprojected Sales (Value)	projected Sales (Volume)	projected Sales (Value)
                 """
 
-                #Get outlets from Product Audit
+                #Get outlets from Audit  Data
                 agg_sum_sales_previous = queryListPAAllPrevious \
                                             .filter(outlet__id__in = queryListPPCellPrevious.values_list('outlet_id', flat=True) ) \
                                             .aggregate(
@@ -255,7 +255,7 @@ class Command(BaseCommand):
                     Unprojected Sales (Volume)	Unprojected Sales (Value)	projected Sales (Volume)	projected Sales (Value)
                 """
 
-                #Get outlets from Product Audit
+                #Get outlets from Audit  Data
                 agg_sum_sales_current = queryListPAAllCurrent \
                                                 .filter(outlet__id__in = queryListPPCellCurrent.values_list('outlet_id', flat=True) ) \
                                                 .aggregate(

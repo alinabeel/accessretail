@@ -125,9 +125,8 @@ class CensusListView(LoginRequiredMixin, generic.TemplateView):
         censusupload = Upload.objects.filter(
             country__id=self.request.session['country_id'], frommodel='census'
         ).last()
-        if(censusupload is not None and  censusupload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, messages.SUCCESS, censusupload.is_processing +' : '+ censusupload.process_message)
 
+        uploadStatusMessage(self,self.request.session['country_id'],'census')
 
         context.update({
             "censusupload": censusupload,
@@ -261,12 +260,7 @@ class CategoryListView(LoginRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CategoryListView, self).get_context_data(**kwargs)
-        upload = Upload.objects.filter(
-            country__id=self.request.session['country_id'], frommodel='category'
-        ).last()
-        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
-
+        uploadStatusMessage(self,self.request.session['country_id'],'category')
         return context
 
 class CategoryCreateView(LoginRequiredMixin, generic.CreateView):
@@ -359,6 +353,7 @@ class PanelProfileListViewAjax(AjaxDatatableView):
 
             # {'name': 'Category Code', 'foreign_field': 'category__code', },
             # {'name': 'Category Name', 'foreign_field': 'category__name','choices': True, 'autofilter': True, },
+            {'name': 'Outlet Id', 'foreign_field': 'outlet__id', },
             {'name': 'Outlet Code', 'foreign_field': 'outlet__code', },
 
             {'name': 'Outlet Type Code', 'foreign_field': 'outlet_type__code', },
@@ -460,6 +455,7 @@ class PanelProfileUpdateView(LoginRequiredMixin, generic.CreateView):
         form_obj.is_processing = Upload.PROCESSING
         form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
+        form_obj.index_id = self.request.session['index_id']
         form_obj.frommodel = "panel_profile_update"
         form_obj.save()
 
@@ -527,7 +523,7 @@ class PanelProfileDeleteView(LoginRequiredMixin, generic.DeleteView):
         month_id = pp.month_id
         outlet_id = pp.outlet_id
         cdebug(outlet_id)
-        ProductAudit.objects.filter(country=country,outlet__id = outlet_id, month__id = month_id).delete()
+        AuditData.objects.filter(country=country,outlet__id = outlet_id, month__id = month_id).delete()
 
         queryset =  PanelProfile.objects.filter(
             country__id=self.request.session['country_id'],
@@ -668,12 +664,7 @@ class UsableOutletListView(LoginRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
-        upload = Upload.objects.filter(
-            country__id=self.request.session['country_id'], frommodel='usable_outlet'
-        ).last()
-        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
-
+        uploadStatusMessage(self,self.request.session['country_id'],'usable_outlet')
         return context
 
 class UsableOutletStatus(LoginRequiredMixin, generic.CreateView):
@@ -858,34 +849,31 @@ class ProductListViewAjax(AjaxDatatableView):
         self.column_defs = [
             AjaxDatatableView.render_row_tools_column_def(),
             {'name': 'id','title':'ID', 'visible': True, },
-            {'name': 'code',  },
-            {'name': 'category code','foreign_field': 'category__code', },
-            {'name': 'category name','foreign_field': 'category__name', 'choices': True, 'autofilter': True,},
+            {'name': 'code','title':'Product Code'},
+            {'name': 'Category Code','foreign_field': 'category__code', },
+            {'name': 'Category Name','foreign_field': 'category__name', 'choices': True, 'autofilter': True,},
         ]
         # ('barcode', 'sku', 'brand', 'variant', 'size', 'packaging', 'weight', 'origin', 'country', 'manufacture', 'price_segment', 'super_manufacture', 'super_brand', 'weight', 'number_in_pack', 'price_per_unit', )
 
-        skip_cols = ['id','pk','code','category','productaudit','country','upload','created','updated',]
+        skip_cols = ['id','pk','code','name','created','updated',]
 
-        # for v in Product._meta.get_fields():
-        #     if(v.name not in skip_cols):
-        #         column_defs.append({'name':v.name})
-
-        # ('index', 'category', 'hand_nhand', 'region', 'city_village', 'outlet', 'outlet_type', 'outlet_status', , )
-        for v in Product._meta.get_fields():
-            if(v.name in skip_cols):
-                continue
-
+        for field in Product._meta.get_fields():
+            if(field.name in skip_cols): continue
+            if isinstance(field, models.ForeignKey): continue
+            if isinstance(field, models.ManyToManyRel): continue
+            if isinstance(field, models.ManyToOneRel): continue
             try:
-                col_label = ColLabel.objects.only("col_label").get(
-                    country__code = self.kwargs['country_code'],
+                col_label = ColLabel.objects.get(
+                    country_id = self.request.session['country_id'],
                     model_name = ColLabel.Product,
-                    col_name = v.name
+                    col_name = field.name
                 )
             except ColLabel.DoesNotExist:
                 col_label = None
 
-            title = col_label.col_label if col_label else v.name
-            self.column_defs.append({'name': v.name,'title':title, })
+            title = col_label.col_label if col_label else field.name
+            title = title if title != '' else field.name
+            self.column_defs.append({'name': field.name,'title':title, })
 
         return self.column_defs
 
@@ -912,19 +900,12 @@ class ProductListView(LoginRequiredMixin, generic.TemplateView):
     }
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
-
-        upload = Upload.objects.filter(
-            country__id=self.request.session['country_id'], frommodel='product'
-        ).last()
-
-        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, f"{messages}.{upload.is_processing}", str(upload.is_processing +' : '+ upload.process_message))
-
+        uploadStatusMessage(self,self.request.session['country_id'],'product')
         return context
 
 """ ------------------------- Audit Data ------------------------- """
 
-class ProductAuditImportView(LoginRequiredMixin, generic.CreateView):
+class AuditDataImportView(LoginRequiredMixin, generic.CreateView):
     template_name = "generic_import.html"
     PAGE_TITLE = "Import Audit Data"
     extra_context = {
@@ -945,23 +926,23 @@ class ProductAuditImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.index_id = self.request.session['index_id']
-        form_obj.frommodel = "product_audit"
+        form_obj.frommodel = "audit_data"
         form_obj.save()
 
         print(Colors.BLUE,form_obj.pk)
-        proc = Popen('python manage.py import_product_audit '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+        proc = Popen('python manage.py import_audit_data '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         return super(self.__class__, self).form_valid(form)
 
     def get_success_url(self):
 
         messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
-        return reverse("master-data:product-audit-list", kwargs={"country_code": self.kwargs["country_code"]})
+        return reverse("master-data:audit-data-list", kwargs={"country_code": self.kwargs["country_code"]})
 
 
 
-class ProductAuditListViewAjax(AjaxDatatableView):
-    model = ProductAudit
+class AuditDataListViewAjax(AjaxDatatableView):
+    model = AuditData
     title = 'Audit Data'
     initial_order = [["month", "asc"], ]
     length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
@@ -1017,8 +998,8 @@ class ProductAuditListViewAjax(AjaxDatatableView):
         return queryset
 
 
-class ProductAuditListView(LoginRequiredMixin, generic.TemplateView):
-    template_name = "master_data/product_audit_list.html"
+class AuditDataListView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "master_data/audit_data_list.html"
     PAGE_TITLE = "Audit Data"
     extra_context = {
         'page_title': PAGE_TITLE,
@@ -1027,11 +1008,7 @@ class ProductAuditListView(LoginRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
-        upload = Upload.objects.filter(
-            country__id=self.request.session['country_id'], frommodel='product_audit'
-        ).last()
-        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
+        uploadStatusMessage(self,self.request.session['country_id'],'audit_data')
 
         return context
 
@@ -2332,12 +2309,6 @@ class OutletTypeListView(LoginRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(OutletTypeListView, self).get_context_data(**kwargs)
         uploadStatusMessage(self,self.request.session['country_id'],'outlet_type')
-        # upload = Upload.objects.filter(
-        #     country__id=self.request.session['country_id'], frommodel='outlet_type'
-        # ).last()
-        # if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-        #     messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
-
         return context
 
 class OutletTypeCreateView(LoginRequiredMixin, generic.CreateView):

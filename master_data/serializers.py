@@ -46,9 +46,9 @@ class CategorySerializers(serializers.ModelSerializer):
         model = Category
         fields = '__all__'
 
-class ProductAuditSerializers(serializers.ModelSerializer):
+class AuditDataSerializers(serializers.ModelSerializer):
     class Meta:
-        model = ProductAudit
+        model = AuditData
         fields = '__all__'
 
 

@@ -76,9 +76,9 @@ urlpatterns += [
 
 """ Audit Data """
 urlpatterns += [
-    path('<slug:country_code>/product-audit-list-ajax/', ProductAuditListViewAjax.as_view(), name='product-audit-list-ajax'),
-    path('<slug:country_code>/product-audit-list/', ProductAuditListView.as_view(), name='product-audit-list'),
-    path('<slug:country_code>/product-audit-import/', ProductAuditImportView.as_view(), name='product-audit-import'),
+    path('<slug:country_code>/audit-data-list-ajax/', AuditDataListViewAjax.as_view(), name='audit-data-list-ajax'),
+    path('<slug:country_code>/audit-data-list/', AuditDataListView.as_view(), name='audit-data-list'),
+    path('<slug:country_code>/audit-data-import/', AuditDataImportView.as_view(), name='audit-data-import'),
 ]
 
 """ RBD """

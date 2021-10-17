@@ -31,8 +31,8 @@ from django.views import generic
 from rest_framework.generics import ListAPIView
 
 
-
-from core.helpers import getDictArray,getDicGroupList,getGroupFilter
+from core.helpers import *
+# from core.helpers import getDictArray,getDicGroupList,getGroupFilter
 from core.utils import prettyprint_queryset, trace, format_datetime,cdebug
 from core.colors import Colors
 from core.mixinsViews import PassRequestToFormViewMixin
@@ -44,7 +44,7 @@ from master_setups.forms import UserCreateModelForm,UserChangeModelForm,CountryM
                                 UserIndexModelForm
 
 from master_data.models import Upload,RegionType,Region,Category,IndexCategory,OutletType,Outlet, \
-                                CensusManager,Census,Month,UsableOutlet,PanelProfile,Product,ProductAudit, \
+                                CensusManager,Census,Month,UsableOutlet,PanelProfile,Product,AuditData, \
                                 RBD,Cell,Province,District,Tehsil,CityVillage,ColLabel,OutletStatus
 
 from master_data.forms import UploadCensusForm,CensusForm,UploadModalForm,UploadFormUpdate,CategoryListFormHelper, \
@@ -820,6 +820,7 @@ class RegionTypeImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.is_processing = Upload.PROCESSING
         form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
+        form_obj.index_id = self.request.session['index_id']
         form_obj.frommodel = "region_type"
         form_obj.save()
 
@@ -878,12 +879,7 @@ class RegionTypeListView(LoginRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
-        upload = Upload.objects.filter(
-            country__id=self.request.session['country_id'], frommodel='region_type'
-        ).last()
-        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
-
+        uploadStatusMessage(self,self.request.session['country_id'],'region_type')
         return context
 
 
@@ -975,6 +971,7 @@ class RegionImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.is_processing = Upload.PROCESSING
         form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
+        form_obj.index_id = self.request.session['index_id']
         form_obj.frommodel = "region"
         form_obj.save()
 
@@ -1035,12 +1032,7 @@ class RegionListView(LoginRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
-        upload = Upload.objects.filter(
-            country__id=self.request.session['country_id'], frommodel='region'
-        ).last()
-        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
-
+        uploadStatusMessage(self,self.request.session['country_id'],'region')
         return context
 
 
@@ -1143,6 +1135,7 @@ class MonthImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.is_processing = Upload.PROCESSING
         form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
+        form_obj.index_id = self.request.session['index_id']
         form_obj.frommodel = "month"
         form_obj.save()
 
@@ -1202,11 +1195,7 @@ class MonthListView(LoginRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
-        upload = Upload.objects.filter(
-            country__id=self.request.session['country_id'], frommodel='month'
-        ).last()
-        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
+        uploadStatusMessage(self,self.request.session['country_id'],'month')
 
         return context
 
@@ -1318,6 +1307,7 @@ class CodeFrameImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.is_processing = Upload.PROCESSING
         form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
+        form_obj.index_id = self.request.session['index_id']
         form_obj.frommodel = "code_frame"
         form_obj.save()
 
@@ -1343,12 +1333,7 @@ class CodeFrameListView(LoginRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
-        upload = Upload.objects.filter(
-            country__id=self.request.session['country_id'], frommodel='code_frame'
-        ).last()
-        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
-
+        uploadStatusMessage(self,self.request.session['country_id'],'code_frame')
         return context
 
 class CodeFrameListViewAjax(AjaxDatatableView):
@@ -1452,12 +1437,7 @@ class OutletStatusListView(LoginRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
-        upload = Upload.objects.filter(
-            country__id=self.request.session['country_id'], frommodel='outlet_status'
-        ).last()
-        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
-
+        uploadStatusMessage(self,self.request.session['country_id'],'outlet_status')
         return context
 
 
@@ -1665,7 +1645,7 @@ class ResetDBView(LoginRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
 
-        mastert_data = ['RBD','Cell','Product','ProductAudit','PanelProfile','Outlet','UsableOutlet']
+        mastert_data = ['RBD','Cell','Product','AuditData','PanelProfile','Outlet','UsableOutlet']
         # mastert_setups = ['Upload','Province','District','Tehsil','CityVillage','Category','IndexCategory','OutletType','Census','Month','OutletStatus','ColLabel',]
 
         context.update({
@@ -1682,12 +1662,13 @@ class ResetDBView(LoginRequiredMixin, generic.TemplateView):
         reset = self.request.POST
         for key, value in reset.items():
             if key in 'csrfmiddlewaretoken': continue
+
             if key in ('RBD','Cell','PanelProfile','UsableOutlet'):
                 eval(f"{key}").objects \
                     .filter(country__id = country_id,
                             index__id = index_id
                     ).delete()
-            elif key in ('Product','ProductAudit','PanelProfile',):
+            elif key in ('Product','AuditData','PanelProfile',):
                 if len(index_category) <= 0: continue
                 eval(f"{key}").objects \
                     .filter(country__id = country_id,

@@ -224,7 +224,7 @@ DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_EXTRA = [
                         'master_data.PanelProfile',
                         'master_data.UsableOutlet',
                         'master_data.Product',
-                        'master_data.ProductAudit',
+                        'master_data.AuditData',
                         ]
 
 # AJAX_DATATABLE_MAX_COLUMNS = 100

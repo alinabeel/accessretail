@@ -23,18 +23,8 @@ class Command(BaseCommand):
         if(upload.import_mode == Upload.REFRESH):
             Cell.objects.filter(country=upload.country,index=upload.index).delete()
 
-        valid_fields = []
-        skip_cols = ['id','pk','country','created','updated',]
-        for field in Cell._meta.get_fields():
-            if(field.name not in skip_cols):
-                if(field.name in skip_cols): continue
-                # if isinstance(field, models.ForeignKey): continue
-                if isinstance(field, models.ManyToManyRel): continue
-                if isinstance(field, models.ManyToOneRel): continue
-                valid_fields.append(field.name)
-
-        # print(Colors.BRIGHT_PURPLE,valid_fields)
-        # exit()
+        # Get Valid Model Fields
+        valid_fields = modelValidFields("Cell")
 
         try:
             with open(MEDIA_ROOT+'/'+str(upload.file), 'r',encoding='utf-8-sig') as read_obj:
