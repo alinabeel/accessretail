@@ -1,27 +1,7 @@
-import re
-import time
-import datetime
-import sys, os
-import dateutil.parser
-from django.utils.dateparse import parse_date
-from django.core.management.base import BaseCommand
-from csv import DictReader
-from master_data.models import Upload,Province,District,Tehsil,CityVillage,ColLabel
-from master_setups.models import Country,IndexSetup
-import json
-from collections import OrderedDict
-from core.settings import MEDIA_ROOT
-from core.utils import cdebug, csvHeadClean,printr
-import logging
-logger = logging.getLogger(__name__)
-
-def cleanTemp(c):
-    # c = c.replace('(','')
-    # c = c.replace(')','')
-    # c = c.replace(',','')
-    c = c.strip()
-
-    return c
+from core.common_libs import *
+from master_setups.models import *
+from master_data.models import *
+from reports.models import *
 
 class Command(BaseCommand):
 
@@ -47,7 +27,9 @@ class Command(BaseCommand):
             Tehsil.objects.filter(country=upload.country).delete()
             CityVillage.objects.filter(country=upload.country).delete()
 
-        # printr(Colors.BRIGHT_PURPLE,form_obj.file)
+        # Get Valid Model Fields
+        valid_fields = modelValidFields("CityVillage")
+
         try:
             with open(MEDIA_ROOT+'/'+str(upload.file), 'r',encoding='utf-8-sig') as read_obj:
                 csv_reader = DictReader(read_obj)
@@ -58,10 +40,10 @@ class Command(BaseCommand):
 
                 for row in csv_reader:
                     n+=1
-                    city_village_row = dict()
-                    print(n,end=' ',flush=True)
-                    row = {csvHeadClean(k): cleanTemp(v) for (k, v) in row.items()}
+                    if n%500==0: print(n,end=' ',flush=True)
+                    row = {csvHeadClean(k): v.strip() for (k, v) in row.items()}
 
+                    city_village_row = dict()
                     province_code = row['province_code']
                     province_name = row['province_name']
                     district_code = row['district_code']
@@ -72,7 +54,6 @@ class Command(BaseCommand):
 
                     city_village_row['code'] = row['city_village_code']
                     city_village_row['name'] = row['city_village_name']
-                    city_village_row['rc_cut'] = row['rc_cut']
                     city_village_row['upload'] = upload
 
 
@@ -91,37 +72,36 @@ class Command(BaseCommand):
                         log += ('mising information, ignore csv row: '+ str(n))
                         skiped_records+=1
                         print(log)
-                        print(province_code)
-                        exit()
                         continue
 
                     # Handle Col head one time only
 
-                    player_count = 1
-                    max_player = 30
-                    for v in row:
-                        if('player' in v and player_count <= max_player):
-                            player  = v.replace('player_','')
-                            player  = player.replace('_', ' ')
-                            player  = player.title()
-                            tag  = row[v]
+                    # player_count = 1
+                    # max_player = 30
+                    # for v in row:
+                    #     if('player' in v and player_count <= max_player):
+                    #         player  = v.replace('player_','')
+                    #         player  = player.replace('_', ' ')
+                    #         player  = player.title()
+                    #         tag  = row[v]
 
-                            col_name = 'extra_'+str(player_count)
+                    #         col_name = 'extra_'+str(player_count)
 
-                            city_village_row[col_name] = tag
-                            if n==1:
-                                col_label_qs, created = ColLabel.objects.update_or_create(
-                                    country=upload.country, model_name=ColLabel.CityVillage,col_name=col_name,
-                                    defaults={'col_label':player},
-                                )
+                    #         city_village_row[col_name] = tag
+                    #         if n==1:
+                    #             col_label_qs, created = ColLabel.objects.update_or_create(
+                    #                 country=upload.country, model_name=ColLabel.CityVillage,col_name=col_name,
+                    #                 defaults={'col_label':player},
+                    #             )
 
-                            player_count += 1
+                    #         player_count += 1
 
                     # Get / Add Province
                     province_qs = None
-
                     # Get / Add Distric
                     district_qs = None
+
+
 
                     ## Handle APPEND and REFRESH
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
@@ -144,9 +124,11 @@ class Command(BaseCommand):
 
                         city_village_row['tehsil'] = tehsil_qs
 
+                        # Row Of Valid Fields Only
+                        new_row = { key:value for (key,value) in city_village_row.items() if key in valid_fields}
                         city_village_qs, created = CityVillage.objects.get_or_create(
                             country=upload.country, code = city_village_row['code'],
-                            defaults = city_village_row
+                            defaults = new_row
                         )
 
                     ## Handle APPENDUPDATE
@@ -172,10 +154,13 @@ class Command(BaseCommand):
                         city_village_row['tehsil'] = tehsil_qs
 
 
+                        # Row Of Valid Fields Only
+                        new_row = { key:value for (key,value) in city_village_row.items() if key in valid_fields}
+
                         # Get / Add CityVillage
                         city_village_qs, created = CityVillage.objects.update_or_create(
-                            country=upload.country, code = city_village_row['code'],
-                            defaults = city_village_row
+                            country=upload.country, code__iexact = city_village_row['code'],
+                            defaults = new_row
                         )
 
 
@@ -218,26 +203,6 @@ class Command(BaseCommand):
 
                     # user = Users.objects.get_or_create(name='test_user')
                     # user.tags.add(tag_1)
-
-                    # if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
-
-                    #     # In this case, if the Person already exists, its existing name is preserved
-                    #     obj, created = Product.objects.get_or_create(
-                    #         country=upload.country, code=product_code,
-                    #         defaults=row
-                    #     )
-                    #     if(created): created_records+=1
-
-
-                    # if(upload.import_mode == Upload.APPENDUPDATE ):
-                    #     # In this case, if the Person already exists, its name is updated
-                    #     obj, created = Product.objects.update_or_create(
-                    #         country=upload.country, code=product_code,
-                    #         defaults=row
-                    #     )
-                    #     if(created): created_records+=1
-                    #     else: updated_records+=1
-
 
             logger.error('CSV file processed successfully.')
             log += 'CSV file processed successfully.'

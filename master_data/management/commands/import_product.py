@@ -1,21 +1,7 @@
-from core.utils import cdebug
-import re
-import time
-import datetime
-import sys, os
-import dateutil.parser
-from django.utils.dateparse import parse_date
-from django.core.management.base import BaseCommand
-from csv import DictReader
-from master_data.models import Category,Outlet ,OutletType,Upload,Product,ColLabel
-from master_setups.models import Country,IndexSetup
-import json
-from collections import OrderedDict
-from core.settings import MEDIA_ROOT
-from core.utils import cdebug, csvHeadClean,printr
+from core.common_libs import *
+from master_data.models import *
+from master_setups.models import *
 
-import logging
-logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
 
@@ -29,12 +15,18 @@ class Command(BaseCommand):
         created_records = 0
         start_time = time.time()
         upload_id = options['upload_id']
+
         upload = Upload.objects.get(pk=upload_id)
-        country = Country.objects.get(pk=upload.country.id)
+
+        index_category = IndexCategory.objects.filter(country = upload.country, index = upload.index)
+        index_category = index_category[0].get_index_category_ids()
+
         log = ""
 
         if(upload.import_mode == Upload.REFRESH):
-            Product.objects.filter(country=upload.country).delete()
+            Product.objects.filter(country = upload.country,
+                            category__id__in = index_category) \
+                            .delete()
 
         product_fields = []
         skip_cols = ['id','pk','country','category','productaudit','upload','created','updated',]

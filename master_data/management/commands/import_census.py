@@ -1,13 +1,6 @@
-import re
-import json
-from csv import DictReader
-import logging
-from django.core.management.base import BaseCommand
-from master_data.models import Census,Upload
-from master_setups.models import Country
-from collections import OrderedDict
-from core.settings import MEDIA_ROOT
-logger = logging.getLogger(__name__)
+from core.common_libs import *
+from master_data.models import *
+from master_setups.models import *
 
 class Command(BaseCommand):
 

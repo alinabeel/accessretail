@@ -1,3 +1,4 @@
+import re
 import time
 import datetime
 import pprint
@@ -156,6 +157,8 @@ def csvHeadClean(c):
     c = c.replace('.','_')
     c = c.replace('(','')
     c = c.replace(')','')
+    c = c.replace('/','_')
+    c = c.replace('\\','_')
     c = c.strip()
     return c
 
@@ -165,19 +168,21 @@ def printr(str):
 
 def replaceIndex(i):
     i = csvHeadClean(i)
+    # PanelProfile AR
     i = i.replace('store_code','outlet_code')
     i = i.replace('end_audit_date','audit_date')
     i = i.replace('interview_status','outlet_status')
     i = i.replace('interview_status_code','outlet_status_code')
     i = i.replace('channel_type','outlet_type')
     i = i.replace('channel_type_code','outlet_type_code')
+
     i = i.replace('index_code','index')
     i = i.replace('category_code','category')
     i = i.replace('wave','month_code')
     i = i.replace('final_cell','cell_name')
     i = i.replace('cell_calib_acv','cell_acv')
 
-    i = i.replace('num_uni','num_universe')
+    # i = i.replace('num_uni','num_universe')
     i = i.replace('optimal_panel','optimal_panel')
 
     i = i.replace('p_purchase_1','purchase_1')
@@ -200,3 +205,7 @@ def convertSecond2Min(seconds):
 
 def get_max_str(lst):
     return max(lst, key=len).strip()
+
+
+def camelTerms(value):
+    return re.findall('[A-Z][a-z]+|[0-9A-Z]+(?=[A-Z][a-z])|[0-9A-Z]{2,}|[a-z0-9]{2,}|[a-zA-Z0-9]', value)

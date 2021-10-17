@@ -89,7 +89,7 @@ class CensusUploadView(LoginRequiredMixin, generic.CreateView):
 
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.index_id = self.request.session['index_id']
         form_obj.frommodel = "census"
@@ -101,7 +101,7 @@ class CensusUploadView(LoginRequiredMixin, generic.CreateView):
         return super(self.__class__, self).form_valid(form)
 
     def get_success_url(self):
-        messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
+        messages.add_message(self.request, messages.INFO, Upload.UPLOADING_MSG)
         return reverse("master-data:census-list", kwargs={"country_code": self.kwargs["country_code"]})
 
 
@@ -200,7 +200,7 @@ class CategoryImportView(LoginRequiredMixin, generic.CreateView):
 
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.index_id = self.request.session['index_id']
         form_obj.frommodel = "category"
@@ -214,8 +214,7 @@ class CategoryImportView(LoginRequiredMixin, generic.CreateView):
 
     def get_success_url(self):
         # return reverse("leads:lead-detail", kwargs={"pk": self.kwargs["pk"]})
-        messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
-
+        messages.add_message(self.request, messages.INFO, Upload.UPLOADING_MSG)
         return reverse("master-data:category-list", kwargs={"country_code": self.request.session['country_id']})
 
 class CategoryListViewAjax(AjaxDatatableView):
@@ -358,8 +357,8 @@ class PanelProfileListViewAjax(AjaxDatatableView):
             {'name': 'Index Code', 'foreign_field': 'index__code', },
             {'name': 'Index Name', 'foreign_field': 'index__name', 'choices': True, 'autofilter': True,},
 
-            {'name': 'Category Code', 'foreign_field': 'category__code', },
-            {'name': 'Category Name', 'foreign_field': 'category__name','choices': True, 'autofilter': True, },
+            # {'name': 'Category Code', 'foreign_field': 'category__code', },
+            # {'name': 'Category Name', 'foreign_field': 'category__name','choices': True, 'autofilter': True, },
             {'name': 'Outlet Code', 'foreign_field': 'outlet__code', },
 
             {'name': 'Outlet Type Code', 'foreign_field': 'outlet_type__code', },
@@ -437,11 +436,7 @@ class PanelProfileListView(LoginRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
-        upload = Upload.objects.filter(
-            country__id=self.request.session['country_id'], frommodel='panel_profile'
-        ).last()
-        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
+        uploadStatusMessage(self,self.request.session['country_id'],'panel_profile')
 
         return context
 
@@ -463,7 +458,7 @@ class PanelProfileUpdateView(LoginRequiredMixin, generic.CreateView):
 
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.frommodel = "panel_profile_update"
         form_obj.save()
@@ -475,7 +470,7 @@ class PanelProfileUpdateView(LoginRequiredMixin, generic.CreateView):
 
     def get_success_url(self):
 
-        messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
+        messages.add_message(self.request, messages.INFO, Upload.UPLOADING_MSG)
         return reverse("master-data:panel-profile-list", kwargs={"country_code": self.kwargs["country_code"]})
 
 
@@ -497,7 +492,7 @@ class PanelProfileImportView(LoginRequiredMixin, generic.CreateView):
 
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.index_id = self.request.session['index_id']
         form_obj.frommodel = "panel_profile"
@@ -510,7 +505,7 @@ class PanelProfileImportView(LoginRequiredMixin, generic.CreateView):
 
     def get_success_url(self):
 
-        messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
+        messages.add_message(self.request, messages.INFO, Upload.UPLOADING_MSG)
         return reverse("master-data:panel-profile-list", kwargs={"country_code": self.kwargs["country_code"]})
 
 
@@ -598,7 +593,7 @@ class UsableOutletImportView(LoginRequiredMixin, generic.CreateView):
 
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.index_id = self.request.session['index_id']
         form_obj.frommodel = "usable_outlet"
@@ -832,7 +827,7 @@ class ProductImportView(LoginRequiredMixin, generic.CreateView):
 
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.index_id = self.request.session['index_id']
         form_obj.frommodel = "product"
@@ -917,12 +912,13 @@ class ProductListView(LoginRequiredMixin, generic.TemplateView):
     }
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
+
         upload = Upload.objects.filter(
             country__id=self.request.session['country_id'], frommodel='product'
         ).last()
 
         if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
+            messages.add_message(self.request, f"{messages}.{upload.is_processing}", str(upload.is_processing +' : '+ upload.process_message))
 
         return context
 
@@ -946,7 +942,7 @@ class ProductAuditImportView(LoginRequiredMixin, generic.CreateView):
 
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.index_id = self.request.session['index_id']
         form_obj.frommodel = "product_audit"
@@ -989,10 +985,6 @@ class ProductAuditListViewAjax(AjaxDatatableView):
 
         # {'name': 'Outlet Status Code', 'foreign_field': 'outlet_status__code', },
         # {'name': 'Outlet Status Name', 'foreign_field': 'outlet_status__name', 'choices': True, 'autofilter': True,},
-
-
-
-
 
 
         # {'name': 'category', 'foreign_field': 'category__code', 'choices': True,'autofilter': True,},
@@ -1538,7 +1530,7 @@ class CellImportView(LoginRequiredMixin, generic.CreateView):
 
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.index_id = self.request.session['index_id']
         form_obj.frommodel = "cell"
@@ -1573,8 +1565,8 @@ class CellPanelProfileAJAX(AjaxDatatableView):
             {'name': 'Index Code', 'foreign_field': 'index__code', },
             {'name': 'Index Name', 'foreign_field': 'index__name', 'choices': True, 'autofilter': True,},
 
-            {'name': 'Category Code', 'foreign_field': 'category__code', },
-            {'name': 'Category Name', 'foreign_field': 'category__name','choices': True, 'autofilter': True, },
+            # {'name': 'Category Code', 'foreign_field': 'category__code', },
+            # {'name': 'Category Name', 'foreign_field': 'category__name','choices': True, 'autofilter': True, },
             {'name': 'Outlet Code', 'foreign_field': 'outlet__code', },
 
             {'name': 'Outlet Type Code', 'foreign_field': 'outlet_type__code', },
@@ -2279,7 +2271,7 @@ class OutletTypeImportView(LoginRequiredMixin, generic.CreateView):
 
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.index_id = self.request.session['index_id']
         form_obj.frommodel = "outlet_type"
@@ -2339,11 +2331,12 @@ class OutletTypeListView(LoginRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(OutletTypeListView, self).get_context_data(**kwargs)
-        upload = Upload.objects.filter(
-            country__id=self.request.session['country_id'], frommodel='outlet_type'
-        ).last()
-        if(upload is not None and  upload.is_processing != Upload.COMPLETED):
-            messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
+        uploadStatusMessage(self,self.request.session['country_id'],'outlet_type')
+        # upload = Upload.objects.filter(
+        #     country__id=self.request.session['country_id'], frommodel='outlet_type'
+        # ).last()
+        # if(upload is not None and  upload.is_processing != Upload.COMPLETED):
+        #     messages.add_message(self.request, messages.SUCCESS, str(upload.is_processing +' : '+ upload.process_message))
 
         return context
 

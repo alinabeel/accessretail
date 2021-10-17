@@ -258,7 +258,14 @@ if not DEBUG:
     EMAIL_PORT = ''
     DEFAULT_FROM_EMAIL = ''
 
-
+NOTEXIST = 'NOTEXIST'
+EMPTYFIELD = 'EMPTYFIELD'
+EMPTYROW = 'EMPTYROW'
+MESSAGES = {
+    NOTEXIST : "Reccord not exists. ",
+    EMPTYFIELD : "Empty field at ",
+    EMPTYROW : "Empty row at ",
+}
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

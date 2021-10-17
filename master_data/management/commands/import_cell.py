@@ -1,19 +1,6 @@
-import re
-import time
-import datetime
-import sys, os
-import dateutil.parser
-from django.utils.dateparse import parse_date
-from django.core.management.base import BaseCommand
-from csv import DictReader
-from master_data.models import Outlet, Upload,Cell,Month,CellMonthACV,UsableOutlet,PanelProfile
-from master_setups.models import Country,IndexSetup
-import json
-from collections import OrderedDict
-from core.settings import MEDIA_ROOT
-from core.utils import cdebug,replaceIndex, csvHeadClean,printr
-import logging
-logger = logging.getLogger(__name__)
+from core.common_libs import *
+from master_data.models import *
+from master_setups.models import *
 
 class Command(BaseCommand):
 
@@ -30,13 +17,25 @@ class Command(BaseCommand):
         upload_id = options['upload_id']
 
         upload = Upload.objects.get(pk=upload_id)
-        country = Country.objects.get(pk=upload.country.id)
-        log = ""
-        index = upload.index
-        if(upload.import_mode == Upload.REFRESH):
-            Cell.objects.filter(country=upload.country).delete()
 
-        # printr(Colors.BRIGHT_PURPLE,form_obj.file)
+        log = ""
+
+        if(upload.import_mode == Upload.REFRESH):
+            Cell.objects.filter(country=upload.country,index=upload.index).delete()
+
+        valid_fields = []
+        skip_cols = ['id','pk','country','created','updated',]
+        for field in Cell._meta.get_fields():
+            if(field.name not in skip_cols):
+                if(field.name in skip_cols): continue
+                # if isinstance(field, models.ForeignKey): continue
+                if isinstance(field, models.ManyToManyRel): continue
+                if isinstance(field, models.ManyToOneRel): continue
+                valid_fields.append(field.name)
+
+        # print(Colors.BRIGHT_PURPLE,valid_fields)
+        # exit()
+
         try:
             with open(MEDIA_ROOT+'/'+str(upload.file), 'r',encoding='utf-8-sig') as read_obj:
                 csv_reader = DictReader(read_obj)
@@ -47,65 +46,51 @@ class Command(BaseCommand):
 
                 for row in csv_reader:
                     n+=1
-                    city_village_row = dict()
+
                     print(n,end=' ',flush=True)
                     row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
 
+                    row['upload'] = upload
                     cell_name = row['cell_name']
                     cell_acv = row['cell_acv']
-                    # num_universe = row['num_universe']
-                    # optimal_panel = row['optimal_panel']
-                    del row["cell_name"]
 
-                    row['upload'] = upload
-
-
-
-                    # print(province_name,district_name,tehsil_name,rc_cut)
-                    # row["upload"] = upload
                     if(cell_name == ''):
                         log += ('mising information, ignore csv row: '+ str(n))
                         skiped_records+=1
                         continue
 
-                    valid_cols = [
-                        'upload',
-                        'index',
-                        'description',
-                        'cell_name',
-                        'cell_acv',
-                        'num_universe',
-                        'optimal_panel',
-                    ]
+                    new_row = { key:value for (key,value) in row.items() if key in valid_fields}
 
-                    new_row = { key:value for (key,value) in row.items() if key in valid_cols}
-
+                    month_qs = Month.objects.all().filter(country = upload.country)
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
 
                         # In this case, if the Person already exists, its existing name is preserved
                         obj, created = Cell.objects.get_or_create(
-                            country=upload.country, name=cell_name,index=index,
+                            country=upload.country, index=upload.index, name=cell_name,
                             defaults = new_row
                         )
                         if(created): created_records+=1
 
+                        for key in month_qs:
+                            CellMonthACV.objects.get_or_create(
+                                country=upload.country, index=upload.index, month=key, cell=obj,
+                                defaults={'cell_acv':float(cell_acv)}
+                            )
 
                     if(upload.import_mode == Upload.APPENDUPDATE ):
                         # In this case, if the Person already exists, its name is updated
                         obj, created = Cell.objects.update_or_create(
-                            country = upload.country, name=cell_name,index=index,
+                            country=upload.country, index=upload.index, name=cell_name,
                             defaults = new_row
                         )
                         if(created): created_records+=1
                         else: updated_records+=1
 
-
-                    month_qs = Month.objects.all().filter(country = country)
-                    for key in month_qs:
-                        CellMonthACV.objects.get_or_create(
-                            country=upload.country, month=key,cell=obj,
-                            defaults={'cell_acv':float(cell_acv)}
-                        )
+                        for key in month_qs:
+                            CellMonthACV.objects.update_or_create(
+                                country=upload.country, index=upload.index, month=key, cell=obj,
+                                defaults={'cell_acv':float(cell_acv)}
+                            )
 
 
             logger.error('CSV file processed successfully.')

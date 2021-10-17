@@ -1,10 +1,15 @@
+from typing import ValuesView
 from core.utils import cdebug
 import json
 import csv
+from django.contrib import messages
+from django.db import models
 from django.db.models import Q, Avg, Count, Min,Max, Sum
 from decimal import Decimal
 from django.http import (HttpResponseRedirect,HttpResponse,JsonResponse)
-from master_data.models import Category, Month
+from master_data.models import *
+from master_setups.models import *
+from core.utils import camelTerms
 
 def getDictArray(post, name):
     array =  []
@@ -90,6 +95,34 @@ def getGroupFilterHuman(new_dic):
         group_filter += "{}({})\n".format(cor,temp_group_filter)
     return group_filter
 
+def modelForeignFields(modelname):
+    valid_fields = []
+    skip_cols = ['id','pk','country','created','updated','upload']
+    for field in eval(f'{modelname}')._meta.get_fields():
+        field_name = field.name
+        if(field_name not in skip_cols):
+            if(field_name in skip_cols): continue
+            if isinstance(field, models.ForeignKey):
+                valid_fields.append(field_name)
+    return valid_fields
+
+def modelValidFields(modelname):
+    valid_fields = []
+    skip_cols = ['id','pk','country','created','updated',]
+    modelname_prefix = camelTerms(modelname)
+    modelname_prefix = "_".join(modelname_prefix)
+    for field in eval(f'{modelname}')._meta.get_fields():
+        field_name = field.name
+        if(field_name not in skip_cols):
+            if(field_name in skip_cols): continue
+            if isinstance(field, models.ForeignKey): continue
+            if isinstance(field, models.ManyToManyRel): continue
+            if isinstance(field, models.ManyToOneRel): continue
+            if field == 'name': field_name = f"{modelname_prefix}_{field}"
+            if field == 'code': field_name = f"{modelname_prefix}_{field}"
+            valid_fields.append(field_name)
+    return valid_fields
+
 def dropzeros(number):
     mynum = Decimal(number).normalize()
     mynum = mynum.__trunc__() if not mynum % 1 else float(mynum)
@@ -116,3 +149,27 @@ def getMonths(self):
         html += '<option value="'+str(obj.id)+'" >' + str(obj.name)+' : '+str(obj.name)+'('+str(obj.year)+')</option>'
     html += '</select">'
     return html
+
+def uploadStatusMessage(self,country_id,frommodel):
+    upload = Upload.objects.filter(
+        country__id = country_id, frommodel=frommodel
+    ).last()
+
+    if upload is not None:
+        if upload.is_processing in (Upload.ERROR,Upload.FAILED):
+            messages.add_message(self.request, messages.ERROR, str(upload.is_processing +' : '+ upload.process_message))
+        elif upload.is_processing in (Upload.PROCESSING,Upload.UPLOADING):
+            messages.add_message(self.request, messages.INFO, str(upload.is_processing +' : '+ upload.process_message))
+
+def IdCodeModel(country_id,model):
+    objs = eval(f"{model}").objects.filter(country=country_id).values('id','code')
+    result = dict()
+    for obj in objs:
+        result[str(obj['code']).lower()] = obj['id']
+    return result
+def chkMonthLocked(country_id):
+    objs = Month.objects.filter(country=country_id).values('code','is_locked')
+    result = dict()
+    for obj in objs:
+        result[str(obj['code']).lower()] = obj['is_locked']
+    return result

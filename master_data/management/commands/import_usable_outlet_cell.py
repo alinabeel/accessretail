@@ -1,26 +1,7 @@
-from inspect import CO_OPTIMIZED
-import time
-import datetime
-import sys, os
-import json
-import logging
-from dateutil import parser
-from django.db.models import Q
-from django.utils.dateparse import parse_date
-from django.core.management.base import BaseCommand
-from csv import DictReader
-
+from core.common_libs import *
 from master_data.models import *
 from master_setups.models import *
 
-from core.colors import Colors
-from core.settings import MEDIA_ROOT
-from core.utils import cdebug, csvHeadClean,printr,replaceIndex,convertSecond2Min
-
-logger = logging.getLogger(__name__)
-def printr(str):
-    print(str)
-    return str+"\n"
 
 class Command(BaseCommand):
 

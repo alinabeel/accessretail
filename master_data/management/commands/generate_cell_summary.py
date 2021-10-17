@@ -1,41 +1,7 @@
-import csv
-import re
-import time
-import datetime
-import sys, os
-import json
-import logging
-from pprint import pprint
-from var_dump import var_dump,var_export
-from dateutil import parser
-from urllib.parse import parse_qs,urlparse
-from csv import DictReader
-from pathlib import Path
-
-
-from django.db.models import Q, Avg, Count, Min,Max, Sum
-from django.utils.dateparse import parse_date
-from django.core.management.base import BaseCommand
-from django.core.serializers.json import DjangoJSONEncoder
-from django.forms.models import model_to_dict
-
-from master_data.models import *
+from core.common_libs import *
 from master_setups.models import *
-from reports.models import RBDReport
-
-from core.helpers import (getDictArray,getDicGroupList,getGroupFilter,getGroupFilterHuman)
-from core.colors import Colors
-from core.settings import MEDIA_ROOT
-from core.utils import cdebug, csvHeadClean, prettyprint_queryset,printr,replaceIndex,convertSecond2Min
-from django.conf import settings
-
-
-
-logger = logging.getLogger(__name__)
-
-
-
-
+from master_data.models import *
+from reports.models import *
 
 class Command(BaseCommand):
 

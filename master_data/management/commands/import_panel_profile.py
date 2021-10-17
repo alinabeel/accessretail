@@ -1,28 +1,6 @@
-import re
-import time
-import datetime
-import sys, os
-import json
-import logging
-from pprint import pprint
-from var_dump import var_dump,var_export
-from dateutil import parser
-from django.db import models
-from django.db.models import Q
-from django.utils.dateparse import parse_date
-from django.core.management.base import BaseCommand
-from csv import DictReader
-
+from core.common_libs import *
 from master_data.models import *
 from master_setups.models import *
-from core.colors import Colors
-from core.settings import MEDIA_ROOT
-from core.utils import cdebug, csvHeadClean,printr,replaceIndex,convertSecond2Min
-
-logger = logging.getLogger(__name__)
-
-
-
 
 class Command(BaseCommand):
 
@@ -39,27 +17,46 @@ class Command(BaseCommand):
 
         upload_id = options['upload_id']
         upload = Upload.objects.get(pk=upload_id)
-        country = Country.objects.get(pk=upload.country.id)
         log = ""
 
+        upload.is_processing = Upload.PROCESSING
+        upload.process_message = Upload.PROCESSING_MSG
+        upload.log  = log
+        upload.save()
+
         if(upload.import_mode == Upload.REFRESH):
-            PanelProfile.objects.filter(country=upload.country).delete()
+            PanelProfile.objects.filter(country=upload.country, index=upload.index).delete()
 
 
-        valid_fields = []
-        skip_cols = ['id','pk','country','category','productaudit','upload','created','updated',]
-        for field in PanelProfile._meta.get_fields():
-            if(field.name not in skip_cols):
-                if(field.name in skip_cols): continue
-                if isinstance(field, models.ForeignKey): continue
-                if isinstance(field, models.ManyToManyRel): continue
-                if isinstance(field, models.ManyToOneRel): continue
-                valid_fields.append(field.name)
+        # valid_fields = []
+        # skip_cols = ['id','pk','country','category','productaudit','upload','created','updated',]
+        # for field in PanelProfile._meta.get_fields():
+        #     if(field.name not in skip_cols):
+        #         if(field.name in skip_cols): continue
+        #         if isinstance(field, models.ForeignKey): continue
+        #         if isinstance(field, models.ManyToManyRel): continue
+        #         if isinstance(field, models.ManyToOneRel): continue
+        #         valid_fields.append(field.name)
 
 
+        # Get Valid Model Fields
+        valid_fields = modelValidFields("PanelProfile")
+        foreign_fields = modelForeignFields("PanelProfile")
+        valid_fields_all = valid_fields + foreign_fields
+
+        for ff in foreign_fields:
+                valid_fields_all.append(f"{ff}_id")
+        # cdebug(valid_fields_all)
+        # print(valid_fields)
+        # print(foreign_fields)
+        # exit()
+        outlet_status_list = IdCodeModel(upload.country.id,'OutletStatus')
+        outlet_type_list = IdCodeModel(upload.country.id,'OutletType')
+        month_list = IdCodeModel(upload.country.id,'Month')
+        month_islocked_list = chkMonthLocked(upload.country.id)
+        city_village_list = IdCodeModel(upload.country.id,'CityVillage')
 
 
-        # printr(Colors.BRIGHT_PURPLE,form_obj.file)
         try:
             with open(MEDIA_ROOT+'/'+str(upload.file), 'r',encoding='utf-8-sig') as read_obj:
                 csv_reader = DictReader(read_obj)
@@ -69,185 +66,175 @@ class Command(BaseCommand):
 
                 for row in csv_reader:
                     n+=1
-                    if n%500==0: print(n,end=' ',flush=True)
-                    row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
+                    if n%500==0:
+                        print(n,end=' ',flush=True)
 
+                    row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
                     row["upload"] = upload
 
-                    # month = row['month']
-                    # year = row['year']
-                    month_code = row['month_code']
-                    category = row['category']
-                    index = row['index']
-                    city_village_code = row['city_village_code']
+                    # ['month', 'index', 'category', 'city_village', 'outlet', 'outlet_type', 'outlet_status']
+
+                    # Conver Foreign fields into row
+                    for ff in foreign_fields:
+                        if f"{ff}_code" in row:
+                            row[f"{ff}"] = row.pop(f"{ff}_code", None)
+
 
                     audit_date = row['audit_date']
-                    outlet_code = row['outlet_code']
-                    outlet_type_code = row['outlet_type_code']
-                    outlet_status_code = row['outlet_status_code']
+
+                    # month_code = row['month_code']
+                    # category = row['category']
+                    # index = row['index']
+                    # city_village_code = row['city_village_code']
 
 
-                    del row["month_code"]
-                    del row["index"]
-                    del row["category"]
-                    del row["outlet_code"]
-                    del row["outlet_type_code"]
-                    del row["outlet_status_code"]
-                    del row["city_village_code"]
+                    # outlet_code = row['outlet_code']
+                    # outlet_type_code = row['outlet_type_code']
+                    # outlet_status_code = row['outlet_status_code']
 
 
+                    # del row["month_code"]
+                    # del row["index"]
+                    # del row["category"]
+                    # del row["outlet_code"]
+                    # del row["outlet_type_code"]
+                    # del row["outlet_status_code"]
+                    # del row["city_village_code"]
 
-                    """First Get or Create Outlet Object"""
-                    outlet_obj, created = Outlet.objects.get_or_create(
-                        country=upload.country, code__iexact=outlet_code,
-                        defaults={
-                        },
-                    )
-
-                    row['outlet'] = outlet_obj
-
-
-                    # """ Select Month OR Create """
-                    # ymd = parser.parse('1 '+str(month)+' '+str(year))
-                    # mcode = ymd.strftime("%b").upper() + ymd.strftime("%y")
-                    # """Get or Create Outlet Month"""
-                    # month_obj, created = Month.objects.get_or_create(
-                    #     country=upload.country, code__iexact=mcode,
-                    #     defaults={
-                    #         'code':mcode,
-                    #         'name':ymd.strftime("%B"),
-                    #         'month':ymd.strftime("%m"),
-                    #         'year':ymd.strftime("%Y")
-                    #     },
-                    # )
-
-                    try:
-                        month_obj = Month.objects.get(country=country, code__iexact=month_code)
-                    except Month.DoesNotExist:
-                        month_obj = None
-                        log += ('month code not exist, csv row: '+ str(n))
-                        skiped_records += 1
-                        continue
-
-                    row['month'] = month_obj
-
-                    # month_obj = datetime.datetime.strptime(month, "%B")
-                    # month_number = month_obj.month
-                    # month_year = datetime.date(int(year), int(month_number), 1)
-                    # row['month_year'] = month_year
-
-                    """ Manuplae Audit Date """
-                    audit_date = audit_date.split('/')
-                    ymd2 = parser.parse(str(audit_date[0].strip())+' '+str(audit_date[1].strip())+' '+str(audit_date[2].strip()))
-                    audit_date_obj = datetime.datetime(int(ymd2.strftime("%Y")), int(ymd2.strftime("%m")), int(ymd2.strftime("%d")))
-                    # audit_date_obj = datetime.datetime(int(ymd.strftime("%Y")), int(ymd.strftime("%m")), int(ymd.strftime("%d")))
-                    # # print(audit_date_obj)
-                    row['audit_date'] = audit_date_obj
-                    # exit()
-
-
-                    """ Select Outlet Type or Skip  """
-                    if(outlet_type_code != ''):
+                    """Get Month"""
+                    if(row['month'] != ''):
                         try:
-                            outlet_type_qs = OutletType.objects.filter(
-                                                Q(country=upload.country) &
-                                                Q(code__iexact=outlet_type_code)).get()
-                        except OutletType.DoesNotExist:
-                            outlet_type_qs = None
-                            log += printr('OutletType code not exist: '+str(outlet_type_code))
+                            row['month_id'] = month_list[str(row['month']).lower()]
+                        except KeyError:
+                            log += printr(f'month not exist at: {n}')
                             skiped_records+=1
                             continue
                     else:
-                        log += printr('outlet code is empty: '+str(outlet_type_code))
+                        log += printr('month is empty at: '+str(row['month']))
                         skiped_records+=1
                         continue
 
-                    row['outlet_type'] = outlet_type_qs
+                    #Check if month is locked
+                    if(month_islocked_list[str(row['month']).lower()]==True):
+                        log += 'Month Locked:, CSV ROW: '+ str(n)
+                        skiped_records+=1
+                        continue
 
+                    del row['month']
+
+
+                    """ Audit Date """
+                    if('audit_date' in row and row['audit_date'] != ''):
+                        row['audit_date'] = parser.parse(row['audit_date'],dayfirst=True)
+                    else:
+                        log += printr(f'audit_date is empty/not exist at row at: {n}')
+                        skiped_records+=1
+                        continue
+
+                    """ Select Outlet Type or Skip  """
+                    if(row['outlet_type'] != ''):
+                        try:
+                            row['outlet_type_id'] = outlet_type_list[str(row['outlet_type']).lower()]
+                        except KeyError:
+                            log += printr(f'outlet_type not exist at: {n}')
+                            skiped_records+=1
+                            continue
+                    else:
+                        log += printr(f'outlet_type is empty at row at: {n}')
+                        skiped_records+=1
+                        continue
+                    del row['outlet_type']
 
 
                     """ Select Outlet Status or Skip  """
                     outlet_status_qs = None
-                    if(outlet_status_code != ''):
+                    if(row['outlet_status'] != ''):
                         try:
-                            outlet_status_qs = OutletStatus.objects.filter(
-                                                Q(country=upload.country) &
-                                                Q(code__iexact=outlet_status_code)).get()
-                        except OutletStatus.DoesNotExist:
-                            log += printr('OutletStatus code not exist: '+str(outlet_status_qs))
+                            row['outlet_status_id'] = outlet_status_list[str(row['outlet_status']).lower()]
+                        except KeyError:
+                            log += printr(f'outlet_status not exist at: {n}')
                             skiped_records+=1
                             continue
                     else:
-                        log += printr('outlet status is empty: '+str(outlet_status_code))
+                        log += printr(f'outlet_status is empty at row at: {n}')
                         skiped_records+=1
                         continue
+                    del row['outlet_status']
 
-                    row['outlet_status'] = outlet_status_qs
+                    # row.pop(row['outlet_status'])
+                    # print(row['outlet_status_id'])
+                    # exit()
+                    # row['outlet_status'] = outlet_status_qs
 
-                    """ Select Inex or Skip  """
-                    index_qs = None
-                    if(index != ''):
-                        try:
-                            index_qs = IndexSetup.objects.filter(
-                                                Q(country=upload.country) &
-                                                Q(code__iexact = index)).get()
-                        except IndexSetup.DoesNotExist:
-                            log += printr('index code not exist: '+index)
-                            skiped_records+=1
-                            continue
-                    else:
-                        skiped_records+=1
-                        log += printr('index code is empty: '+index)
-                        continue
+                    # """ Select Inex or Skip  """
+                    # index_qs = None
+                    # if(row['index'] != ''):
+                    #     try:
+                    #         index_qs = IndexSetup.objects.filter(
+                    #                             Q(country=upload.country) &
+                    #                             Q(code__iexact = row['index'])).get()
+                    #     except IndexSetup.DoesNotExist:
+                    #         log += printr('index code not exist: '+row['index'])
+                    #         skiped_records+=1
+                    #         continue
+                    # else:
+                    #     skiped_records+=1
+                    #     log += printr('index code is empty: '+row['index'])
+                    #     continue
 
-                    row['index'] = index_qs
+                    # row['index'] = index_qs
 
-                    """ Select Category or Skip  """
-                    category_qs = None
-                    if(category != ''):
-                        try:
-                            category_qs = Category.objects.filter(
-                                                Q(country=upload.country) &
-                                                Q(code__iexact=category)).get()
-                        except Category.DoesNotExist:
-                            log += printr('category code not exist: '+category)
-                            skiped_records+=1
-                            continue
-                    else:
-                        skiped_records+=1
-                        log += printr('category code is empty: '+category)
-                        continue
+                    # """ Select Category or Skip  """
+                    # category_qs = None
+                    # if(row['category'] != ''):
+                    #     try:
+                    #         category_qs = Category.objects.filter(
+                    #                             Q(country=upload.country) &
+                    #                             Q(code__iexact=str(row['category']))).get()
+                    #     except Category.DoesNotExist:
+                    #         log += printr('category code not exist: '+row['category'])
+                    #         skiped_records+=1
+                    #         continue
+                    # else:
+                    #     skiped_records+=1
+                    #     log += printr('category code is empty: '+row['category'])
+                    #     continue
 
-                    row['category'] = category_qs
+                    # row['category'] = category_qs
 
 
 
 
                     """ Select CityVillage or Skip  """
                     city_village_qs = None
-                    if(city_village_code != ''):
+                    if(row['city_village'] != ''):
                         try:
-                            city_village_qs = CityVillage.objects.filter(
-                                                Q(country=upload.country) &
-                                                Q(code__iexact=city_village_code)).get()
-                        except CityVillage.DoesNotExist:
-                            log += printr('CityVillage code not exist csv line: '+str(n))
+                            row['city_village_id'] = city_village_list[str(row['city_village']).lower()]
+                        except KeyError:
+                            log += printr(f'city_village not exist at: {n}')
                             skiped_records+=1
                             continue
                     else:
-                        log += printr('CityVillage is empty: '+city_village_code)
+                        log += printr(f'outlet status is empty at row at: {n}')
                         skiped_records+=1
                         continue
+                    del row['city_village']
 
-                    row['city_village'] = city_village_qs
+                    """Get or Create Outlet Object"""
+                    outlet_obj, created = Outlet.objects.get_or_create(
+                        country=upload.country, code__iexact=str(row['outlet']),
+                        defaults={'code':row['outlet'],}
+                    )
+                    row['outlet'] = outlet_obj
 
+                    new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
 
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
 
                         """In this case, if the Person already exists, its existing name is preserved"""
                         obj, created = PanelProfile.objects.get_or_create(
-                            country=upload.country, outlet=outlet_obj, month=month_obj,
-                            defaults=row
+                            country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
+                            defaults=new_row
                         )
                         if(created): created_records+=1
 
@@ -255,8 +242,8 @@ class Command(BaseCommand):
                     if(upload.import_mode == Upload.APPENDUPDATE ):
                         """In this case, if the Person already exists, its name is updated"""
                         obj, created = PanelProfile.objects.update_or_create(
-                            country=upload.country, outlet=outlet_obj, month=month_obj,
-                            defaults=row
+                            country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
+                            defaults=new_row
                         )
                         if(created): created_records+=1
                         else: updated_records+=1

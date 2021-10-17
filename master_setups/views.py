@@ -818,7 +818,7 @@ class RegionTypeImportView(LoginRequiredMixin, generic.CreateView):
 
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.frommodel = "region_type"
         form_obj.save()
@@ -830,8 +830,7 @@ class RegionTypeImportView(LoginRequiredMixin, generic.CreateView):
 
     def get_success_url(self):
         # return reverse("leads:lead-detail", kwargs={"pk": self.kwargs["pk"]})
-        messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
-
+        messages.add_message(self.request, messages.INFO, Upload.UPLOADING_MSG)
         return reverse("master-setups:region-type-list", kwargs={"country_code": self.kwargs["country_code"]})
 
 
@@ -974,7 +973,7 @@ class RegionImportView(LoginRequiredMixin, generic.CreateView):
 
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.frommodel = "region"
         form_obj.save()
@@ -986,8 +985,7 @@ class RegionImportView(LoginRequiredMixin, generic.CreateView):
 
     def get_success_url(self):
         # return reverse("leads:lead-detail", kwargs={"pk": self.kwargs["pk"]})
-        messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
-
+        messages.add_message(self.request, messages.INFO, Upload.UPLOADING_MSG)
         return reverse("master-setups:region-list", kwargs={"country_code": self.kwargs["country_code"]})
 
 
@@ -1143,7 +1141,7 @@ class MonthImportView(LoginRequiredMixin, generic.CreateView):
 
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.frommodel = "month"
         form_obj.save()
@@ -1155,8 +1153,7 @@ class MonthImportView(LoginRequiredMixin, generic.CreateView):
 
     def get_success_url(self):
         # return reverse("leads:lead-detail", kwargs={"pk": self.kwargs["pk"]})
-        messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
-
+        messages.add_message(self.request, messages.INFO, Upload.UPLOADING_MSG)
         return reverse("master-setups:month-list", kwargs={"country_code": self.kwargs["country_code"]})
 
 class MonthListViewAjax(AjaxDatatableView):
@@ -1319,7 +1316,7 @@ class CodeFrameImportView(LoginRequiredMixin, generic.CreateView):
 
         form_obj = form.save(commit=False)
         form_obj.is_processing = Upload.PROCESSING
-        form_obj.process_message = "Records are processing in background, check back soon."
+        form_obj.process_message = Upload.PROCESSING_MSG
         form_obj.country_id = self.request.session['country_id']
         form_obj.frommodel = "code_frame"
         form_obj.save()
@@ -1332,7 +1329,7 @@ class CodeFrameImportView(LoginRequiredMixin, generic.CreateView):
 
     def get_success_url(self):
         # return reverse("leads:lead-detail", kwargs={"pk": self.kwargs["pk"]})
-        messages.add_message(self.request, messages.SUCCESS, "File uploaded successfully, processing records.")
+        messages.add_message(self.request, messages.INFO, Upload.UPLOADING_MSG)
 
         return reverse("master-setups:code-frame-list", kwargs={"country_code": self.kwargs["country_code"]})
 
@@ -1668,7 +1665,7 @@ class ResetDBView(LoginRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
 
-        mastert_data = ['RBD','Cell','Product','ProductAudit','PanelProfile','Outlet','UsableOutlet','Upload']
+        mastert_data = ['RBD','Cell','Product','ProductAudit','PanelProfile','Outlet','UsableOutlet']
         # mastert_setups = ['Upload','Province','District','Tehsil','CityVillage','Category','IndexCategory','OutletType','Census','Month','OutletStatus','ColLabel',]
 
         context.update({
@@ -1678,14 +1675,29 @@ class ResetDBView(LoginRequiredMixin, generic.TemplateView):
         return context
     def post(self, request, country_code, *args, **kwargs):
         country_id = self.request.session['country_id']
+        index_id = self.request.session['index_id']
+        index_category = IndexCategory.objects.filter(country__id = country_id, index__id = index_id)
+        index_category = index_category[0].get_index_category_ids()
+
         reset = self.request.POST
-        # reset = self.request.POST
-        cdebug(type(reset))
-        cdebug(reset)
         for key, value in reset.items():
             if key in 'csrfmiddlewaretoken': continue
-            eval(f"{key}").objects.filter(country__id=self.request.session['country_id']).delete()
-            print(key, value)
+            if key in ('RBD','Cell','PanelProfile','UsableOutlet'):
+                eval(f"{key}").objects \
+                    .filter(country__id = country_id,
+                            index__id = index_id
+                    ).delete()
+            elif key in ('Product','ProductAudit','PanelProfile',):
+                if len(index_category) <= 0: continue
+                eval(f"{key}").objects \
+                    .filter(country__id = country_id,
+                            category__id__in = index_category
+                    ).delete()
+            else:
+                eval(f"{key}").objects \
+                    .filter(country__id = country_id,
+                    ).delete()
+
 
         return HttpResponse(
             json.dumps(

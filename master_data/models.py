@@ -10,10 +10,16 @@ from django.utils.translation import ugettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 from core.mixinsModels import UpperCaseCharField,CodeNameMixIn,CreateUpdateMixIn
 from core.colors import Colors
-try:
-    from core.dynamic_model.cityVillageModels import CityVillageMixIn
-except ImportError:
-    CityVillageMixIn = None
+
+try: from core.dynamic_model.CityVillageMixIn import CityVillageMixIn
+except ImportError: CityVillageMixIn = None
+
+try: from core.dynamic_model.PanelProfileMixIn import PanelProfileMixIn
+except ImportError: PanelProfileMixIn = None
+
+try: from core.dynamic_model.ProductMixin import ProductMixin
+except ImportError: ProductMixin = None
+
 
 from master_setups.models import Country,IndexSetup,UserCountry,User,UserIndex,Threshold, CountrySetting
 
@@ -45,6 +51,12 @@ class Upload(CreateUpdateMixIn, models.Model):
     CHOICES_UPDATE = [
       (UPDATE, 'Update: If records exist update.'),
     ]
+
+    UPLOADING_MSG = "Uploading please wait."
+    PROCESSING_MSG = "Records are processing in background, check back soon."
+    COMPLETED_MSG = "Processing completed successfully."
+    FAILED_MSG = "Processing faild, please try again"
+    ERROR_MSG = "Error occurred due to following reason"
 
     UPLOADING = "UPLOADING"
     PROCESSING = "PROCESSING"
@@ -125,38 +137,7 @@ class CityVillage(CodeNameMixIn,CreateUpdateMixIn,CityVillageMixIn,models.Model)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
     tehsil = models.ForeignKey(Tehsil, on_delete=models.CASCADE)
-
     rc_cut =  models.CharField(max_length=500, null=True, blank=True)
-    extra_1 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_2 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_3 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_4 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_5 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_6 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_7 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_8 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_9 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_10 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_11 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_12 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_13 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_14 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_15 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_16 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_17 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_18 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_19 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_20 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_21 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_22 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_23 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_24 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_25 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_26 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_27 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_28 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_29 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_30 =  models.CharField(max_length=500, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -260,7 +241,7 @@ class OutletType(CodeNameMixIn,CreateUpdateMixIn,MPTTModel):
 
 class Outlet(CreateUpdateMixIn, models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    code = UpperCaseCharField(max_length=50,validators=[validators.validate_slug])
+    code = models.CharField(max_length=50)
     insert_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
@@ -360,7 +341,7 @@ class OutletStatus(CodeNameMixIn,CreateUpdateMixIn,models.Model):
         verbose_name = 'OutletStatus'
         verbose_name_plural = 'OutletStatuses'
 
-class PanelProfile(CreateUpdateMixIn,models.Model):
+class PanelProfile(CreateUpdateMixIn,PanelProfileMixIn,models.Model):
     AUDITED = 'A'
     COPIED = 'C'
     ESTIMATED = 'E'
@@ -372,9 +353,9 @@ class PanelProfile(CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
     month = models.ForeignKey(Month,on_delete=models.CASCADE)
-
     index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    # category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
     hand_nhand = models.CharField(max_length=50, null=True, blank=True)
     city_village = models.ForeignKey(CityVillage, on_delete=models.CASCADE)
     region = models.CharField(max_length=50, null=True, blank=True)
@@ -397,39 +378,9 @@ class PanelProfile(CreateUpdateMixIn,models.Model):
     turnover = models.DecimalField(max_digits=18,decimal_places=6, default=0)
     acv = models.DecimalField(max_digits=18,decimal_places=6, default=0)
     audit_status = models.CharField(max_length=1, choices=AUDIT_STATUS_CHOICES,default=AUDITED)
-    extra_1 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_2 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_3 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_4 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_5 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_6 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_7 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_8 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_9 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_10 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_11 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_12 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_13 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_14 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_15 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_16 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_17 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_18 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_19 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_20 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_21 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_22 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_23 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_24 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_25 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_26 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_27 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_28 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_29 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_30 =  models.CharField(max_length=500, null=True, blank=True)
 
     class Meta:
-        unique_together = (('country','outlet', 'month'))
+        unique_together = (('country','outlet', 'month','index'))
         db_table = 'panel_profile'
         verbose_name = 'PanelProfile'
         verbose_name_plural = 'PanelProfiles'
@@ -439,12 +390,12 @@ class PanelProfile(CreateUpdateMixIn,models.Model):
 
 
 
-class Product(CodeNameMixIn,CreateUpdateMixIn,models.Model):
+class Product(CodeNameMixIn,CreateUpdateMixIn,ProductMixin,models.Model):
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     upload = models.ForeignKey(Upload, on_delete=models.SET_NULL, null=True, blank=True)
-
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
     barcode = models.CharField(max_length=150, null=True, blank=True)
     sku = models.CharField(max_length=150, null=True, blank=True)
     brand = models.CharField(max_length=150, null=True, blank=True)
@@ -460,37 +411,6 @@ class Product(CodeNameMixIn,CreateUpdateMixIn,models.Model):
     weight = models.DecimalField(max_digits=18,decimal_places=6, null=True, blank=True)
     number_in_pack = models.IntegerField(null=True, blank=True)
     price_per_unit = models.DecimalField(max_digits=18,decimal_places=6, null=True, blank=True)
-
-    extra_1 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_2 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_3 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_4 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_5 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_6 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_7 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_8 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_9 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_10 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_11 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_12 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_13 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_14 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_15 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_16 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_17 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_18 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_19 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_20 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_21 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_22 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_23 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_24 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_25 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_26 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_27 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_28 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_29 =  models.CharField(max_length=500, null=True, blank=True)
-    extra_30 =  models.CharField(max_length=500, null=True, blank=True)
 
     class Meta:
         unique_together = (('country','code'))
@@ -613,7 +533,7 @@ class Cell(CreateUpdateMixIn,models.Model):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = (('country','name'))
+        unique_together = (('country','name','index'))
         db_table = 'cell'
         verbose_name = 'Cell'
         verbose_name_plural = 'Cells'
@@ -636,7 +556,7 @@ class CellMonthACV(CreateUpdateMixIn,models.Model):
     cell_acv = models.DecimalField(max_digits=18,decimal_places=6,default=0)
 
     class Meta:
-        unique_together = (('country','month','cell'))
+        unique_together = (('country','month','cell','index'))
         db_table = 'cell_month_acv'
         verbose_name = 'CellMonthACV'
         verbose_name_plural = 'CellMonthACVs'
@@ -653,7 +573,7 @@ class RBD(CreateUpdateMixIn,models.Model):
     cell = models.ManyToManyField(Cell)
 
     class Meta:
-        unique_together = (('country','name'))
+        unique_together = (('country','name','index'))
         db_table = 'rbd'
         verbose_name = 'RBD'
         verbose_name_plural = 'RBDs'
