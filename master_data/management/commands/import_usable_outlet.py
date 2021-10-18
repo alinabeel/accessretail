@@ -29,8 +29,7 @@ class Command(BaseCommand):
                 for row in csv_reader:
                     # printr(n,end=' ',flush=True)
                     row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
-                    # month = row['month']
-                    # year = row['year']
+
                     month_code = row['month_code']
                     index = row['index']
                     outlet_code = row['outlet_code']

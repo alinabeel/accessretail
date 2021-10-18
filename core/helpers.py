@@ -189,8 +189,8 @@ def getPrvMonthDate(country_qs,current_month_id,outlet_id):
     # NOW = datetime.date.today().replace(day=1)
     # previous_month = NOW + relativedelta(months=-1)
 
-    month_obj = Month.objects.filter(country=country_qs, id=current_month_id).values('code','is_locked').first()
-    current_month_qs = month_obj
+    current_month_qs = Month.objects.filter(country=country_qs, id=current_month_id).values('code','date').first()
+
 
     current_month = current_month_qs.date
     previous_month = current_month + relativedelta(months=-1)

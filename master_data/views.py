@@ -5,7 +5,6 @@ from dateutil.parser import *
 from datetime import *
 import base64
 
-
 from termcolor import cprint
 import traceback
 import time, os,sys, signal,logging,json

@@ -40,8 +40,8 @@ class Command(BaseCommand):
 
         month_islocked_list = getCode2AnyModelFieldList(upload.country.id,'Month','is_locked')
         product_weight_list = getCode2AnyModelFieldList(upload.country.id,'Product','weight')
-
-
+        # print(valid_fields_all)
+        # exit()
         try:
             with open(MEDIA_ROOT+'/'+str(upload.file), 'r',encoding='utf-8-sig') as read_obj:
                 csv_reader = DictReader(read_obj)
@@ -52,7 +52,8 @@ class Command(BaseCommand):
                 for row in csv_reader:
                     # loop_start_time = time.time()
                     n+=1
-                    print(n,end=' ',flush=True)
+                    if n%500==0:
+                        print(n,end=' ',flush=True)
                     csv_indx += 1
                     row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
 
@@ -60,6 +61,8 @@ class Command(BaseCommand):
                     for ff in foreign_fields:
                         if f"{ff}_code" in row:
                             row[f"{ff}"] = row.pop(f"{ff}_code", None)
+
+                    product_code = row['product']
 
                     row['purchase_1'] = int(row['purchase_1']) if row['purchase_1']!='' else 0
                     row['purchase_2'] = int(row['purchase_2']) if row['purchase_2']!='' else 0
@@ -99,12 +102,13 @@ class Command(BaseCommand):
 
 
                     """ Audit Date """
-                    if('audit_date' in row and row['audit_date'] != ''):
-                        row['audit_date'] = parser.parse(row['audit_date'],dayfirst=True)
-                    else:
-                        log += printr(f'audit_date is empty/not exist at row at: {n}')
-                        skiped_records+=1
-                        continue
+                    del row['audit_date']
+                    # if('audit_date' in row and row['audit_date'] != ''):
+                    #     row['audit_date'] = parser.parse(row['audit_date'],dayfirst=True)
+                    # else:
+                    #     log += printr(f'audit_date is empty/not exist at row at: {n}')
+                    #     skiped_records+=1
+                    #     continue
 
 
                     """ Select Outlet Code """
@@ -119,7 +123,8 @@ class Command(BaseCommand):
                         log += printr(f'outlet is empty at row at: {n}')
                         skiped_records+=1
                         continue
-                    del row['outlet_code']
+
+                    del row['outlet']
 
 
                     """ Select Product Code """
@@ -134,7 +139,7 @@ class Command(BaseCommand):
                         log += printr(f'product is empty at row at: {n}')
                         skiped_records+=1
                         continue
-                    del row['product_code']
+                    del row['product']
 
                     """ Select Category Code """
                     if(row['category'] != ''):
@@ -174,32 +179,50 @@ class Command(BaseCommand):
                     # =IF((T6+AN6-U6-V6)>0, AN6, -1*(T6+AN6-U6-V6)+AN6)
 
 
-                    current_month_qs = month_obj
+                    panel_profile_qs = PanelProfile.objects.get(
+                        country=upload.country,outlet_id=row['outlet_id'] ,month_id=row['month_id']
+                    )
 
-                    current_month = current_month_qs.date
+                    current_month_audit_date = panel_profile_qs.audit_date
+
+                    current_month = current_month_audit_date.replace(day=1)
                     previous_month = current_month + relativedelta(months=-1)
 
                     try:
-                        previous_month_qs = Month.objects.get(date=previous_month)
+                        previous_month_qs = Month.objects.get(country=upload.country, date=previous_month)
                     except Month.DoesNotExist:
                         previous_month_qs = None
 
+
                     # print(type(product_qs.weight))
-                    product_weight = product_weight_list[str(row['product']).lower()]
-                    product_weight = 0 if product_weight == None or product_weight < 0 else float(product_weight)
+
+                    rev_purchase_cond1 = opening_stock + total_purchase - total_stock
+                    rev_purchase_cond2 = -1*(opening_stock + total_purchase - total_stock)+total_purchase
+                    rev_purchase = rev_purchase_cond1 if rev_purchase_cond1 > 0 else rev_purchase_cond2
 
                     if previous_month_qs is not None:
-                        delta = current_month_qs.date - previous_month_qs.date
-                        vd_factor= delta.days/30.5
-                        sales = opening_stock + rev_purchase - total_stock
+                        try:
+                            panel_profile_qs = PanelProfile.objects.get(
+                                country=upload.country,outlet_id=row['outlet_id'] ,month_id=previous_month_qs.id
+                            )
+                            previous_month_audit_date = panel_profile_qs.audit_date
+
+                            delta = current_month_audit_date - previous_month_audit_date
+                            vd_factor= delta.days/30.5
+                            sales = opening_stock + rev_purchase - total_stock
+
+                        except PanelProfile.DoesNotExist:
+                            vd_factor = 1
+                            sales = total_purchase
                     else:
                         vd_factor = 1
                         sales = total_purchase
 
+                    product_weight = product_weight_list[str(product_code).lower()]
+                    product_weight = 0 if product_weight == None or product_weight < 0 else float(product_weight)
+
                     total_purchase = round(total_purchase * vd_factor,0)
-                    rev_purchase_cond1 = opening_stock + total_purchase - total_stock
-                    rev_purchase_cond2 = -1*(opening_stock + total_purchase - total_stock)+total_purchase
-                    rev_purchase = rev_purchase_cond1 if rev_purchase_cond1 > 0 else rev_purchase_cond2
+
 
                     # multiply sales with weight(from Product table) * Q6
                     sales_vol = sales * float(product_weight)
