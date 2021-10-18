@@ -122,6 +122,8 @@ urlpatterns += [
 
 """ DB """
 urlpatterns += [
+    path('<slug:country_code>/inputtemplate/', InputTemplateView.as_view(), name='inputtemplate'),
+    path('<slug:country_code>/inputtemplateexport/<slug:export>/', InputTemplateExportView.as_view(), name='inputtemplateexport'),
     path('<slug:country_code>/resetdb/', ResetDBView.as_view(), name='resetdb'),
 ]
 

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+{% block action_buttons %}
+
+{% endblock action_buttons %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card m-b-30">
+            <div class="card-body">
+                <form id="frm1" method="post" action="" class="mt-5">
+                    {% csrf_token %}
+
+                    <h4>Download Input Templates:</h4>
+                    {% for t in input_data %}
+                    <div class="input-group mb-3">
+                        <label class="form-control" for="id_{{ t }}">{{t}}</label>
+                        <div class="">
+                            <div class="">
+
+                                <a href="{% url 'master-setups:inputtemplateexport' export=t country_code=global.country_code%}" class="btn btn-info">Download</a>
+
+                            </div>
+                        </div>
+
+                    </div>
+                    {% endfor %}
+
+                    <div class="row">
+                        <div class="col-12">
+                            <button class="btn btn-secondary btn-block btn-lg waves-effect" type="button" onClick="javascript:history.go(-1);">Back</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div> <!-- end col -->
+</div> <!-- end row -->
+{% endblock content %}
+
+{% block javascripts %}
+{% endblock javascripts %}

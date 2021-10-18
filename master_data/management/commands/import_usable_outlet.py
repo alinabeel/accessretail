@@ -2,6 +2,7 @@ from core.common_libs import *
 from master_data.models import *
 from master_setups.models import *
 
+
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
@@ -30,17 +31,11 @@ class Command(BaseCommand):
                     # printr(n,end=' ',flush=True)
                     row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
 
+                    # month = row['month']
+                    # year = row['year']
                     month_code = row['month_code']
                     index = row['index']
                     outlet_code = row['outlet_code']
-
-                    if row['cell_description'] != '' and len(row['cell_description'])>1:
-                        cell_name = row['cell_description'].split("@")
-                        cell_name = get_max_str(cell_name)
-                    else:
-                        continue
-
-
                     row["upload"] = upload
 
                     # del row["month"]
@@ -50,21 +45,9 @@ class Command(BaseCommand):
                     del row["outlet_code"]
 
 
-                    """Get or Skip Cell Object"""
+
                     try:
-                        cell_obj = Cell.objects.get(country=upload.country, name__iexact=cell_name)
-                    except Cell.DoesNotExist:
-                        cell_obj = None
-                        log += printr('Cell name not exist: '+cell_name)
-                        skiped_records+=1
-                        continue
-
-                    row['cell'] = cell_obj
-
-
-                    """Get or Skip Month Object"""
-                    try:
-                        month_obj = Month.objects.get(country=country, code__iexact=month_code)
+                        month_obj = Month.objects.get(country=country, code=month_code)
                     except Month.DoesNotExist:
                         month_obj = None
                         log += ('month code not exist, csv row: '+ str(n))
@@ -94,7 +77,7 @@ class Command(BaseCommand):
 
                     """Get or Skip Outlet Object"""
                     try:
-                        outlet_obj = Outlet.objects.get(country=upload.country, code__iexact=outlet_code)
+                        outlet_obj = Outlet.objects.get(country=upload.country, code=outlet_code)
                     except Outlet.DoesNotExist:
                         outlet_obj = None
                         log += printr('Outlet code not exist: '+outlet_code)
@@ -104,23 +87,13 @@ class Command(BaseCommand):
                     row['outlet'] = outlet_obj
 
 
-                    valid_cold = [
-                        'category'
-                        'upload',
-                        'cell',
-                        'month',
-                        'index',
-                        'outlet',
-                    ]
-
-                    new_row = { key:value for (key,value) in row.items() if key in valid_cold}
 
 
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
                         """In this case, if the Person already exists, its existing name is preserved"""
                         obj, created = UsableOutlet.objects.get_or_create(
                             country=upload.country, outlet=outlet_obj, month=month_obj,
-                            defaults=new_row
+                            defaults=row
                         )
                         if(created): created_records+=1
 
@@ -129,7 +102,7 @@ class Command(BaseCommand):
                         """In this case, if the Person already exists, its name is updated"""
                         obj, created = UsableOutlet.objects.update_or_create(
                             country=upload.country, outlet=outlet_obj, month=month_obj,
-                            defaults=new_row
+                            defaults=row
                         )
                         if(created): created_records+=1
                         else: updated_records+=1

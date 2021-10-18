@@ -38,7 +38,8 @@
                             <div class="dropdown-menu dropdown-menu-right profile-dropdown ">
                                 <!-- item-->
                                 <a class="dropdown-item" href="#"><i class="mdi mdi-account-circle"></i> Profile</a>
-                                <a class="dropdown-item d-block" href="#"><span class="badge badge-success float-right">11</span><i class="mdi mdi-settings"></i> Settings</a>
+                                <a class="dropdown-item d-block" href="#"><i class="mdi mdi-settings"></i> Settings</a>
+                                <a class="dropdown-item" href="{% url 'master-setups:inputtemplate' country_code=global.country_code  %}"><i class="mdi mdi-database-refresh"></i> Input Templates</a>
                                 <a class="dropdown-item" href="{% url 'master-setups:resetdb' country_code=global.country_code  %}"><i class="mdi mdi-database-refresh"></i> Reset DB</a>
 
                                 <div class="dropdown-divider"></div>

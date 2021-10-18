@@ -543,7 +543,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
             if export is False:
                 queryList = queryList[0:1]
 
-            #Audit  Data Query List
+            #Product Audit Query List
             queryListPA = AuditData.objects.all().filter(country = country)
 
             #Calculate Previous Month, Next Month
@@ -687,7 +687,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
                             Unprojected Sales (Volume)	Unprojected Sales (Value)	projected Sales (Volume)	projected Sales (Value)
                         """
 
-                        #Get outlets from Audit  Data
+                        #Get outlets from Product Audit
                         #--- Only This Changed to individulal outlet rest remains same ---
                         # outlet_id = queryListPPCellPrevious[i].outlet.id
                         # outlet_code = queryListPPCellPrevious[i].outlet.code
@@ -763,7 +763,7 @@ class CellShopInspectionAJAX(LoginRequiredMixin, generic.View):
                             Unprojected Sales (Volume)	Unprojected Sales (Value)	projected Sales (Volume)	projected Sales (Value)
                         """
 
-                        #Get outlets from Audit  Data
+                        #Get outlets from Product Audit
                         #--- Only This Changed to individulal outlet rest remains same ---
                         # outlet_id = queryListPPCellCurrent[i].outlet.id
                         # outlet_code = queryListPPCellCurrent[i].outlet.code

@@ -1634,6 +1634,91 @@ class ColLabelUpdateView(LoginRequiredMixin, generic.UpdateView):
         form.save()
         return super(self.__class__, self).form_valid(form)
 
+
+
+class InputTemplateExportView(LoginRequiredMixin, generic.View):
+
+    def get(self, *args, **kwargs):
+
+        export = kwargs['export']
+        input_data = ['Cell','Product','AuditData','PanelProfile','UsableOutlet',
+                    'CodeFrame','Category','OutletType']
+
+        if export in input_data:
+            valid_fields = modelValidFields(export)
+            foreign_fields = modelForeignFields(export)
+
+            foreign_fields_code = list()
+            valid_fields_filtered = list()
+            skip_col = list()
+
+            if export=='Cell':
+                skip_col = ['condition_html','serialize_str','condition_json']
+
+            if export=='AuditData':
+                skip_col = ['vd_factor','total_stock','total_purchase','rev_purchase',
+                            'sales','sales_vol','sales_val','audit_status']
+
+            if export=="PanelProfile":
+                skip_col = ['wtd_factor','num_factor','turnover','audit_status']
+
+            if export=="Category":
+                skip_col = ['lft','rght','tree_id','level']
+
+            if export=="OutletType":
+                skip_col = ['lft','rght','tree_id','level']
+
+            skip_col.append("index")
+
+            for ff in foreign_fields:
+                if ff not in skip_col:
+                    foreign_fields_code.append(f"{ff}_code")
+
+            for vf in valid_fields:
+                if vf not in skip_col:
+                    if vf=='name' or vf == 'code':
+                        valid_fields_filtered.append(f'{export.lower()}_{vf}')
+                    else:
+                        valid_fields_filtered.append(vf)
+
+
+
+            valid_fields_all = foreign_fields_code+valid_fields_filtered
+
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename={export.lower()}_template.csv'
+            csv_writer = csv.writer(response)
+            csv_writer.writerow(valid_fields_all)
+            return response
+        else:
+            return HttpResponse(
+                json.dumps(
+                    {'Error':'500'},
+                    cls=DjangoJSONEncoder
+                ),
+                content_type="application/json")
+
+class InputTemplateView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "input_template.html"
+    PAGE_TITLE = "Input Templates"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+
+    def get_context_data(self, **kwargs):
+        context = super(self.__class__, self).get_context_data(**kwargs)
+
+        input_data = ['Cell','Product','AuditData','PanelProfile','UsableOutlet',
+                    'CodeFrame','Category','OutletType']
+
+        context.update({
+            "input_data": input_data
+        })
+
+        return context
+
 class ResetDBView(LoginRequiredMixin, generic.TemplateView):
     template_name = "resetdb.html"
     PAGE_TITLE = "Reset Datbase"
@@ -1653,6 +1738,7 @@ class ResetDBView(LoginRequiredMixin, generic.TemplateView):
         })
 
         return context
+
     def post(self, request, country_code, *args, **kwargs):
         country_id = self.request.session['country_id']
         index_id = self.request.session['index_id']
