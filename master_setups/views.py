@@ -1645,12 +1645,18 @@ class InputTemplateExportView(LoginRequiredMixin, generic.View):
                     'CodeFrame','Category','OutletType']
 
         if export in input_data:
+
+            if(export=='CodeFrame'):
+                export  = 'CityVillage'
+
             valid_fields = modelValidFields(export)
             foreign_fields = modelForeignFields(export)
 
             foreign_fields_code = list()
             valid_fields_filtered = list()
             skip_col = list()
+
+            code_frame = ['province_code','province_name','district_code','district_name','tehsil_code','tehsil_name','urbanity','city_village_code','city_village_name','rc_cut']
 
             if export=='Cell':
                 skip_col = ['condition_html','serialize_str','condition_json']
@@ -1668,6 +1674,9 @@ class InputTemplateExportView(LoginRequiredMixin, generic.View):
             if export=="OutletType":
                 skip_col = ['lft','rght','tree_id','level']
 
+            if export=="CityVillage":
+                skip_col = ['tehsil','code','name','rc_cut']
+
             skip_col.append("index")
 
             for ff in foreign_fields:
@@ -1681,9 +1690,10 @@ class InputTemplateExportView(LoginRequiredMixin, generic.View):
                     else:
                         valid_fields_filtered.append(vf)
 
-
-
-            valid_fields_all = foreign_fields_code+valid_fields_filtered
+            if export=="CityVillage":
+                valid_fields_all = code_frame+foreign_fields_code+valid_fields_filtered
+            else:
+                valid_fields_all = foreign_fields_code+valid_fields_filtered
 
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = f'attachment; filename={export.lower()}_template.csv'

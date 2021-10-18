@@ -595,7 +595,7 @@ class UsableOutletImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.save()
 
         print(Colors.BLUE,form_obj.pk)
-        proc = Popen('python manage.py import_usable_outlet '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+        proc = Popen('python manage.py import_usable_outlet_cell '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         return super(self.__class__, self).form_valid(form)
 
