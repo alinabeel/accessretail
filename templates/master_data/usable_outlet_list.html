@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
-{% block action_buttons %}<a href="{% url 'master-data:usable-outlet-import' country_code=global.country_code%}" class="btn btn-info btn-lg waves-effect waves-light">Import Usable Outlets</a>
+{% block action_buttons %}
+<a href="#" id="btn_sync" class="btn btn-danger btn-lg waves-effect waves-light">Sync Outlets with Cells</a>
+<a href="{% url 'master-data:usable-outlet-import' country_code=global.country_code%}" class="btn btn-info btn-lg waves-effect waves-light">Import Usable Outlets</a>
 {% endblock action_buttons %}
 
 {% block content %}
@@ -58,6 +60,30 @@
             });
 
         });
+
+
+        $('#btn_sync').click(function() {
+            $('#btn_sync').off('click');
+            let url = $('#list_data').attr("url");
+            console.log('sync')
+            $.ajax({
+                method: 'POST',
+                url: "{% url 'master-data:sync-outlet-cell' country_code=global.country_code%}",
+                data: {'action':'do_sync','csrfmiddlewaretoken':getCSRFToken()},
+                success: function (result) {
+                    if(result.data=='success'){
+                        alertify.success("Syncing in progress.");
+                    }else{
+                        alertify.error("Something went wrong");
+                    }
+                },
+                error: function (response) {
+                    alertify.error("Something went wrong");
+                }
+            });
+
+        });
+
 
         /*setTimeout(
             function(){

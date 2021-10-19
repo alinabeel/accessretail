@@ -97,7 +97,8 @@ class Command(BaseCommand):
             # return_dic['previous_month'] = "{}, {}".format(previous_month_qs.name,previous_month_qs.year)
             # return_dic['current_month'] = "{}, {}".format(current_month_qs.name,current_month_qs.year)
 
-            queryListPPAll = PanelProfile.objects.all().filter(country_id = country_id,category__id = cat_id)
+            queryListPPAll = PanelProfile.objects.all().filter(country_id = country_id)
+
 
 
             return_dic['count'] = len(queryList)

@@ -664,6 +664,7 @@ class UsableOutletListView(LoginRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
         uploadStatusMessage(self,self.request.session['country_id'],'usable_outlet')
+        uploadStatusMessage(self,self.request.session['country_id'],'SyncOutletCell')
         return context
 
 class UsableOutletStatus(LoginRequiredMixin, generic.CreateView):
@@ -675,6 +676,28 @@ class UsableOutletStatus(LoginRequiredMixin, generic.CreateView):
         obj = UsableOutlet.objects.get(pk=id,country=country)
         obj.status  = value
         obj.save()
+
+        return HttpResponse(
+            json.dumps(
+                {'data':'success'},
+                cls=DjangoJSONEncoder
+            ),
+            content_type="application/json")
+
+class SyncOutletCell(LoginRequiredMixin, generic.CreateView):
+    def post(self, request, country_code):
+        country = Country.objects.get(code=self.kwargs["country_code"])
+
+        form_obj = Upload(country=country)
+        form_obj.is_processing = Upload.PROCESSING
+        form_obj.process_message = Upload.PROCESSING_MSG
+        form_obj.country_id = self.request.session['country_id']
+        form_obj.index_id = self.request.session['index_id']
+        form_obj.frommodel = "SyncOutletCell"
+        form_obj.save()
+
+        print(Colors.BLUE,form_obj.pk)
+        proc = Popen('python manage.py sync_usable_outlet_cell '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         return HttpResponse(
             json.dumps(

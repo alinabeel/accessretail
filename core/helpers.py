@@ -200,3 +200,10 @@ def getPrvMonthDate(country_qs,current_month_id,outlet_id):
     except Month.DoesNotExist:
         previous_month_qs = None
 
+def updateUploadStatus(id,msg,is_processing,log=''):
+    upload = Upload.objects.get(pk=id)
+    upload.is_processing = Upload.ERROR
+    upload.process_message = msg
+    upload.log  = log
+    upload.save()
+    print(msg)

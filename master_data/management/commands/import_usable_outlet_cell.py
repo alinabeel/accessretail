@@ -14,6 +14,23 @@ class Command(BaseCommand):
         country = Country.objects.get(pk=upload.country.id)
         log = ""
 
+        # Get Valid Model Fields
+        valid_fields = modelValidFields("UsableOutlet")
+        foreign_fields = modelForeignFields("UsableOutlet")
+        valid_fields_all = valid_fields + foreign_fields
+
+        for ff in foreign_fields:
+                valid_fields_all.append(f"{ff}_id")
+
+        objs = Cell.objects.filter(country=upload.country,index=upload.index).values('id','name')
+        cell_list = dict()
+        for obj in objs:
+            cell_list[str(obj['name']).lower()] = obj['id']
+
+        month_list = getCode2AnyModelFieldList(upload.country.id,'Month','id')
+        outlet_list = getCode2AnyModelFieldList(upload.country.id,'Outlet','id')
+        month_islocked_list = getCode2AnyModelFieldList(upload.country.id,'Month','is_locked')
+
         updated_list = []
         # printr(Colors.BRIGHT_PURPLE,form_obj.file)
         try:
@@ -30,96 +47,145 @@ class Command(BaseCommand):
                     # printr(n,end=' ',flush=True)
                     row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
 
-                    month_code = row['month_code']
-                    index = row['index']
-                    outlet_code = row['outlet_code']
-
-                    if row['cell_description'] != '' and len(row['cell_description'])>1:
-                        cell_name = row['cell_description'].split("@")
-                        cell_name = get_max_str(cell_name)
-                    else:
-                        continue
-
-
                     row["upload"] = upload
 
-                    # del row["month"]
-                    # del row["year"]
-                    del row["month_code"]
-                    del row["index"]
-                    del row["outlet_code"]
+                    for ff in foreign_fields:
+                        if ff=='cell':
+                            row[f"{ff}"] = row.pop(f"{ff}_name", None)
 
+                        if f"{ff}_code" in row:
+                            row[f"{ff}"] = row.pop(f"{ff}_code", None)
 
-                    """Get or Skip Cell Object"""
-                    try:
-                        cell_obj = Cell.objects.get(country=upload.country, name__iexact=cell_name)
-                    except Cell.DoesNotExist:
-                        cell_obj = None
-                        log += printr('Cell name not exist: '+cell_name)
-                        skiped_records+=1
-                        continue
+                    # month_code = row['month_code']
+                    # index = row['index']
+                    # outlet_code = row['outlet_code']
 
-                    row['cell'] = cell_obj
+                    # cdebug(row)
+                    # exit()
 
+                    # if row['cell_description'] != '' and len(row['cell_description'])>1:
+                    #     cell_name = row['cell_description'].split("@")
+                    #     cell_name = get_max_str(cell_name)
+                    # else:
+                    #     continue
 
-                    """Get or Skip Month Object"""
-                    try:
-                        month_obj = Month.objects.get(country=country, code__iexact=month_code)
-                    except Month.DoesNotExist:
-                        month_obj = None
-                        log += ('month code not exist, csv row: '+ str(n))
-                        skiped_records += 1
-                        continue
+                    # del row["month_code"]
+                    # del row["index"]
+                    # del row["outlet_code"]
 
-                    row['month'] = month_obj
-
-
-                    """ Select Inex or Skip  """
-                    index_qs = None
-                    if(index != ''):
+                    """Get Month"""
+                    if(row['month'] != ''):
                         try:
-                            index_qs = IndexSetup.objects.filter(
-                                                Q(country=upload.country) &
-                                                Q(code__iexact = index)).get()
-                        except IndexSetup.DoesNotExist:
-                            log += printr('index code not exist: '+index)
+                            row['month_id'] = month_list[str(row['month']).lower()]
+                        except KeyError:
+                            log += printr(f'month not exist at: {n}')
                             skiped_records+=1
                             continue
                     else:
+                        log += printr('month is empty at: '+str(row['month']))
                         skiped_records+=1
-                        log += printr('index code is empty: '+index)
                         continue
 
-                    row['index'] = index_qs
+                    #Check if month is locked
+                    if(month_islocked_list[str(row['month']).lower()]==True):
+                        log += 'Month Locked:, CSV ROW: '+ str(n)
+                        skiped_records+=1
+                        continue
+
+                    del row['month']
+
+
+
+
+                    """Get or Skip Cell Object"""
+                    if(row['cell'] != ''):
+                        try:
+                            row['cell_id'] = cell_list[str(row['cell']).lower()]
+                        except KeyError:
+                            log += printr(f'cell not exist at: {n}')
+                            skiped_records+=1
+                            continue
+                    else:
+                        log += printr('cell is empty at: '+str(row['month']))
+                        skiped_records+=1
+                        continue
+
+                    del row['cell']
+
+                    # try:
+                    #     cell_obj = Cell.objects.get(country=upload.country, name__iexact=cell_name)
+                    # except Cell.DoesNotExist:
+                    #     cell_obj = None
+                    #     log += printr('Cell name not exist: '+cell_name)
+                    #     skiped_records+=1
+                    #     continue
+
+                    # row['cell'] = cell_obj
+
+
+                    # """Get or Skip Month Object"""
+                    # try:
+                    #     month_obj = Month.objects.get(country=country, code__iexact=month_code)
+                    # except Month.DoesNotExist:
+                    #     month_obj = None
+                    #     log += ('month code not exist, csv row: '+ str(n))
+                    #     skiped_records += 1
+                    #     continue
+
+                    # row['month'] = month_obj
+
+
+                    """ Select Inex or Skip  """
+                    # index_qs = None
+                    # if(index != ''):
+                    #     try:
+                    #         index_qs = IndexSetup.objects.filter(
+                    #                             Q(country=upload.country) &
+                    #                             Q(code__iexact = index)).get()
+                    #     except IndexSetup.DoesNotExist:
+                    #         log += printr('index code not exist: '+index)
+                    #         skiped_records+=1
+                    #         continue
+                    # else:
+                    #     skiped_records+=1
+                    #     log += printr('index code is empty: '+index)
+                    #     continue
+
+                    # row['index'] = index_qs
 
                     """Get or Skip Outlet Object"""
-                    try:
-                        outlet_obj = Outlet.objects.get(country=upload.country, code__iexact=outlet_code)
-                    except Outlet.DoesNotExist:
-                        outlet_obj = None
-                        log += printr('Outlet code not exist: '+outlet_code)
+
+                    if(row['outlet'] != ''):
+                        try:
+                            row['outlet_id'] = outlet_list[str(row['outlet']).lower()]
+                        except KeyError:
+                            log += printr(f'outlet not exist at: {n}')
+                            skiped_records+=1
+                            continue
+                    else:
+                        log += printr('outlet is empty at: '+str(row['month']))
                         skiped_records+=1
                         continue
 
-                    row['outlet'] = outlet_obj
+                    del row['outlet']
 
 
-                    valid_cold = [
-                        'category'
-                        'upload',
-                        'cell',
-                        'month',
-                        'index',
-                        'outlet',
-                    ]
+                    # try:
+                    #     outlet_obj = Outlet.objects.get(country=upload.country, code__iexact=outlet_code)
+                    # except Outlet.DoesNotExist:
+                    #     outlet_obj = None
+                    #     log += printr('Outlet code not exist: '+outlet_code)
+                    #     skiped_records+=1
+                    #     continue
 
-                    new_row = { key:value for (key,value) in row.items() if key in valid_cold}
+                    # row['outlet'] = outlet_obj
 
+                    new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
 
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
                         """In this case, if the Person already exists, its existing name is preserved"""
                         obj, created = UsableOutlet.objects.get_or_create(
-                            country=upload.country, outlet=outlet_obj, month=month_obj,
+                            country=upload.country, outlet_id=row['outlet_id'], month_id=row['month_id'],
                             defaults=new_row
                         )
                         if(created): created_records+=1
@@ -128,7 +194,11 @@ class Command(BaseCommand):
                     if(upload.import_mode == Upload.APPENDUPDATE ):
                         """In this case, if the Person already exists, its name is updated"""
                         obj, created = UsableOutlet.objects.update_or_create(
-                            country=upload.country, outlet=outlet_obj, month=month_obj,
+                            country=upload.country,
+                            cell_id=row['cell_id'],
+                            outlet_id=row['outlet_id'],
+                            month_id=row['month_id'],
+                            index=upload.index,
                             defaults=new_row
                         )
                         if(created): created_records+=1
