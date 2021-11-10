@@ -51,8 +51,7 @@ class Command(BaseCommand):
 
             #Product Audit Query List
             queryListPA = AuditData.objects.all().filter(country_id = country_id, category=category)
-            # prettyprint_queryset(queryListPA)
-            # exit()
+
             super_manufacture = Product.objects.filter(country_id = country_id, category=category).exclude(super_manufacture=None) \
                                 .order_by('category').values_list('super_manufacture', flat=True).distinct()
 
@@ -106,7 +105,7 @@ class Command(BaseCommand):
             # return_dic['previous_month'] = "{}, {}".format(previous_month_qs.name,previous_month_qs.year)
             # return_dic['current_month'] = "{}, {}".format(current_month_qs.name,current_month_qs.year)
 
-            queryListPPAll = PanelProfile.objects.all().filter(country_id = country_id,category__id = cat_id)
+            queryListPPAll = PanelProfile.objects.all().filter(country_id = country_id)
 
             if len(queryListPPAll) == 0 :
                 return_dic['count'] = 0

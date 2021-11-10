@@ -3,12 +3,7 @@ from master_setups.models import *
 from master_data.models import *
 from reports.models import *
 
-
 logger = logging.getLogger(__name__)
-
-
-
-
 
 class Command(BaseCommand):
 
@@ -18,7 +13,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         start_time = time.time()
-
 
         try:
             return_dic = {}
@@ -55,8 +49,6 @@ class Command(BaseCommand):
 
             #Product Audit Query List
             queryListPA = AuditData.objects.all().filter(country_id = country_id, category=category)
-            # prettyprint_queryset(queryListPA)
-            # exit()
 
             #Calculate Previous Month, Next Month
             audit_date_qs = PanelProfile.objects.all() \
