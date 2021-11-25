@@ -8,10 +8,20 @@ class Command(BaseCommand):
         parser.add_argument('upload_id', type=int)
 
     def handle(self, *args, **options):
+        skiped_records = 0
+        updated_records = 0
+        created_records = 0
+
+        start_time = time.time()
 
         upload_id = options['upload_id']
         upload = Upload.objects.get(pk=upload_id)
-        country = Country.objects.get(pk=upload.country.id)
+        log = ""
+
+        upload.is_processing = Upload.PROCESSING
+        upload.process_message = Upload.PROCESSING_MSG
+        upload.log  = log
+        upload.save()
 
         if(upload.import_mode == Upload.REFRESH):
             Category.objects.filter(country=upload.country).delete()
@@ -19,6 +29,12 @@ class Command(BaseCommand):
 
         # Get Valid Model Fields
         valid_fields = modelValidFields("Category")
+        foreign_fields = modelForeignFields("Category")
+        valid_fields_all = valid_fields + foreign_fields
+
+
+        for ff in foreign_fields:
+            valid_fields_all.append(f"{ff}_id")
 
         # print(Colors.BRIGHT_PURPLE,form_obj.file)
         try:
@@ -32,6 +48,12 @@ class Command(BaseCommand):
                     row = {k.strip(): v.strip() for (k, v) in row.items()}
 
                     row['upload'] = upload
+                    # Conver Foreign fields into row
+                    for ff in foreign_fields:
+                        if f"{ff}_code" in row:
+                            row[f"{ff}"] = row.pop(f"{ff}_code", None)
+
+
                     row['code'] = row.pop("category_code", None)
                     row['name'] = row.pop("category_name", None)
 
@@ -40,41 +62,61 @@ class Command(BaseCommand):
                     else:
                         row['is_active'] = False
 
+                    new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
+                    cdebug(new_row,'new_row')
 
                     parent = None
-                    if(row['parent']!=''):
+                    if 'parent' in new_row and new_row['parent'] != '':
                         try:
-                            row['parent'] = Category.objects.get(country=upload.country, code__iexact=row['parent'])
+                            new_row['parent'] = Category.objects.get(country=upload.country, code__iexact=new_row['parent'])
                         except Category.DoesNotExist:
                             parent = None
+                    else:
+                        new_row.pop("parent",None)
 
-                    new_row = { key:value for (key,value) in row.items() if key in valid_fields}
 
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
-                        # In this case, if the Person already exists, its existing name is preserved
                         category, created = Category.objects.get_or_create(
-
-                            country=upload.country, code__iexact=row['code'],
+                            country=upload.country, code__iexact=new_row['code'],
                             defaults=new_row
 
                         )
+
+                        if(created): created_records+=1
 
 
                     if(upload.import_mode == Upload.APPENDUPDATE ):
-                        # In this case, if the Person already exists, its name is updated
                         category, created = Category.objects.update_or_create(
-                            country=upload.country,code__iexact=row['code'],
+                            country=upload.country, code__iexact=new_row['code'],
                             defaults=new_row
                         )
+
+                        if(created): created_records+=1
+                        else: updated_records+=1
+
+                    upload.skiped_records = skiped_records
+                    upload.created_records = created_records
+                    upload.updated_records = updated_records
+                    upload.save()
 
                     n+=1
 
             logger.error('CSV file processed successfully.')
+            log += 'CSV file processed successfully.'
+            log += printr("Total time spent: %s seconds" % (convertSecond2Min(time.time() - start_time)))
             upload.is_processing = Upload.COMPLETED
             upload.process_message = "CSV file processed successfully."
+            upload.log  = log
             upload.save()
+
         except Exception as e:
-            logger.error('CSV file processing failed. Error Msg:'+ str(e))
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
+            logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
+            # cdebug(row,'row')
+            log += 'CSV file processing failed. Error Msg:'+ str(e)
             upload.is_processing = Upload.ERROR
             upload.process_message = "CSV file processing failed. Error Msg:"+str(e)
+            upload.log  = log
             upload.save()

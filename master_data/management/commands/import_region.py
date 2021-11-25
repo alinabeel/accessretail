@@ -27,7 +27,7 @@ class Command(BaseCommand):
                 print(".....I am in .....")
                 n=0
                 print("csv.DictReader took %s seconds" % (time.time() - start_time))
-                valid_heads = ['category_code','urbanity','outlet_type','outlet_type_code','is_active','description']
+                valid_heads = ['category_code','urbanity','outlet_type','outlettype_code','is_active','description']
 
                 for row in csv_reader:
                     print(n,end=' ',flush=True)
@@ -44,7 +44,7 @@ class Command(BaseCommand):
                         is_active = False
 
                     name = row['outlet_type']
-                    code = row['outlet_type_code']
+                    code = row['outlettype_code']
 
                     category_code = row['category_code']
                     urbanity = row['urbanity']

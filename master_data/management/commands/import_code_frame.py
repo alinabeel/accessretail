@@ -21,6 +21,8 @@ class Command(BaseCommand):
         country = Country.objects.get(pk=upload.country.id)
         log = ""
 
+        Province.objects.filter(country=upload.country,id=19).delete()
+        # exit()
         if(upload.import_mode == Upload.REFRESH):
             Province.objects.filter(country=upload.country).delete()
             District.objects.filter(country=upload.country).delete()
@@ -29,6 +31,13 @@ class Command(BaseCommand):
 
         # Get Valid Model Fields
         valid_fields = modelValidFields("CityVillage")
+        foreign_fields = modelForeignFields("CityVillage")
+        valid_fields_all = valid_fields + foreign_fields
+
+        for ff in foreign_fields:
+            valid_fields_all.append(f"{ff}_id")
+
+
 
         try:
             with open(MEDIA_ROOT+'/'+str(upload.file), 'r',encoding='utf-8-sig') as read_obj:
@@ -56,18 +65,25 @@ class Command(BaseCommand):
                     city_village_row['name'] = row['city_village_name']
                     city_village_row['upload'] = upload
 
+                    # Conver Foreign fields into row
+                    for ff in foreign_fields:
+                        if f"{ff}_code" in row:
+                            row[f"{ff}"] = row.pop(f"{ff}_code", None)
 
+                    # cdebug(valid_fields_all)
 
+                    # cdebug(row)
+                    # exit()
                     # print(province_name,district_name,tehsil_name,rc_cut)
                     # row["upload"] = upload
-                    if(province_code == '' or
-                        province_name == '' or
-                        district_code == '' or
-                        district_name == '' or
-                        tehsil_code == '' or
-                        tehsil_name == '' or
-                        city_village_row['code'] == '' or
-                        city_village_row['name'] == ''):
+                    if province_code == '' or \
+                        province_name == '' or \
+                        district_code == '' or \
+                        district_name == '' or \
+                        tehsil_code == '' or \
+                        tehsil_name == '' or \
+                        city_village_row['code'] == '' or \
+                        city_village_row['name'] == '':
 
                         log += ('mising information, ignore csv row: '+ str(n))
                         skiped_records+=1
@@ -107,27 +123,31 @@ class Command(BaseCommand):
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
                         province_qs, created = Province.objects.get_or_create(
                             country=upload.country, code__iexact=province_code,
-                            defaults={'name':province_name},
+                            defaults={'code':province_code,'name':province_name},
                         )
 
                         district_qs, created = District.objects.get_or_create(
                             country=upload.country, code__iexact=district_code,
-                            defaults={'name':district_name,'province':province_qs}
+                            defaults={'code':district_code,
+                                    'name':district_name,
+                                    'province':province_qs}
                         )
 
                         tehsil_qs, created = Tehsil.objects.get_or_create(
-                            country=upload.country, code__iexact=tehsil_code,
+                            country=upload.country, district = district_qs, code__iexact=tehsil_code,
                             defaults={'urbanity' : urbanity,
-                                    'district' : district_qs,
-                                    'name' : tehsil_name}
+                                    'code':tehsil_code,
+                                    'name':tehsil_name}
                         )
 
                         city_village_row['tehsil'] = tehsil_qs
 
                         # Row Of Valid Fields Only
-                        new_row = { key:value for (key,value) in city_village_row.items() if key in valid_fields}
+                        new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
+                        new_row = {**new_row,**city_village_row}
+
                         city_village_qs, created = CityVillage.objects.get_or_create(
-                            country=upload.country, code = city_village_row['code'],
+                            country=upload.country, code__iexact = city_village_row['code'],
                             defaults = new_row
                         )
 
@@ -135,33 +155,73 @@ class Command(BaseCommand):
                     if(upload.import_mode == Upload.APPENDUPDATE ):
                         province_qs, created = Province.objects.update_or_create(
                             country=upload.country, code__iexact=province_code,
-                            defaults={'name':province_name},
+                            defaults={'code':province_code,'name':province_name},
                         )
 
-                        # Get / Add District
                         district_qs, created = District.objects.update_or_create(
                             country=upload.country, code__iexact=district_code,
-                            defaults={'name':district_name,'province':province_qs}
+                            defaults={'code':district_code,
+                                    'name':district_name,
+                                    'province':province_qs}
                         )
 
-                        # Get / Add Tehsil
                         tehsil_qs, created = Tehsil.objects.update_or_create(
-                            country=upload.country, code__iexact=tehsil_code,
+                            country=upload.country, district = district_qs, code__iexact=tehsil_code,
                             defaults={'urbanity' : urbanity,
-                                    'district' : district_qs,
-                                    'name' : tehsil_name}
+                                    'code':tehsil_code,
+                                    'name':tehsil_name}
                         )
+
                         city_village_row['tehsil'] = tehsil_qs
 
-
                         # Row Of Valid Fields Only
-                        new_row = { key:value for (key,value) in city_village_row.items() if key in valid_fields}
+                        new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
+                        new_row = {**new_row,**city_village_row}
 
-                        # Get / Add CityVillage
                         city_village_qs, created = CityVillage.objects.update_or_create(
                             country=upload.country, code__iexact = city_village_row['code'],
                             defaults = new_row
                         )
+
+                        # province_qs, created = Province.objects.update_or_create(
+                        #     country=upload.country, code__iexact=province_code,
+                        #     defaults={'name':province_name},
+                        # )
+
+                        # # Get / Add District
+                        # district_qs, created = District.objects.update_or_create(
+                        #     country=upload.country, code__iexact=district_code,
+                        #     defaults={'name':district_name,'province':province_qs}
+                        # )
+
+                        # # Get / Add Tehsil
+                        # tehsil_qs, created = Tehsil.objects.update_or_create(
+                        #     country=upload.country, code__iexact=tehsil_code,
+                        #     defaults={'urbanity' : urbanity,
+                        #             'district' : district_qs,
+                        #             'name' : tehsil_name}
+                        # )
+                        # city_village_row['tehsil'] = tehsil_qs
+
+
+                        # # Row Of Valid Fields Only
+                        # new_row = { key:value for (key,value) in city_village_row.items() if key in valid_fields}
+                        # new_row['name'] = city_village_row['code']
+                        # # Get / Add CityVillage
+                        # city_village_qs, created = CityVillage.objects.update_or_create(
+                        #     country=upload.country, code__iexact = city_village_row['code'],
+                        #     defaults = new_row
+                        # )
+
+                        if(created): created_records+=1
+                        else: updated_records+=1
+
+                    upload.skiped_records = skiped_records
+                    upload.created_records = created_records
+                    upload.updated_records = updated_records
+                    upload.save()
+
+                    n+=1
 
 
                     # for v in row:
@@ -209,6 +269,7 @@ class Command(BaseCommand):
             log += printr("Total time spent: %s seconds" % (time.time() - start_time))
             upload.is_processing = Upload.COMPLETED
             upload.process_message = "CSV file processed successfully."
+
             upload.log  = log
             upload.skiped_records = skiped_records
             upload.created_records = created_records

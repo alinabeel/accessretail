@@ -43,7 +43,6 @@ class Upload(CreateUpdateMixIn, models.Model):
 
     CHOICES = [
       (APPEND, 'Append: Add records in the table.'),
-      (UPDATE, 'Update: If records exist update.'),
       (APPENDUPDATE, 'Append/Update: If  records exist update otherwise add.'),
       (REFRESH, 'Reresh: Delete all records and repopulate from the source.'),
     ]

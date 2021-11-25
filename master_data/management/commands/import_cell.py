@@ -49,8 +49,13 @@ class Command(BaseCommand):
                         skiped_records+=1
                         continue
 
-                    new_row = { key:value for (key,value) in row.items() if key in valid_fields}
+                    if(row['is_active'].lower() in ['t','true','y','yes','',1,'1','']):
+                        row['is_active'] = True
+                    else:
+                        row['is_active'] = False
 
+                    new_row = { key:value for (key,value) in row.items() if key in valid_fields}
+                    cdebug(new_row)
                     month_qs = Month.objects.all().filter(country = upload.country)
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
 

@@ -1,7 +1,10 @@
+import os
 import re
 import time
 import datetime
 import pprint
+
+import inspect
 from django.utils import timezone
 from django.conf import settings
 from django.utils import formats
@@ -135,9 +138,11 @@ def parse_date(formatted_date):
     return parsed_date.date()
 
 def cdebug(message,title='Debug'):
-    termcolor.cprint('---------'+title+'--------','red', 'on_white', ['blink','bold'])
+    caller = inspect.getframeinfo(inspect.stack()[1][0])
+    termcolor.cprint(f'---------{title}--{os.path.basename(caller.filename)}:{caller.function}:{caller.lineno} --------','red', 'on_blue', ['blink','bold'])
     text = pprint.pformat(message)
     termcolor.cprint(text, color='cyan', on_color=None, attrs=None)
+
 
 
 def find_location(text,RECIPES):
