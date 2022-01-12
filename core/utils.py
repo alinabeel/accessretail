@@ -208,9 +208,21 @@ def replaceIndex(i):
 def convertSecond2Min(seconds):
     return time.strftime("%H:%M:%S", time.gmtime(seconds))
 
+def timeSpent(last_time):
+    printr("Total time spent: %s seconds" % (convertSecond2Min(time.time() - last_time)))
+    return time.time()
+
 def get_max_str(lst):
     return max(lst, key=len).strip()
 
 
 def camelTerms(value):
     return re.findall('[A-Z][a-z]+|[0-9A-Z]+(?=[A-Z][a-z])|[0-9A-Z]{2,}|[a-z0-9]{2,}|[a-zA-Z0-9]', value)
+
+def percentChange(current, previous):
+    if current == previous:
+        return 0
+    try:
+        return (abs(current - previous) / previous) * 100.0
+    except ZeroDivisionError:
+        return 0

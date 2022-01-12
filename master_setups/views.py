@@ -36,7 +36,7 @@ from core.helpers import *
 from core.utils import prettyprint_queryset, trace, format_datetime,cdebug
 from core.colors import Colors
 from core.mixinsViews import PassRequestToFormViewMixin
-from master_setups.models import User,Country,UserCountry,IndexSetup,UserIndex,Threshold,CountrySetting
+from master_setups.models import User,Country,UserCountry,IndexSetup,UserIndex,CountrySetting
 
 from master_setups.forms import UserCreateModelForm,UserChangeModelForm,CountryModelForm,IndexSetupModelForm, \
                                 IndexCategoryModelForm,UserCountryModelForm,ThresholdModelForm, \
@@ -45,7 +45,7 @@ from master_setups.forms import UserCreateModelForm,UserChangeModelForm,CountryM
 
 from master_data.models import Upload,RegionType,Region,Category,IndexCategory,OutletType,Outlet, \
                                 CensusManager,Census,Month,UsableOutlet,PanelProfile,Product,AuditData, \
-                                RBD,Cell,Province,District,Tehsil,CityVillage,ColLabel,OutletStatus
+                                RBD,Cell,Province,District,Tehsil,CityVillage,ColLabel,OutletStatus,Threshold
 
 from master_data.forms import UploadCensusForm,CensusForm,UploadModalForm,UploadFormUpdate,CategoryListFormHelper, \
                                 CategoryModelForm,OutletTypeModelForm,RBDModelForm,CellModelForm,UsableOutletModelForm, \
@@ -321,7 +321,7 @@ class IndexCategoryListViewAjax(AjaxDatatableView):
 
     column_defs = [
          AjaxDatatableView.render_row_tools_column_def(),
-        {'name': 'id', 'visible': False, },
+        {'name': 'id', 'visible': True, },
         {'name': 'index_setup',  },
         {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
     ]

@@ -48,19 +48,20 @@ class UserAdmin(BaseUserAdmin,ImportExportModelAdmin):
 #     class Meta:
 #         model = CountrySetting
 
-@admin.register(Threshold)
-class ThresholdAdmin(ImportExportModelAdmin):
-    # resource_class = CountrySettingResource
-    fieldsets = (
-        (None, {'classes': ('wide', ),'fields': ('country',),}),
-        (_('Audited Data Threashold (in %)'), {'fields': (
-            ('audited_data_purchase_min', 'audited_data_purchase_max'),
-            ('audited_data_stock_min', 'audited_data_stock_max'),
-            ('audited_data_price_min','audited_data_price_max'),
-            ('audited_data_sales_min','audited_data_sales_max'),
-            )}),
-        (_('Outlet Factors Threashold (in %)'), {'fields': (('outlet_factor_numaric_min', 'outlet_factor_numaric_max'))}),
-    )
+# @admin.register(Threshold)
+# class ThresholdAdmin(ImportExportModelAdmin):
+#     # resource_class = CountrySettingResource
+#     fieldsets = (
+#         (None, {'classes': ('wide', ),'fields': ('country',),}),
+#         (_('Audited Data Threashold (in %)'), {'fields': (
+#             ('audited_data_purchase_min', 'audited_data_purchase_max'),
+#             ('audited_data_stock_min', 'audited_data_stock_max'),
+#             ('audited_data_price_min','audited_data_price_max'),
+#             ('audited_data_sales_min','audited_data_sales_max'),
+#             )}),
+#         (_('Outlet Factors Threashold (in %)'), {'fields': (('outlet_factor_numaric_min', 'outlet_factor_numaric_max'))}),
+#     )
+
 @admin.register(CountrySetting)
 class CountrySettingAdmin(ImportExportModelAdmin):
     # resource_class = CountrySettingResource

@@ -5,7 +5,6 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import ugettext_lazy as _
 from core.mixinsModels import UpperCaseCharField,CodeNameMixIn,CreateUpdateMixIn
-# from master_data.models import Upload
 
 class User(AbstractUser):
     COUNTRYMANAGER = '1'
@@ -79,8 +78,6 @@ class UserCountry(CreateUpdateMixIn,models.Model):
         verbose_name = 'UserCountry'
         verbose_name_plural = 'User Countries'
 
-
-
 class IndexSetup(CodeNameMixIn,CreateUpdateMixIn,models.Model):
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
@@ -97,7 +94,6 @@ class IndexSetup(CodeNameMixIn,CreateUpdateMixIn,models.Model):
         verbose_name = 'Index Setup'
         verbose_name_plural = 'Index Setups'
         ordering = ['name']
-
 
 class UserIndex(CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
@@ -119,31 +115,6 @@ class UserIndex(CreateUpdateMixIn,models.Model):
         db_table = 'user_index'
         verbose_name = 'User Index'
         verbose_name_plural = 'User Indexes'
-
-class Threshold(CreateUpdateMixIn, models.Model):
-    country = models.OneToOneField(Country, on_delete=models.CASCADE,unique = True)
-    audited_data_purchase_min= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='-10')
-    audited_data_purchase_max= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='10')
-
-    audited_data_stock_min= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='-10')
-    audited_data_stock_max= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='10')
-
-    audited_data_price_min= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='-10')
-    audited_data_price_max= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='10')
-
-
-    audited_data_sales_min= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='-10')
-    audited_data_sales_max= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='10')
-
-    outlet_factor_numaric_min= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='0')
-    outlet_factor_numaric_max= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='1')
-    def __str__(self):
-        return str('{0}'.format(self.country))
-
-    class Meta:
-        db_table = 'threshold'
-        verbose_name = 'Threshold'
-        verbose_name_plural = 'Thresholds'
 
 
 

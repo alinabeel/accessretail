@@ -89,7 +89,13 @@ class UserCountryModelForm(forms.ModelForm):
 class ThresholdModelForm(forms.ModelForm):
     class Meta:
         model = Threshold
-        fields = ('audited_data_purchase_min', 'audited_data_purchase_max', 'audited_data_stock_min', 'audited_data_stock_max', 'audited_data_price_min', 'audited_data_price_max', 'audited_data_sales_min', 'audited_data_sales_max', 'outlet_factor_numaric_min', 'outlet_factor_numaric_max', )
+        fields = (
+                'audited_data_purchase_min', 'audited_data_purchase_max',
+                'audited_data_stock_min', 'audited_data_stock_max',
+                'audited_data_price_min', 'audited_data_price_max',
+                'audited_data_sales_min', 'audited_data_sales_max',
+                'outlet_factor_numaric_min', 'outlet_factor_numaric_max',
+                )
 
 
 class RegionTypeModelForm(forms.ModelForm):

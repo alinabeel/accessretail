@@ -20,7 +20,9 @@ from django.utils.dateparse import parse_date
 from django.core.management.base import BaseCommand
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from django.db.models import Q, Avg, Count, Min,Max, Sum
+from django.db.models import Q,Avg, Count, Min,Max, Sum
+from django.db.models.aggregates import StdDev,Avg
+
 from django.forms.models import model_to_dict
 
 from core.colors import Colors
@@ -29,7 +31,8 @@ from var_dump import var_dump,var_export
 from core.settings import MEDIA_ROOT,MEDIA_URL
 from core.utils import (trace,prettyprint_query,prettyprint_queryset,
             format_datetime,parse_date,cdebug,find_location,csvHeadClean,
-            printr,replaceIndex,convertSecond2Min,get_max_str,camelTerms)
+            printr,replaceIndex,convertSecond2Min,get_max_str,camelTerms,
+            percentChange,timeSpent)
 
 from core.helpers import (getDictArray,getDicGroupList,getGroupFilter,getGroupFilterHuman,
             dropzeros,remove_exponent,getCategories,getMonths,modelValidFields,modelForeignFields,

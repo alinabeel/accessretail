@@ -10,6 +10,8 @@ from django.utils.translation import ugettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 from core.mixinsModels import UpperCaseCharField,CodeNameMixIn,CreateUpdateMixIn
 from core.colors import Colors
+from master_setups.models import Country,IndexSetup,UserCountry,User,UserIndex,CountrySetting
+
 
 try: from core.dynamic_model.CityVillageMixIn import CityVillageMixIn
 except ImportError: CityVillageMixIn = None
@@ -21,7 +23,6 @@ try: from core.dynamic_model.ProductMixin import ProductMixin
 except ImportError: ProductMixin = None
 
 
-from master_setups.models import Country,IndexSetup,UserCountry,User,UserIndex,Threshold, CountrySetting
 
 UserModel = get_user_model()
 
@@ -390,12 +391,24 @@ class PanelProfile(PanelProfileDefault,PanelProfileMixIn,CreateUpdateMixIn,model
     class Meta:
         unique_together = (('country','outlet', 'month','index'))
         db_table = 'panel_profile'
-        verbose_name = 'PanelProfile'
-        verbose_name_plural = 'PanelProfiles'
+        verbose_name = 'Panel Profile'
+        verbose_name_plural = 'Panel Profiles'
 
     def __str__(self):
         return self.outlet.code
 
+class PanelProfileChild(PanelProfileDefault,PanelProfileMixIn,CreateUpdateMixIn,models.Model):
+    is_valid = models.BooleanField(default=True)
+    price_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+
+    class Meta:
+        unique_together = (('country','outlet', 'month','index'))
+        db_table = 'panel_profile_child'
+        verbose_name = 'Panel Profile Child'
+        verbose_name_plural = 'Panel Profiles Child'
+
+    def __str__(self):
+        return self.outlet.code
 
 class ProductDefault(models.Model):
 
@@ -429,10 +442,9 @@ class Product(CreateUpdateMixIn,CodeNameMixIn,ProductDefault,ProductMixin,models
         verbose_name_plural = 'Products'
 
     def __str__(self):
-        return self.country
+        return self.code
 
-
-class AuditData(CreateUpdateMixIn,models.Model):
+class AuditDataDefault(models.Model):
     AUDITED = 'A'
     COPIED = 'C'
     ESTIMATED = 'E'
@@ -475,10 +487,42 @@ class AuditData(CreateUpdateMixIn,models.Model):
     audit_status = models.CharField(max_length=1, choices=AUDIT_STATUS_CHOICES,default=AUDITED)
 
     class Meta:
+        abstract = True
+
+class AuditData(CreateUpdateMixIn,AuditDataDefault,models.Model):
+
+    class Meta:
         unique_together = (('country','outlet','product','month'))
         db_table = 'audit_data'
         verbose_name = 'Audit Data'
         verbose_name_plural = 'Audit Data'
+
+    def __str__(self):
+        return self.id
+
+class AuditDataChild(CreateUpdateMixIn,AuditDataDefault,models.Model):
+
+
+    price_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    purchase_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    sales_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    stock_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    avg_sales = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    sd_sales = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    sd_range_min = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    sd_range_max = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    is_valid = models.BooleanField(default=True)
+    flag_price = models.BooleanField(default=False)
+    flag_neg_sales_corr = models.BooleanField(default=False)
+    flag_outlier = models.BooleanField(default=False)
+    flag_copied_previous = models.BooleanField(default=False)
+
+    class Meta:
+
+        unique_together = (('country','outlet','product','month'))
+        db_table = 'audit_data_child'
+        verbose_name = 'Audit Data Child'
+        verbose_name_plural = 'Audit Data Child'
 
     def __str__(self):
         return self.id
@@ -532,7 +576,6 @@ class CellMonthACV(CreateUpdateMixIn,models.Model):
     def __str__(self):
         return self.cell_acv
 
-
 class RBD(CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
@@ -551,10 +594,10 @@ class RBD(CreateUpdateMixIn,models.Model):
 
 class UsableOutlet(CreateUpdateMixIn,models.Model):
 
-    USABLE = 'UA'
-    NOTUSABLE = 'NU'
-    DROP = 'DR'
-    QUARANTINE = 'QA'
+    USABLE = 'USABLE'
+    NOTUSABLE = 'NOTUSABLE'
+    DROP = 'DROP'
+    QUARANTINE = 'QUARANTINE'
     USABLE_STATUS_CHOICES = (
         (USABLE , 'Usable'),
         (NOTUSABLE , 'Not Usable'),
@@ -577,7 +620,6 @@ class UsableOutlet(CreateUpdateMixIn,models.Model):
         db_table = 'usable_outlet'
         verbose_name = 'UsableOutlet'
         verbose_name_plural = 'UsableOutlets'
-
 
 class ColLabel(CreateUpdateMixIn,models.Model):
 
@@ -607,3 +649,47 @@ class ColLabel(CreateUpdateMixIn,models.Model):
 
 
 
+class Threshold(CreateUpdateMixIn, models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    audited_data_purchase_min= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='-10')
+    audited_data_purchase_max= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='10')
+
+    audited_data_sales_min= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='-10')
+    audited_data_sales_max= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='10')
+
+    audited_data_stock_min= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='-10')
+    audited_data_stock_max= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='10')
+
+    audited_data_price_min= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='-10' )
+    audited_data_price_max= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='10', help_text="Apply Last Month Price Cleaning on the Stores + P_Codes")
+
+
+    audited_data_stddev_min= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='-3')
+    audited_data_stddev_max= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='3', help_text="(Store + P_code Actual Sales) Shall lie in between Avg (P_code Sales) +/- 3 SD ")
+    stddev_sample = models.BooleanField(default=True, help_text="Use StdDev Sample if enable else StdDev Population")
+
+    outlet_factor_numaric_min = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='0')
+    outlet_factor_numaric_max = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='1')
+
+    common_outlet_accept = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='5', help_text="ABS (Store Actual Sales /  Store Last Month Sales - 1) <= c")
+    common_outlet_copy = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='5', help_text="ABS (Store Actual Sales /  Store Census Sales - 1) > c")
+    new_outlet_accept_a = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='5', help_text="ABS (Store Actual Sales /  Store Census Sales - 1) <= a")
+    new_outlet_drop_a = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='5', help_text="ABS (Store Actual Sales /  Store Census Sales - 1) > a" )
+    new_outlet_accept_b = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='5', help_text="ABS (Store Actual Sales /  Avg Cell Sales - 1) <= b")
+    new_outlet_drop_b = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='5', help_text="ABS (Store Actual Sales /  Avg Cell Sales - 1) > b")
+    drop_outlet_copied = models.BooleanField(default=True)
+    drop_outlet_copied_once = models.BooleanField(default=True)
+    weighted_store = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='80')
+    weighted_cell = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='80')
+
+    def __str__(self):
+        return str('{0}'.format(self.country))
+
+    class Meta:
+        unique_together = (('country', 'index','category'))
+        db_table = 'threshold'
+        verbose_name = 'Threshold'
+        verbose_name_plural = 'Thresholds'
