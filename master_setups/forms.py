@@ -89,15 +89,35 @@ class UserCountryModelForm(forms.ModelForm):
 class ThresholdModelForm(forms.ModelForm):
     class Meta:
         model = Threshold
-        fields = (
-                'audited_data_purchase_min', 'audited_data_purchase_max',
-                'audited_data_stock_min', 'audited_data_stock_max',
-                'audited_data_price_min', 'audited_data_price_max',
-                'audited_data_sales_min', 'audited_data_sales_max',
-                'outlet_factor_numaric_min', 'outlet_factor_numaric_max',
-                )
+        # fields = (
+        #         'audited_data_purchase_min', 'audited_data_purchase_max',
+        #         'audited_data_stock_min', 'audited_data_stock_max',
+        #         'audited_data_price_min', 'audited_data_price_max',
+        #         'audited_data_sales_min', 'audited_data_sales_max',
+        #         'outlet_factor_numaric_min', 'outlet_factor_numaric_max',
+        #         )
 
-
+        fields = ('audited_data_purchase_min',
+            'audited_data_purchase_max',
+            'audited_data_sales_min',
+            'audited_data_sales_max',
+            'audited_data_stock_min',
+            'audited_data_stock_max',
+            'audited_data_price_min',
+            'audited_data_price_max',
+            'audited_data_stddev_min',
+            'audited_data_stddev_max',
+            'stddev_sample',
+            'outlet_factor_numaric_min',
+            'outlet_factor_numaric_max',
+            'common_outlet_accept',
+            'new_outlet_accept_a',
+            'new_outlet_accept_b',
+            'drop_outlet_copied',
+            'drop_outlet_copied_once',
+            'weighted_store',
+            'weighted_cell',
+            )
 class RegionTypeModelForm(forms.ModelForm):
     class Meta:
         model = RegionType

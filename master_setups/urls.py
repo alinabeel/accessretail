@@ -65,7 +65,7 @@ urlpatterns += [
 
 """ Index Category """
 urlpatterns += [
-    path('<slug:country_code>/indexcategory-list-ajax/', IndexCategoryListViewAjax.as_view(), name='indexcategory-list-ajax'),
+    # path('<slug:country_code>/indexcategory-list-ajax/', IndexCategoryListViewAjax.as_view(), name='indexcategory-list-ajax'),
     path('<slug:country_code>/indexcategory-list/', IndexCategoryListView.as_view(), name='indexcategory-list'),
     path('<slug:country_code>/indexcategory-add', IndexCategoryCreateView.as_view(), name='indexcategory-add'),
     path('<slug:country_code>/indexcategory-update/<int:pk>', IndexCategoryUpdateView.as_view(), name='indexcategory-update'),
@@ -129,6 +129,9 @@ urlpatterns += [
 
 """ Threshold """
 urlpatterns += [
-    path('<slug:country_code>/threshold/', ThresholdListView.as_view(), name='threshold'),
-    path('<slug:country_code>/threshold-update/', ThresholdUpdateView.as_view(), name='threshold-update'),
+
+    # path('<slug:country_code>/threshold-list-ajax/', ThresholdListViewAjax.as_view(), name='threshold-list-ajax'),
+    path('<slug:country_code>/threshold-list/', ThresholdListView.as_view(), name='threshold-list'),
+    # path('<slug:country_code>/threshold/', ThresholdListView.as_view(), name='threshold'),
+    path('<slug:country_code>/threshold-update/<slug:index>/<slug:category>', ThresholdUpdateView.as_view(), name='threshold-update'),
 ]

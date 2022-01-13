@@ -8,13 +8,15 @@
                 <form method="post" class="mt-5">
                     {% csrf_token %}
                     {{ form|crispy }}
+                    <input type="hidden" value="{{request.resolver_match.kwargs.index }}" name="index" >
+                    <input type="hidden" value="{{request.resolver_match.kwargs.category }}" name="category" >
                     <div class="form-group text-center m-t-20">
                         <div class="col-12">
                             <button class="btn btn-primary btn-block btn-lg waves-effect waves-light" type="submit">Update</button>
                         </div>
                     </div>
                 </form>
-            </div
+            </div>
         </div>
     </div>
 </div>

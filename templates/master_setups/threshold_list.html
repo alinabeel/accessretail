@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load custom_tags %}
+{% block action_buttons %}
+{% endblock action_buttons %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card m-b-30">
+            <div class="card-body">
+                <table id="datatable-buttons" class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                    <thead>
+                    <tr>
+                        <th>Index</th>
+                        <th>Category</th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for obj in object_list.index_category %}
+                    <tr>
+                        <td> {{ obj}}</td>
+                        <td>
+                            <table class="table table-striped table-bordered dt-responsive nowrap" width="100%">
+                            {% for cat in obj.category.all %}
+
+                                <tr>
+                                    <td>
+                                        {{ cat.name}} ({{ cat.code}})
+                                    </td>
+                                    <td align="right">
+
+                                        {% for obj2 in object_list.threshold %}
+                                            {% setvar "0" as found %}
+                                            {% if obj2.index_id == obj.id and obj2.category_id == cat.id %}
+                                                {% setvar "1" as found %}
+                                                <a href="{% url 'master-setups:threshold-update' country_code=global.country_code index=obj.id category=cat.id %}" class="btn btn-primary btn-lg waves-effect waves-light">Update Threshold</a>
+                                            {% else %}
+                                               {% if found == 0 %} {% setvar "0" as found %} {% endif %}
+                                            {% endif %}
+
+                                        {% endfor %}
+
+                                        <a href="{% url 'master-setups:threshold-update' country_code=global.country_code index=obj.id category=cat.id %}" class="btn btn-info btn-lg waves-effect waves-light">Add Threshold</a>
+                                        {% if found == 0 %}
+
+                                        {% endif %}
+
+                                    </td>
+                                </tr>
+
+
+
+                            {% endfor %}
+                        </table>
+
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+
+
+
+
+            </div>
+        </div>
+    </div> <!-- end col -->
+</div> <!-- end row -->
+
+
+{% endblock content %}
+
+{% block javascripts %}
+{% endblock javascripts %}

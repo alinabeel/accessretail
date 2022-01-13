@@ -55,6 +55,25 @@ from ajax_datatable.views import AjaxDatatableView
 
 logger = logging.getLogger(__name__)
 
+def change_password(request,country_code,pk):
+    if request.method == 'POST':
+        user_rs =  User.objects.get(id=pk)
+        form = PasswordChangeForm(user_rs, request.POST)
+        if form.is_valid():
+            user = form.save()
+            # update_session_auth_hash(request, user)  # Important!
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('master-setups:user-list', country_code = country_code)
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        user =  User.objects.get(id=pk)
+        form = PasswordChangeForm(user)
+    return render(request, 'registration/change_password.html', {
+        'form': form
+    })
+
+
 class IndexPageView(generic.TemplateView):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -312,35 +331,35 @@ class IndexSetupDeleteView(LoginRequiredMixin, generic.DeleteView):
 """ ------------------------- IndexCategory ------------------------- """
 
 
-class IndexCategoryListViewAjax(AjaxDatatableView):
-    model = IndexCategory
-    title = 'IndexCategory'
-    initial_order = [["index_setup", "asc"], ]
-    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
-    search_values_separator = '+'
+# class IndexCategoryListViewAjax(AjaxDatatableView):
+#     model = IndexCategory
+#     title = 'IndexCategory'
+#     initial_order = [["index_setup", "asc"], ]
+#     length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
+#     search_values_separator = '+'
 
-    column_defs = [
-         AjaxDatatableView.render_row_tools_column_def(),
-        {'name': 'id', 'visible': True, },
-        {'name': 'index_setup',  },
-        {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
-    ]
+#     column_defs = [
+#          AjaxDatatableView.render_row_tools_column_def(),
+#         {'name': 'id', 'visible': True, },
+#         {'name': 'index_setup',  },
+#         {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
+#     ]
 
-    def customize_row(self, row, obj):
-            row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
-                             '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
-                    reverse('master-setups:indexcategory-update', args=(self.kwargs['country_code'],obj.id,)),
-                    reverse('master-setups:indexcategory-delete', args=(self.kwargs['country_code'],obj.id,)),
-                )
-                # <a href="{1}" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
+#     def customize_row(self, row, obj):
+#             row['action'] = ('<a href="%s" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"><span class="mdi mdi-circle-edit-outline" aria-hidden="true"></span></a>'+
+#                              '<a href="%s" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+#                     reverse('master-setups:indexcategory-update', args=(self.kwargs['country_code'],obj.id,)),
+#                     reverse('master-setups:indexcategory-delete', args=(self.kwargs['country_code'],obj.id,)),
+#                 )
+#                 # <a href="{1}" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>
 
 
-    def get_initial_queryset(self, request=None):
+#     def get_initial_queryset(self, request=None):
 
-        queryset = self.model.objects.filter(
-            country__id=self.request.session['country_id']
-        )
-        return queryset
+#         queryset = self.model.objects.filter(
+#             country__id=self.request.session['country_id']
+#         )
+#         return queryset
 
 
 
@@ -465,23 +484,7 @@ class UserListViewAjax(AjaxDatatableView):
     #     return queryset
 
 
-def change_password(request,country_code,pk):
-    if request.method == 'POST':
-        user_rs =  User.objects.get(id=pk)
-        form = PasswordChangeForm(user_rs, request.POST)
-        if form.is_valid():
-            user = form.save()
-            # update_session_auth_hash(request, user)  # Important!
-            messages.success(request, 'Your password was successfully updated!')
-            return redirect('master-setups:user-list', country_code = country_code)
-        else:
-            messages.error(request, 'Please correct the error below.')
-    else:
-        user =  User.objects.get(id=pk)
-        form = PasswordChangeForm(user)
-    return render(request, 'registration/change_password.html', {
-        'form': form
-    })
+
 
 class UserListView(LoginRequiredMixin, generic.TemplateView):
     template_name = "master_setups/user_list.html"
@@ -719,33 +722,83 @@ class UserIndexDeleteView(LoginRequiredMixin, generic.DeleteView):
 
 
 """ ------------------------- Threshold ------------------------- """
+# class ThresholdListViewAjax(AjaxDatatableView):
+#     model = IndexCategory
+#     title = 'IndexCategory'
+#     initial_order = [["index", "asc"], ]
+#     length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
+#     search_values_separator = '+'
 
-class ThresholdListView(LoginRequiredMixin, generic.TemplateView):
-    template_name = "master_setups/threshold.html"
-    PAGE_TITLE = "Threshold Settings"
+#     column_defs = [
+#          AjaxDatatableView.render_row_tools_column_def(),
+#         {'name': 'id','title':'ID', 'visible': True, },
+#         {'name': 'index',  },
+#         {'name': 'category','m2m_foreign_field':'category__name'  },
+#         {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
+#     ]
+
+#     def customize_row(self, row, obj):
+#             # row['action'] = ('<a href="%s" title="Delete" class="btn btn-danger btn-xs dt-delete">Threshold<span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+#             #         reverse('master-data:threshold-delete', args=(self.kwargs['country_code'],obj.id,)),
+#             #     )
+
+#             row['action'] = row['action'].replace(',','<br>')
+
+#             # cdebug(obj.cell.__dict__,'M2')
+
+
+
+#     def get_initial_queryset(self, request=None):
+
+#         queryset = self.model.objects.filter(
+#             country__id=self.request.session['country_id'],
+#             index__id=self.request.session['index_id']
+#         )
+#         return queryset
+
+
+class ThresholdListView(LoginRequiredMixin, generic.ListView):
+    template_name = "master_setups/threshold_list.html"
+    PAGE_TITLE = 'Categories wise Threshold'
     extra_context = {
         'page_title': PAGE_TITLE,
         'header_title': PAGE_TITLE
     }
-
-    def get_context_data(self, **kwargs):
-
-        context = super(self.__class__, self).get_context_data(**kwargs)
-        threshold = Threshold.objects.filter(
-            country__id=self.request.session['country_id']
-        )
-        context.update({
-            "threshold": threshold,
-        })
-        return context
-
     def get_queryset(self):
-        queryset = Threshold.objects.filter(country__id=self.request.session['country_id'])
-
-
-        # return redirect('master-setups:threshold-update', country_code = self.kwargs["country_code"])
-        # return reverse("master-setups:thresholdZupdate", kwargs={"country_code": self.kwargs["country_code"]})
+        queryset = {'index_category': IndexCategory.objects.filter(country__id=self.request.session['country_id'])
+,
+                    'threshold': Threshold.objects.all()}
         return queryset
+
+    # def get_context_data(self, **kwargs):
+    #     context = super(self.__class__, self).get_context_data(**kwargs)
+    #     return context
+
+
+# class ThresholdListView(LoginRequiredMixin, generic.TemplateView):
+#     template_name = "master_setups/threshold.html"
+#     PAGE_TITLE = "Threshold Settings"
+#     extra_context = {
+#         'page_title': PAGE_TITLE,
+#         'header_title': PAGE_TITLE
+#     }
+
+#     def get_context_data(self, **kwargs):
+
+#         context = super(self.__class__, self).get_context_data(**kwargs)
+#         threshold = Threshold.objects.filter(
+#             country__id=self.request.session['country_id']
+#         )
+#         context.update({
+#             "threshold": threshold,
+#         })
+#         return context
+
+#     def get_queryset(self):
+#         queryset = Threshold.objects.filter(country__id=self.request.session['country_id'])
+#         # return redirect('master-setups:threshold-update', country_code = self.kwargs["country_code"])
+#         # return reverse("master-setups:thresholdZupdate", kwargs={"country_code": self.kwargs["country_code"]})
+#         return queryset
 
 class ThresholdUpdateView(LoginRequiredMixin, generic.UpdateView):
     template_name = "master_setups/threshold_update.html"
@@ -757,23 +810,30 @@ class ThresholdUpdateView(LoginRequiredMixin, generic.UpdateView):
         'header_title': PAGE_TITLE
     }
 
-
     def form_valid(self, form):
-
         try:
-            threshold = Threshold.objects.get(country__id = self.request.session['country_id'])
+            threshold = Threshold.objects.get(
+                country__id = self.request.session['country_id'],
+                index__id = self.request.POST.get("index"),
+                category__id = self.request.POST.get("category")
+                )
         except Threshold.DoesNotExist:
             threshold = None
 
         if  threshold is None:
             form_obj = form.save(commit=False)
+            form_obj.pk = None
             form_obj.country_id = self.request.session['country_id']
+            form_obj.index_id = self.request.POST.get("index")
+            form_obj.category_id = self.request.POST.get("category")
             form_obj.save()
         else:
             form_obj = form.save(commit=False)
             form_obj.created = datetime.now()
             form_obj.pk = threshold.id
             form_obj.country_id = self.request.session['country_id']
+            form_obj.index_id = self.request.POST.get("index")
+            form_obj.category_id = self.request.POST.get("category")
             form_obj.save()
 
         # management.call_command('import_census',self.kwargs["country_code"])
@@ -781,10 +841,15 @@ class ThresholdUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def get_success_url(self):
         # return reverse("leads:lead-detail", kwargs={"pk": self.kwargs["pk"]})
-        return reverse("master-setups:threshold", kwargs={"country_code": self.kwargs["country_code"]})
+        return reverse("master-setups:threshold-list", kwargs={"country_code": self.kwargs["country_code"]})
 
     def get_object(self, queryset=None):
-        return self.model.objects.filter(country__id=self.request.session['country_id']).first()
+
+        return self.model.objects.filter(
+            country__id=self.request.session['country_id'],
+            index__id = self.kwargs['index'],
+            category__id = self.kwargs['category'],
+            ).first()
 
     def get_queryset(self):
         user = self.request.user
