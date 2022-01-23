@@ -209,7 +209,7 @@ def convertSecond2Min(seconds):
     return time.strftime("%H:%M:%S", time.gmtime(seconds))
 
 def timeSpent(last_time):
-    printr("Total time spent: %s seconds" % (convertSecond2Min(time.time() - last_time)))
+    printr("Time spent: %s seconds" % (convertSecond2Min(time.time() - last_time)))
     return time.time()
 
 def get_max_str(lst):
@@ -223,6 +223,6 @@ def percentChange(current, previous):
     if current == previous:
         return 0
     try:
-        return (abs(current - previous) / previous) * 100.0
+        return (abs(float(current) - float(previous)) / float(previous)) * 100.0
     except ZeroDivisionError:
         return 0

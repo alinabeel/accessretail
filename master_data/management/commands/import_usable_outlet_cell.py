@@ -183,7 +183,7 @@ class Command(BaseCommand):
                     new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
 
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
-                        """In this case, if the Person already exists, its existing name is preserved"""
+
                         obj, created = UsableOutlet.objects.get_or_create(
                             country=upload.country, outlet_id=row['outlet_id'], month_id=row['month_id'],
                             defaults=new_row

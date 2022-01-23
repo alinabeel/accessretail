@@ -93,6 +93,61 @@ class Upload(CreateUpdateMixIn, models.Model):
         verbose_name = 'Upload'
         verbose_name_plural = 'Uploads'
 
+class Month(CreateUpdateMixIn,models.Model):
+    JANUARY = "January"
+    FEBRUARY = "February"
+    MARCH = "March"
+    APRIL = "Aapril"
+    MAY = "May"
+    JUNE = "June"
+    JULY = "July"
+    AUGUST = "August"
+    SEPTEMBER = "September"
+    OCTOBER = "October"
+    NOVEMBER = "November"
+    DECEMBER = "December"
+
+
+    MONTH_CHOICES = [
+        (JANUARY, "January"),
+        (FEBRUARY, "February"),
+        (MARCH, "March"),
+        (APRIL, "Aapril"),
+        (MAY, "May"),
+        (JUNE, "June"),
+        (JULY, "July"),
+        (AUGUST, "August"),
+        (SEPTEMBER, "September"),
+        (OCTOBER, "October"),
+        (NOVEMBER, "November"),
+        (DECEMBER, "December"),
+    ]
+
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    name = models.CharField(max_length=150, choices=MONTH_CHOICES)
+    code = UpperCaseCharField(max_length=50,validators=[validators.validate_slug])
+
+    date = models.DateField(null=True, blank=True)
+
+    month = models.SmallIntegerField()
+    year = models.SmallIntegerField()
+
+    is_locked = models.BooleanField(default=False)
+    is_current_month = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.code
+    class Meta:
+        unique_together = (('country','code',),)
+        db_table = 'month'
+        verbose_name = 'Mont'
+        verbose_name_plural = 'Months'
+        ordering = ['month','year']
+
+    def save(self, *args, **kwargs):
+            self.date ='{0}-{1}-{2}'.format(self.year, self.month,1)
+            super(self.__class__, self).save(*args, **kwargs)
+
 
 class Province(CodeNameMixIn,CreateUpdateMixIn,models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
@@ -218,6 +273,11 @@ class IndexCategory(CreateUpdateMixIn,models.Model):
     def get_index_category_ids(self):
         cl =[a.id for a in self.category.all()]
         return cl
+
+    def get_index_category_code(self):
+        cl =[a.code for a in self.category.all()]
+        return cl
+
     def __str__(self):
         return str('{0}'.format(self.index.name))
 
@@ -257,6 +317,28 @@ class Outlet(CreateUpdateMixIn, models.Model):
         verbose_name = 'Outlet'
         verbose_name_plural = 'Outlets'
 
+class OutletCensus(CreateUpdateMixIn, models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    outlet = models.ForeignKey(Outlet, on_delete=models.CASCADE)
+
+    over_all_sales_from = models.IntegerField(null=True, blank=True, default=0)
+    over_all_sales_to = models.IntegerField(null=True, blank=True, default=0)
+    over_all_sales_avg =models.DecimalField(max_digits=12,decimal_places=2, null=True, blank=True, default=0)
+
+    category_sales_from = models.IntegerField(null=True, blank=True, default=0)
+    category_sales_to = models.IntegerField(null=True, blank=True, default=0)
+    category_sales_avg = models.DecimalField(max_digits=12,decimal_places=2, null=True, blank=True, default=0)
+
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        unique_together = (('country', 'outlet','category'))
+        db_table = 'outlet_census'
+        verbose_name = 'Outlet Census'
+        verbose_name_plural = 'Outlets Census'
 
 class CensusManager(models.Manager):
     pass
@@ -278,62 +360,6 @@ class Census(CreateUpdateMixIn,models.Model):
         db_table = 'census'
         verbose_name = 'Census'
         verbose_name_plural = 'Censuses'
-
-
-class Month(CreateUpdateMixIn,models.Model):
-    JANUARY = "January"
-    FEBRUARY = "February"
-    MARCH = "March"
-    APRIL = "Aapril"
-    MAY = "May"
-    JUNE = "June"
-    JULY = "July"
-    AUGUST = "August"
-    SEPTEMBER = "September"
-    OCTOBER = "October"
-    NOVEMBER = "November"
-    DECEMBER = "December"
-
-
-    MONTH_CHOICES = [
-        (JANUARY, "January"),
-        (FEBRUARY, "February"),
-        (MARCH, "March"),
-        (APRIL, "Aapril"),
-        (MAY, "May"),
-        (JUNE, "June"),
-        (JULY, "July"),
-        (AUGUST, "August"),
-        (SEPTEMBER, "September"),
-        (OCTOBER, "October"),
-        (NOVEMBER, "November"),
-        (DECEMBER, "December"),
-    ]
-
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    name = models.CharField(max_length=150, choices=MONTH_CHOICES)
-    code = UpperCaseCharField(max_length=50,validators=[validators.validate_slug])
-
-    date = models.DateField(null=True, blank=True)
-
-    month = models.SmallIntegerField()
-    year = models.SmallIntegerField()
-
-    is_locked = models.BooleanField(default=False)
-    is_current_month = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.code
-    class Meta:
-        unique_together = (('country','code',),)
-        db_table = 'month'
-        verbose_name = 'Mont'
-        verbose_name_plural = 'Months'
-        ordering = ['month','year']
-
-    def save(self, *args, **kwargs):
-            self.date ='{0}-{1}-{2}'.format(self.year, self.month,1)
-            super(self.__class__, self).save(*args, **kwargs)
 
 
 class OutletStatus(CodeNameMixIn,CreateUpdateMixIn,models.Model):
@@ -384,6 +410,18 @@ class PanelProfileDefault(models.Model):
     acv = models.DecimalField(max_digits=18,decimal_places=6, default=0)
     audit_status = models.CharField(max_length=1, choices=AUDIT_STATUS_CHOICES,default=AUDITED)
 
+    is_valid = models.BooleanField(default=True)
+    flag_accepted_a = models.BooleanField(default=False)
+    flag_accepted_b = models.BooleanField(default=False)
+
+    flag_droped_a = models.BooleanField(default=False)
+    flag_droped_b = models.BooleanField(default=False)
+
+    flag_new_outlet = models.BooleanField(default=False)
+    flag_common_outlet = models.BooleanField(default=False)
+    flag_copied_outlet = models.BooleanField(default=False)
+    flag_droped_outlet = models.BooleanField(default=False)
+
     class Meta:
         abstract = True
 
@@ -398,8 +436,6 @@ class PanelProfile(PanelProfileDefault,PanelProfileMixIn,CreateUpdateMixIn,model
         return self.outlet.code
 
 class PanelProfileChild(PanelProfileDefault,PanelProfileMixIn,CreateUpdateMixIn,models.Model):
-    is_valid = models.BooleanField(default=True)
-    price_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
 
     class Meta:
         unique_together = (('country','outlet', 'month','index'))
@@ -480,11 +516,33 @@ class AuditDataDefault(models.Model):
 
     vd_factor = models.DecimalField(default=0, max_digits=18,decimal_places=6,)
     total_purchase = models.IntegerField(default=0, null=True, blank=True)
+    purchase = models.IntegerField(default=0, null=True, blank=True)
     rev_purchase = models.IntegerField(default=0, null=True, blank=True)
     sales = models.DecimalField(default=0, max_digits=18, decimal_places=6,)
     sales_vol = models.DecimalField(default=0,max_digits=18,decimal_places=6,)
     sales_val = models.DecimalField(default=0,max_digits=18,decimal_places=6,)
     audit_status = models.CharField(max_length=1, choices=AUDIT_STATUS_CHOICES,default=AUDITED)
+
+
+
+    price_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    purchase_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    sales_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    stock_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    avg_sales = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    sd_sales = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+
+    valid_sales_min = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    valid_sales_max = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+
+    valid_purchase_min = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+    valid_purchase_max = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
+
+    is_valid = models.BooleanField(default=True)
+    flag_price = models.BooleanField(default=False)
+    flag_neg_sales_corr = models.BooleanField(default=False)
+    flag_outlier = models.BooleanField(default=False)
+    flag_copied_previous = models.BooleanField(default=False)
 
     class Meta:
         abstract = True
@@ -501,21 +559,6 @@ class AuditData(CreateUpdateMixIn,AuditDataDefault,models.Model):
         return self.id
 
 class AuditDataChild(CreateUpdateMixIn,AuditDataDefault,models.Model):
-
-
-    price_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
-    purchase_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
-    sales_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
-    stock_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
-    avg_sales = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
-    sd_sales = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
-    sd_range_min = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
-    sd_range_max = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
-    is_valid = models.BooleanField(default=True)
-    flag_price = models.BooleanField(default=False)
-    flag_neg_sales_corr = models.BooleanField(default=False)
-    flag_outlier = models.BooleanField(default=False)
-    flag_copied_previous = models.BooleanField(default=False)
 
     class Meta:
 
@@ -543,6 +586,7 @@ class Cell(CreateUpdateMixIn,models.Model):
     serialize_str = models.TextField(null=True, blank=True)
     condition_json = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    ipp = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (('country','name','index'))
@@ -621,6 +665,7 @@ class UsableOutlet(CreateUpdateMixIn,models.Model):
         verbose_name = 'UsableOutlet'
         verbose_name_plural = 'UsableOutlets'
 
+
 class ColLabel(CreateUpdateMixIn,models.Model):
 
     CityVillage = 'CityVillage'
@@ -666,9 +711,7 @@ class Threshold(CreateUpdateMixIn, models.Model):
     audited_data_price_min= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='-10' )
     audited_data_price_max= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='10', help_text="Apply Last Month Price Cleaning on the Stores + P_Codes")
 
-
-    audited_data_stddev_min= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='-3')
-    audited_data_stddev_max= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='3', help_text="(Store + P_code Actual Sales) Shall lie in between Avg (P_code Sales) +/- 3 SD ")
+    audited_data_stddev= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='3', help_text="(Store + P_code Actual Sales) Shall lie in between Avg (P_code Sales) +/- 3 SD ")
     stddev_sample = models.BooleanField(default=True, help_text="Use StdDev Sample if enable else StdDev Population")
 
     outlet_factor_numaric_min = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='0')
@@ -684,9 +727,11 @@ class Threshold(CreateUpdateMixIn, models.Model):
     drop_outlet_copied_once = models.BooleanField(default=True)
     weighted_store = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='80')
     weighted_cell = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='80')
+    drop_outlet_copy_once_drop_status_code = models.CharField(max_length=250,default='0,0', help_text="Copy Once Dropped NC / PC  Stores - if Store is weighted Store in the MBD")
+
 
     def __str__(self):
-        return str('{0}'.format(self.country))
+        return str('{0}'.format(self.id))
 
     class Meta:
         unique_together = (('country', 'index','category'))

@@ -167,7 +167,7 @@ class Command(BaseCommand):
                     purchase_5 = row['purchase_5']
 
 
-
+                    # =ROUND(SUM(N6:R6)*AM6,0)
                     total_purchase = purchase_1 + purchase_2 + purchase_3 + purchase_4 + purchase_5
 
 
@@ -204,6 +204,12 @@ class Command(BaseCommand):
                         previous_month_qs = None
 
 
+                    # print(type(product_qs.weight))
+                    # =IF((T6+AN6-U6-V6)>0,AN6,-1*(T6+AN6-U6-V6)+AN6)
+                    rev_purchase_cond1 = opening_stock + total_purchase - total_stock
+                    rev_purchase_cond2 = -1*(opening_stock + total_purchase - total_stock)+total_purchase
+                    rev_purchase = rev_purchase_cond1 if rev_purchase_cond1 > 0 else rev_purchase_cond2
+
                     if previous_month_qs is not None:
                         try:
                             panel_profile_qs = PanelProfile.objects.get(
@@ -213,46 +219,20 @@ class Command(BaseCommand):
 
                             delta = current_month_audit_date - previous_month_audit_date
                             vd_factor= delta.days/30.5
+                            # =+T6+AO6-U6-V6
+                            sales = opening_stock + rev_purchase - total_stock
 
                         except PanelProfile.DoesNotExist:
                             vd_factor = 1
-                            # sales = total_purchase
+                            sales = total_purchase
                     else:
                         vd_factor = 1
-                        # sales = total_purchase
-
-                    # =ROUND(SUM(N6:R6)*AM6,0)
-                    purchase = round(total_purchase * vd_factor,0)
-
-                    # print(type(product_qs.weight))
-                    # =IF((T6+AN6-U6-V6)>0,AN6,-1*(T6+AN6-U6-V6)+AN6)
-
-                    rev_purchase_cond1 = opening_stock + purchase - total_stock
-                    rev_purchase_cond2 = -1*(opening_stock + purchase - total_stock)+purchase
-
-
-                    rev_purchase = purchase if rev_purchase_cond1 > 0 else rev_purchase_cond2
-
-                    # print(f"rev_purchase_cond1: {rev_purchase_cond1}")
-                    # print(f"rev_purchase_cond2: {rev_purchase_cond2}")
-                    # print(f"rev_purchase: {rev_purchase}")
-
-
-                    # =+T6+AO6-U6-V6
-                    sales = (opening_stock + rev_purchase) - total_stock
-
-                    # print(f"('{opening_stock}' + '{purchase}') - '{total_stock}' = {(opening_stock + purchase) - total_stock}")
-                    # print(f"('{opening_stock}' + '{rev_purchase}') - '{total_stock}' = {(opening_stock + rev_purchase) - total_stock}")
-
-                    # print(f"sales: {sales}")
-                    # print(f"purchase: {purchase}")
-                    # print(f"total_purchase: {total_purchase}")
-
+                        sales = total_purchase
 
                     product_weight = product_weight_list[str(product_code).lower()]
                     product_weight = 0 if product_weight == None or product_weight < 0 else float(product_weight)
 
-
+                    total_purchase = round(total_purchase * vd_factor,0)
 
 
                     # multiply sales with weight(from Product table) * Q6
@@ -263,7 +243,6 @@ class Command(BaseCommand):
                     row['vd_factor'] = vd_factor
                     row['total_stock'] = total_stock
                     row['total_purchase'] = total_purchase
-                    row['purchase'] = purchase
                     row['rev_purchase'] = rev_purchase
 
                     row['sales'] = sales
@@ -271,9 +250,7 @@ class Command(BaseCommand):
                     row['sales_val'] = sales_val
 
                     new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
-                    if sales<0:
-                        cdebug(new_row)
-                        exit()
+
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
                         # print(csv_indx,outlet_code)
                         # In this case, if the Person already exists, its existing name is preserved
@@ -298,7 +275,6 @@ class Command(BaseCommand):
                     upload.created_records = created_records
                     upload.updated_records = updated_records
                     upload.save()
-                    print('|',end=' ',flush=True)
 
 
             logger.error('CSV file processed successfully.')

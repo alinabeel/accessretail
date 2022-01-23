@@ -90,7 +90,7 @@ class Command(BaseCommand):
 
 
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
-                        """In this case, if the Person already exists, its existing name is preserved"""
+
                         obj, created = UsableOutlet.objects.get_or_create(
                             country=upload.country, outlet=outlet_obj, month=month_obj,
                             defaults=row

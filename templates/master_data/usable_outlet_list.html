@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block action_buttons %}
-<a href="#" id="btn_sync" class="btn btn-danger btn-lg waves-effect waves-light">Sync Outlets with Cells</a>
+<!-- <a href="#" id="btn_sync" class="btn btn-danger btn-lg waves-effect waves-light">Sync Outlets with Cells</a> -->
 <a href="{% url 'master-data:usable-outlet-import' country_code=global.country_code%}" class="btn btn-info btn-lg waves-effect waves-light">Import Usable Outlets</a>
 {% endblock action_buttons %}
 
@@ -62,7 +62,7 @@
         });
 
 
-        $('#btn_sync').click(function() {
+        /*$('#btn_sync').click(function() {
             $('#btn_sync').off('click');
             let url = $('#list_data').attr("url");
             console.log('sync')
@@ -82,7 +82,7 @@
                 }
             });
 
-        });
+        });*/
 
 
         /*setTimeout(

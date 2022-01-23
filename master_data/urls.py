@@ -17,6 +17,19 @@ urlpatterns = [
     path('<slug:country_code>/census-delete/<int:pk>/', CensusDeleteView.as_view(), name='census-delete'),
 
 ]
+
+""" Outlet Census """
+urlpatterns += [
+
+    path('<slug:country_code>/outlet-census-list-ajax/', OutletCensusListViewAjax.as_view(), name='outlet-census-list-ajax'),
+    path('<slug:country_code>/outlet-census-list/', OutletCensusListView.as_view(), name='outlet-census-list'),
+    path('<slug:country_code>/outlet-census-import/', OutletCensusImportView.as_view(), name='outlet-census-import'),
+    path('<slug:country_code>/outlet-census-update/', OutletCensusUpdateView.as_view(), name='outlet-census-update'),
+    # path('<slug:country_code>/outlet-census-delete/<int:pk>', OutletCensusDeleteView.as_view(), name='outlet-census-delete'),
+]
+
+
+
 """ Category """
 urlpatterns += [
     path('<slug:country_code>/category-list-ajax/', CategoryListViewAjax.as_view(), name='category-list-ajax'),

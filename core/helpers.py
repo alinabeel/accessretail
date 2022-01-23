@@ -2,6 +2,9 @@ from typing import ValuesView
 from core.utils import cdebug
 import json
 import csv
+import os
+import sys
+
 from django.contrib import messages
 from django.db import models
 from dateutil.relativedelta import relativedelta
@@ -199,6 +202,46 @@ def getPrvMonthDate(country_qs,current_month_id,outlet_id):
         previous_month_qs = Month.objects.get(country=country_qs, date=previous_month)
     except Month.DoesNotExist:
         previous_month_qs = None
+
+
+def getTwoMonthFromDate(country_id, month_date):
+    try:
+        #Calculate Previous Month, Next Month
+        audit_date_qs = AuditData.objects.all() \
+            .filter(Q(country_id = country_id) & Q(month__date__lte = month_date) ) \
+            .values('month__date','month__code') \
+            .annotate(current_month=Max("month__date")) \
+            .order_by('-month__date')[0:2]
+
+        # audit_date_qs = PanelProfile.objects.all().filter(country_id = country_id).values('month__date').annotate(current_month=Max('audit_date')).order_by('month__date')[0:3]
+
+        date_arr = []
+
+        for instance in audit_date_qs:
+            date_arr.append(instance['month__date'])
+
+        is_first_month = False
+        month_1 = month_2  = None
+        current_month = previous_month = None
+
+        if(len(date_arr)==2):
+            month_1 , month_2 = date_arr
+            current_month = Month.objects.get(date=month_1)
+            previous_month  = Month.objects.get(date=month_2)
+            cdebug('2-Month data')
+        else:
+            cdebug('1-Month data')
+            is_first_month = True
+            month_1 = date_arr[0]
+            current_month = Month.objects.get(date=month_1)
+
+        print(f"{is_first_month},{current_month}, {previous_month}")
+        return is_first_month,current_month, previous_month
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
+
 
 def updateUploadStatus(id,msg,is_processing,log=''):
     upload = Upload.objects.get(pk=id)

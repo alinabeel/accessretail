@@ -94,8 +94,9 @@ class CensusUploadView(LoginRequiredMixin, generic.CreateView):
         form_obj.frommodel = "census"
         form_obj.save()
 
-        print(Colors.BLUE,form_obj.pk)
-        proc = Popen('python manage.py import_census '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+        command = 'python manage.py import_census '+str(form_obj.pk)
+        print(Colors.BLUE, command)
+        proc = Popen(command, shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         return super(self.__class__, self).form_valid(form)
 
@@ -258,7 +259,7 @@ class CategoryListView(LoginRequiredMixin, generic.TemplateView):
     }
 
     def get_context_data(self, **kwargs):
-        context = super(self.__class__, self).get_context_data(**kwargs)
+        context = super(CategoryListView, self).get_context_data(**kwargs)
         uploadStatusMessage(self,self.request.session['country_id'],'category')
         return context
 
@@ -1834,6 +1835,7 @@ class CellListViewAjax(AjaxDatatableView):
             {'name': 'cell_acv', },
             {'name': 'num_universe', },
             {'name': 'optimal_panel', },
+            {'name': 'ipp', 'choices': True, 'autofilter': True,},
             {'name': 'condition', 'title': 'Condition', 'placeholder': True, 'searchable': False, 'orderable': False, },
             {'name': 'total_outlets', 'title': 'Total Outlets', 'placeholder': True, 'searchable': False, 'orderable': False, },
             {'name': 'action', 'title': 'Action', 'placeholder': True, 'searchable': False, 'orderable': False, },
@@ -2400,3 +2402,160 @@ class OutletTypeDeleteView(LoginRequiredMixin, generic.DeleteView):
         )
         return queryset
 
+
+""" ------------------------- Outlet Census ------------------------- """
+
+class OutletCensusListViewAjax(AjaxDatatableView):
+    model = OutletCensus
+    title = 'OutletCensus'
+    initial_order = [["id", "asc"], ]
+    length_menu = [[10, 20, 50, 100, 500], [10, 20, 50, 100, 500]]
+    search_values_separator = '+'
+
+    def get_column_defs(self, request):
+        """
+        Override to customize based of request
+        """
+        self.column_defs = [
+            AjaxDatatableView.render_row_tools_column_def(),
+            {'name': 'id','title':'ID', 'visible': True, },
+
+            {'name': 'Category Code', 'foreign_field': 'category__code', },
+            {'name': 'Category Name', 'foreign_field': 'category__name','choices': True, 'autofilter': True, },
+            {'name': 'Outlet Id', 'foreign_field': 'outlet__id', },
+            {'name': 'Outlet Code', 'foreign_field': 'outlet__code', },
+
+            {'name':'over_all_sales_from',},
+            {'name':'over_all_sales_to',},
+            {'name':'over_all_sales_avg',},
+            {'name':'category_sales_from',},
+            {'name':'category_sales_to',},
+            {'name':'category_sales_avg',},
+
+        ]
+
+        return self.column_defs
+
+    # def customize_row(self, row, obj):
+
+    #         row['action'] = ('<a href="%s" title="Delete" class="btn btn-danger btn-xs dt-delete"><span class="mdi mdi-delete-circle-outline" aria-hidden="true"></span></a>') % (
+    #                 reverse('master-data:outlet-census-delete', args=(self.kwargs['country_code'],obj.id)),
+    #             )
+
+    # model._meta.fields
+    def get_initial_queryset(self, request=None):
+        queryset = self.model.objects.filter(
+            country__id=self.request.session['country_id']
+        )
+        return queryset
+
+class OutletCensusListView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "master_data/outlet_census_list.html"
+    PAGE_TITLE = "Outlet Census"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super(self.__class__, self).get_context_data(**kwargs)
+        uploadStatusMessage(self,self.request.session['country_id'],'outlet_census')
+
+        return context
+
+class OutletCensusUpdateView(LoginRequiredMixin, generic.CreateView):
+    template_name = "generic_import.html"
+    PAGE_TITLE = "Update Outlet Census"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+    form_class = UploadFormUpdate
+
+    def get_context_data(self, **kwargs):
+        context = super(self.__class__, self).get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+
+
+        form_obj = form.save(commit=False)
+        form_obj.is_processing = Upload.PROCESSING
+        form_obj.process_message = Upload.PROCESSING_MSG
+        form_obj.country_id = self.request.session['country_id']
+        form_obj.index_id = self.request.session['index_id']
+        form_obj.frommodel = "outlet_census_update"
+        form_obj.save()
+
+        print(Colors.BLUE,form_obj.pk)
+        proc = Popen('python manage.py import_outlet_census_update '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+
+        return super(self.__class__, self).form_valid(form)
+
+    def get_success_url(self):
+
+        messages.add_message(self.request, messages.INFO, Upload.UPLOADING_MSG)
+        return reverse("master-data:outlet-census-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+
+class OutletCensusImportView(LoginRequiredMixin, generic.CreateView):
+    template_name = "generic_import.html"
+    PAGE_TITLE = "Import Outlet Census"
+    extra_context = {
+        'page_title': PAGE_TITLE,
+        'header_title': PAGE_TITLE
+    }
+
+    form_class = UploadModalForm
+
+    def get_context_data(self, **kwargs):
+        context = super(self.__class__, self).get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+
+        form_obj = form.save(commit=False)
+        form_obj.is_processing = Upload.PROCESSING
+        form_obj.process_message = Upload.PROCESSING_MSG
+        form_obj.country_id = self.request.session['country_id']
+        form_obj.index_id = self.request.session['index_id']
+        form_obj.frommodel = "outlet_census"
+        form_obj.save()
+
+        command = f'python manage.py import_outlet_census {form_obj.pk}'
+        print(Colors.BLUE, command)
+        proc = Popen(command, shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+
+        return super(self.__class__, self).form_valid(form)
+
+    def get_success_url(self):
+
+        messages.add_message(self.request, messages.INFO, Upload.UPLOADING_MSG)
+        return reverse("master-data:outlet-census-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+
+# class OutletCensusDeleteView(LoginRequiredMixin, generic.DeleteView):
+#     template_name = "generic_delete.html"
+#     PAGE_TITLE = "Delete OutletCensus and Related Data"
+#     extra_context = {
+#         'page_title': PAGE_TITLE,
+#         'header_title': PAGE_TITLE
+#     }
+
+#     def get_success_url(self):
+#         messages.add_message(self.request, messages.INFO, "Record deleted successfully.")
+#         return reverse("master-data:outlet-census-list", kwargs={"country_code": self.kwargs["country_code"]})
+
+#     def get_queryset(self):
+#         country = Country.objects.get(code=self.kwargs["country_code"])
+#         pp =  OutletCensus.objects.get(id=self.kwargs['pk'])
+#         month_id = pp.month_id
+#         outlet_id = pp.outlet_id
+#         cdebug(outlet_id)
+#         AuditData.objects.filter(country=country,outlet__id = outlet_id, month__id = month_id).delete()
+
+#         queryset =  OutletCensus.objects.filter(
+#             country__id=self.request.session['country_id'],
+#             pk=self.kwargs['pk'],
+#         )
+#         return queryset

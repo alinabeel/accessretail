@@ -45,7 +45,8 @@ from master_setups.forms import UserCreateModelForm,UserChangeModelForm,CountryM
 
 from master_data.models import Upload,RegionType,Region,Category,IndexCategory,OutletType,Outlet, \
                                 CensusManager,Census,Month,UsableOutlet,PanelProfile,Product,AuditData, \
-                                RBD,Cell,Province,District,Tehsil,CityVillage,ColLabel,OutletStatus,Threshold
+                                RBD,Cell,Province,District,Tehsil,CityVillage,ColLabel,OutletStatus,Threshold, \
+                                AuditDataChild,PanelProfileChild
 
 from master_data.forms import UploadCensusForm,CensusForm,UploadModalForm,UploadFormUpdate,CategoryListFormHelper, \
                                 CategoryModelForm,OutletTypeModelForm,RBDModelForm,CellModelForm,UsableOutletModelForm, \
@@ -839,10 +840,6 @@ class ThresholdUpdateView(LoginRequiredMixin, generic.UpdateView):
         # management.call_command('import_census',self.kwargs["country_code"])
         return super(self.__class__, self).form_valid(form)
 
-    def get_success_url(self):
-        # return reverse("leads:lead-detail", kwargs={"pk": self.kwargs["pk"]})
-        return reverse("master-setups:threshold-list", kwargs={"country_code": self.kwargs["country_code"]})
-
     def get_object(self, queryset=None):
 
         return self.model.objects.filter(
@@ -857,10 +854,9 @@ class ThresholdUpdateView(LoginRequiredMixin, generic.UpdateView):
         queryset = Threshold.objects.filter(country__id=self.request.session['country_id'])
         return queryset
 
-    # def get_success_url(self):
-    #     messages.add_message(self.request, messages.SUCCESS, "Record updated successfully.")
-    #     return reverse("master-setups:threshold", kwargs={"country_code": self.kwargs["country_code"]})
-
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Record updated successfully.")
+        return reverse("master-setups:threshold-list", kwargs={"country_code": self.kwargs["country_code"]})
 
 """ ------------------------- RegionType ------------------------- """
 
@@ -1821,16 +1817,31 @@ class ResetDBView(LoginRequiredMixin, generic.TemplateView):
         index_category = index_category[0].get_index_category_ids()
 
         reset = self.request.POST
+        # print(reset)
+        # if 'AuditData' in list(reset):
+        #     reset['AuditDataChild'] = [1]
+        # if 'PanelProfile' in reset:
+        #     reset['PanelProfileChild'] = 'PanelProfileChild'
+
         for key, value in reset.items():
             if key in 'csrfmiddlewaretoken': continue
-
             if key in ('RBD','Cell','PanelProfile','UsableOutlet'):
+                if 'PanelProfile' == key:
+                    PanelProfileChild.objects \
+                        .filter(country__id = country_id,
+                                index__id = index_id
+                        ).delete()
                 eval(f"{key}").objects \
                     .filter(country__id = country_id,
                             index__id = index_id
                     ).delete()
             elif key in ('Product','AuditData','PanelProfile',):
                 if len(index_category) <= 0: continue
+                if 'AuditData' == key:
+                    AuditDataChild.objects \
+                        .filter(country__id = country_id,
+                                category__id__in = index_category
+                        ).delete()
                 eval(f"{key}").objects \
                     .filter(country__id = country_id,
                             category__id__in = index_category

@@ -163,7 +163,7 @@ class Command(BaseCommand):
 
                     if(upload.import_mode == Upload.UPDATE ):
 
-                        """In this case, if the Person already exists, its existing name is preserved"""
+
                         obj, created = PanelProfile.objects.update_or_create(
                             country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
                             defaults=new_row

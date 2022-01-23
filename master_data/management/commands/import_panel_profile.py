@@ -165,11 +165,26 @@ class Command(BaseCommand):
                         skiped_records+=1
                         continue
 
+
+                    try:
+                        if row['cell_description'] != '' and len(row['cell_description'])>1:
+                            cell_name = row['cell_description'].split("@")
+                            cell_name = get_max_str(cell_name)
+                            serialize_str = (f"field_group[group][0][row][0][cols]=cell_description&field_group[group][0][row][0][operator]=icontains&field_group[group][0][row][0][value]={cell_name}")
+
+                            obj1, created1 = Cell.objects.update_or_create(
+                                country=upload.country, index=upload.index, name=cell_name,
+                                defaults = {'ipp':True,'serialize_str':serialize_str,'cell_acv':row['acv']}
+                            )
+                    except KeyError:
+                        pass
+
+
                     new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
 
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
 
-                        """In this case, if the Person already exists, its existing name is preserved"""
+
                         obj, created = PanelProfile.objects.get_or_create(
                             country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
                             defaults=new_row
@@ -205,7 +220,7 @@ class Command(BaseCommand):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
             logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
-            cdebug(row,'row')
+            cdebug(row,'Exception at Row')
             log += 'CSV file processing failed. Error Msg:'+ str(e)
             upload.is_processing = Upload.ERROR
             upload.process_message = "CSV file processing failed. Error Msg:"+str(e)

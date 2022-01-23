@@ -3,16 +3,18 @@ from django.db import models
 from django.db.models.fields import BooleanField
 from core.mixinsModels import UpperCaseCharField,CodeNameMixIn,CreateUpdateMixIn
 from master_setups.models import Country, IndexSetup, User
-from master_data.models import Month,RBD,Category
+from master_data.models import Month,RBD,Category, Threshold
 
 
 class RBDReport(CreateUpdateMixIn,models.Model):
     CELLSUMMARY = 'cell-summary'
     CELLSNAPSHOT = 'cell-snapshot'
+    THRESHOLDPROCESSING = 'threshold-processing'
 
     REPORTTYPE_CHOICES = (
         (CELLSUMMARY , 'Cell Summary'),
         (CELLSNAPSHOT , 'Cell Snapshot'),
+        (THRESHOLDPROCESSING,'Threshold Processing')
     )
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
@@ -47,4 +49,42 @@ class RBDReport(CreateUpdateMixIn,models.Model):
         return self.rbd.name
 
 
+
+class DataLoadingReport(CreateUpdateMixIn,models.Model):
+
+    THRESHOLDPROCESSING = 'threshold-processing'
+
+    REPORTTYPE_CHOICES = (
+        (THRESHOLDPROCESSING,'Threshold Processing')
+    )
+
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+
+    index = models.ForeignKey(IndexSetup, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    month = models.ForeignKey(Month, on_delete=models.CASCADE)
+    report_type = models.CharField(max_length=50, choices=REPORTTYPE_CHOICES,default=THRESHOLDPROCESSING)
+    report_html = models.TextField(null=True, blank=True)
+    report_json = JSONField(null=True, blank=True)
+    report_csv_source = models.CharField(null=True, blank=True, max_length=500,)
+
+
+    is_confirmed = models.BooleanField(default=False)
+    confirmed_on = models.DateField(null=True, blank=True)
+    confirmed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT,related_name='rbd_confirmed_by_set')
+
+    is_generated = models.SmallIntegerField(default=0)
+    generated_on = models.DateField(null=True, blank=True)
+    generated_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT,related_name='rbd_generated_by_set')
+
+    log = models.TextField(null=True, blank=True)
+
+    class Meta:
+        # unique_together = (('country','rbd'))
+        db_table = 'data_loading_report'
+        verbose_name = 'Data Loading Report'
+        verbose_name_plural = 'Data Loading Reports'
+
+    def __str__(self):
+        return f"{self.index.name}-{self.category.name}-{self.month.code}-{self.report_type}"
 
