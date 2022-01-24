@@ -9,12 +9,10 @@ from master_data.models import Month,RBD,Category, Threshold
 class RBDReport(CreateUpdateMixIn,models.Model):
     CELLSUMMARY = 'cell-summary'
     CELLSNAPSHOT = 'cell-snapshot'
-    THRESHOLDPROCESSING = 'threshold-processing'
 
     REPORTTYPE_CHOICES = (
         (CELLSUMMARY , 'Cell Summary'),
         (CELLSNAPSHOT , 'Cell Snapshot'),
-        (THRESHOLDPROCESSING,'Threshold Processing')
     )
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
@@ -55,7 +53,7 @@ class DataLoadingReport(CreateUpdateMixIn,models.Model):
     THRESHOLDPROCESSING = 'threshold-processing'
 
     REPORTTYPE_CHOICES = (
-        (THRESHOLDPROCESSING,'Threshold Processing')
+        (THRESHOLDPROCESSING,'Threshold Processing'),
     )
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
@@ -67,15 +65,6 @@ class DataLoadingReport(CreateUpdateMixIn,models.Model):
     report_html = models.TextField(null=True, blank=True)
     report_json = JSONField(null=True, blank=True)
     report_csv_source = models.CharField(null=True, blank=True, max_length=500,)
-
-
-    is_confirmed = models.BooleanField(default=False)
-    confirmed_on = models.DateField(null=True, blank=True)
-    confirmed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT,related_name='rbd_confirmed_by_set')
-
-    is_generated = models.SmallIntegerField(default=0)
-    generated_on = models.DateField(null=True, blank=True)
-    generated_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT,related_name='rbd_generated_by_set')
 
     log = models.TextField(null=True, blank=True)
 

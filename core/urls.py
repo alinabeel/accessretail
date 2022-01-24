@@ -48,7 +48,9 @@ urlpatterns = [
     path('<slug:country_code>/dashboard/', DashboardView.as_view(), name='dashboard'),
     path('master-setups/',  include('master_setups.urls', namespace="master-setups")),
     path('master-data/',  include('master_data.urls', namespace="master-data")),
+    path('correction/',  include('correction.urls', namespace="correction")),
     path('reports/',  include('reports.urls', namespace="reports")),
+
 
 
     path('signup/', SignupView.as_view(), name='signup'),

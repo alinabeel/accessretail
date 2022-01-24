@@ -1,51 +1,9 @@
-from dateutil.relativedelta import *
-from dateutil.easter import *
-from dateutil.rrule import *
-from dateutil.parser import *
-from datetime import *
-import base64
+from core.common_libs_views import *
 
-from termcolor import cprint
-import traceback
-import time, os,sys, signal,logging,json
-from sys import stdout, stdin, stderr
-from pprint import pprint
-from var_dump import var_dump,var_export
-from subprocess import Popen
-from inspect import getmembers
-from csv import DictReader
-from urllib.parse import parse_qs,urlparse
-from itertools import chain
-from collections import OrderedDict
-
-from django.core.exceptions import ValidationError
-from django.db import IntegrityError
-from django.db import models
-from django.db.models import Q, Avg, Count, Min,Max, Sum
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.urls import reverse,reverse_lazy
-from django.core.files.storage import FileSystemStorage
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.serializers import serialize
-from django.core.serializers.json import DjangoJSONEncoder
-from django.http import (HttpResponseRedirect,HttpResponse,JsonResponse)
-from django.views import generic
-from rest_framework.generics import ListAPIView
-
-from core.utils import prettyprint_queryset, trace, format_datetime,cdebug
-
-from core.pagination import StandardResultsSetPagination
-from core.mixinsViews import PassRequestToFormViewMixin
-from core.helpers import *
-from core.colors import Colors
 from master_setups.models import *
 from master_data.models import *
-from master_data.forms import *
 
-from master_data.serializers import PanelProfileSerializers
-from ajax_datatable.views import AjaxDatatableView
-from django_datatables_view.base_datatable_view import BaseDatatableView
+from master_data.forms import *
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +12,7 @@ def census_list_ajax(request,*args, **kwargs):
     if request.method == 'GET':
 
         queryset = Census.objects.filter(
-            country__id = self.request.session['country_id']
+            country__id = request.session['country_id']
         ).values_list('censusdata',flat=True)
         data = []
         # queryset = Census.objects.values_list('censusdata',flat=True)[:10]
@@ -1001,7 +959,10 @@ class AuditDataListViewAjax(AjaxDatatableView):
                  'month', 'period', 'category', 'outlet', 'product','audit_status']
 
     for v in model._meta.get_fields():
+        # print(vars(v.model))
+
         if(v.name not in skip_cols):
+            # print(type(v)=="django.db.models.fields.BooleanField")
             column_defs.append({'name':v.name})
 
 

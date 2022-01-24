@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'master_data.apps.MasterDataConfig',
     'monthly_setups_and_data.apps.MonthlySetupsAndDataConfig',
     'reports.apps.ReportsConfig',
+    'correction.apps.CorrectionConfig',
 ]
 
 

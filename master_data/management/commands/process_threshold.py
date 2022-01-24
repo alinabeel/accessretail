@@ -12,7 +12,10 @@ class Command(BaseCommand):
     start_time = time.time()
     last_time = timeSpent(start_time)
     log = ""
-    is_first_month = current_month = previous_month = th = None
+    is_first_month = None
+    current_month = None
+    previous_month = None
+    TH = None
     avg_sd_sales_dict = dict()
     # def add_arguments(self, parser):
     #     parser.add_argument('upload_id', type=int)
@@ -26,53 +29,94 @@ class Command(BaseCommand):
 
             avg_sd_sales_dict = dict()
             for obj in avg_sd_sales_purchase:
-                avg_sd_sales_dict[obj['product_id']] = obj['avg_sales'], obj['sd_sales'],obj['avg_purchase'], obj['sd_purchase']
+                # avg_sd_sales_dict[obj['product_id']] = obj['avg_sales'], obj['sd_sales'],obj['avg_purchase'], obj['sd_purchase']
+                avg_sd_sales_dict[obj['product_id']] = obj
 
             return avg_sd_sales_dict
 
     def priceCleaning(self,panel,country_id,index_id,category_id):
         try:
 
-
+            #Apply Last Month Price Cleaning on the Stores + P_Codes
             #Get current month  audit data with category
-            curr_month_audit_data = AuditData.objects.filter(country_id = country_id,
+            curr_audit_data = AuditData.objects.filter(country_id = country_id,
                                                             category_id = category_id,
                                                             month_id = self.current_month.id,
                                                               outlet_id = panel.outlet.id)
-            # prettyprint_queryset(curr_month_audit_data)
+            # prettyprint_queryset(curr_audit_data)
 
-            cdebug(f"{panel.outlet.code},{country_id},{index_id},{category_id},{self.th},{self.current_month.id}")
+            # cdebug(f"{panel.outlet.code},{country_id},{index_id},{category_id},{self.TH},{self.current_month.id}")
 
             audit_data_list = []
             test = []
             outlet_status = UsableOutlet.QUARANTINE
-            for cmad in curr_month_audit_data:
+
+            for cmad in curr_audit_data:
                 # model_b = AuditDataChild()
-                prev_month_price  = 0
+                curr_price = cmad.price
+                curr_sales = cmad.sales
+                curr_purchase = cmad.purchase
+                curr_stock = cmad.total_stock
+
+                prev_price  = 0
+                prev_sales = 0
+                prev_purchase = 0
+                prev_stock = 0
                 if(self.is_first_month):
-                    pass
+                    prev_price = curr_price
+                    prev_sales = curr_sales
+                    prev_purchase = curr_purchase
+                    prev_stock = curr_stock
+
                 else:
                     try:
-                        prev_month_audit_data = AuditData.objects.get(country_id = country_id,
+                        prev_audit_data = AuditData.objects.get(country_id = country_id,
                                                                     product_id = cmad.product_id,
                                                                     month_id = self.previous_month.id,
                                                                     outlet_id = cmad.outlet_id)
+                        prev_price = prev_audit_data.price
+                        prev_sales = prev_audit_data.sales
+                        prev_purchase = prev_audit_data.purchase
                     except AuditData.DoesNotExist:
-                        prev_month_audit_data  = None
+                        prev_audit_data  = None
 
-                    if(prev_month_audit_data):
-                        prev_month_price = prev_month_audit_data.price
-                    else:
-                        prev_month_price = 0
 
+                price_variation = percentChange(curr_price,prev_price)
+                sales_variation = percentChange(curr_sales,prev_sales)
+                purchase_variation = percentChange(curr_purchase,prev_purchase)
+                stock_variation = percentChange(curr_stock,prev_stock)
+
+                cmad.price_variation = price_variation
+
+                if price_variation < self.TH.audited_data_price_min or \
+                    price_variation > self.TH.audited_data_price_max:
+                    cmad.flag_price = True
+                    cmad.is_valid = False
+
+                if sales_variation < self.TH.audited_data_sales_min or \
+                    sales_variation > self.TH.audited_data_sales_max:
+                    cmad.flag_sales = True
+                    cmad.is_valid = False
+
+                if purchase_variation < self.TH.audited_data_purchase_min or \
+                    purchase_variation > self.TH.audited_data_purchase_max:
+                    cmad.flag_purchse = True
+                    cmad.is_valid = False
+
+                if stock_variation < self.TH.audited_data_stock_min or \
+                    stock_variation > self.TH.audited_data_stock_max:
+                    cmad.flag_stock = True
+                    cmad.is_valid = False
+
+                cmad.save()
 
 
                 # (Store + P_code Actual Sales) shall lie in between Avg (P_code Sales) + 3 SD
 
-                avg_sales = self.avg_sd_sales_dict[cmad.product_id][0]
-                sd_sales = self.avg_sd_sales_dict[cmad.product_id][1]
-                avg_purchase = self.avg_sd_sales_dict[cmad.product_id][2]
-                sd_purchase = self.avg_sd_sales_dict[cmad.product_id][3]
+                avg_sales = self.avg_sd_sales_dict[cmad.product_id]['avg_sales']
+                sd_sales = self.avg_sd_sales_dict[cmad.product_id]['sd_sales']
+                avg_purchase = self.avg_sd_sales_dict[cmad.product_id]['avg_purchase']
+                sd_purchase = self.avg_sd_sales_dict[cmad.product_id]['sd_purchase']
 
 
                 avg_sales = avg_sales if avg_sales is not None else 0
@@ -83,39 +127,26 @@ class Command(BaseCommand):
                 # print(f"{type(avg_sales)}, {type(sd_sales)}")
                 # print(f"{avg_sales}, {sd_sales}")
 
-                valid_sales_min = (float(avg_sales)-float(self.th.audited_data_stddev)*float(sd_sales))
-                valid_sales_max = (float(avg_sales)+float(self.th.audited_data_stddev)*float(sd_sales))
+                valid_sales_min = (float(avg_sales)-float(self.TH.audited_data_stddev)*float(sd_sales))
+                valid_sales_max = (float(avg_sales)+float(self.TH.audited_data_stddev)*float(sd_sales))
 
-                valid_purchase_min = (float(avg_purchase)-float(self.th.audited_data_stddev)*float(sd_purchase))
-                valid_purchase_max = (float(avg_purchase)+float(self.th.audited_data_stddev)*float(sd_purchase))
+                valid_purchase_min = (float(avg_purchase)-float(self.TH.audited_data_stddev)*float(sd_purchase))
+                valid_purchase_max = (float(avg_purchase)+float(self.TH.audited_data_stddev)*float(sd_purchase))
 
 
-                # print(f"{avg_sales}, {sd_sales}, {sd_range_min}, {sd_range_max}")
-                # # print((cmad.__dict__))
-                # new_dict = dict()
-
-                # skip_cols = ['id','pk','created','updated',]
-
-                # for field in cmad._meta.get_fields():
-                #     if(field.name in skip_cols): continue
-                #     # if isinstance(field, models.ForeignKey): continue
-                #     if isinstance(field, models.ManyToManyRel): continue
-                #     if isinstance(field, models.ManyToOneRel): continue
-                #     new_dict[field.name] = getattr(cmad, field.name)
-
-                curr_sales = cmad.sales
-                curr_purchase = cmad.total_purchase
-                flag_outlier = False
                 if curr_sales<valid_sales_min or curr_sales>valid_sales_max :
-                    flag_outlier = True
+                    cmad.flag_outlier = True
+                    cmad.is_valid = False
 
                 if curr_purchase<valid_purchase_min or curr_purchase>valid_purchase_max :
-                    flag_outlier = True
+                    cmad.flag_outlier = True
+                    cmad.is_valid = False
 
-                outlet_status = UsableOutlet.USABLE if flag_outlier else UsableOutlet.NOTUSABLE
+                outlet_status = UsableOutlet.USABLE if cmad.is_valid else UsableOutlet.NOTUSABLE
 
-                cmad.flag_outlier = flag_outlier
-                cmad.price_variation = percentChange(cmad.price,prev_month_price)
+                # cmad.price_variation = percentChangeAbs(curr_price,prev_price)
+                # cmad.purchase_variation = percentChangeAbs(curr_price,prev_price)
+                # cmad.price_variation = percentChangeAbs(curr_price,prev_price)
                 cmad.avg_sales = avg_sales
                 cmad.sd_sales = sd_sales
                 cmad.valid_sales_min = valid_sales_min
@@ -124,6 +155,37 @@ class Command(BaseCommand):
                 cmad.valid_purchase_min = valid_purchase_min
                 cmad.valid_purchase_max = valid_purchase_max
                 cmad.save()
+
+                new_dict = dict()
+                skip_cols = ['id','pk','created','updated',]
+
+                for field in cmad._meta.get_fields():
+                    if(field.name in skip_cols): continue
+                    if isinstance(field, models.ForeignKey): continue
+                    if isinstance(field, models.ManyToManyRel): continue
+                    if isinstance(field, models.ManyToOneRel): continue
+                    new_dict[field.name] = getattr(cmad, field.name)
+
+
+                # created = AuditDataChild.objects.bulk_update(
+                #     audit_data_list,
+                #     ignore_conflicts=True
+                # )
+
+                obj, created = AuditDataChild.objects.update_or_create(
+                    country=cmad.country_id, product_id=cmad.product_id,outlet_id=cmad.outlet_id,month_id=cmad.month_id,
+                    defaults=new_dict
+                )
+
+
+                # if cmad.product.code == '150' and cmad.outlet.code == '114635':
+                #     print(cmad.product.code)
+                #     print(cmad.outlet.code)
+                #     sys.exit(0)
+                # else:
+                #     continue
+
+                # sys.exit(0)
                 # audit_data_list.append(AuditDataChild(**new_dict)) #For bulk entry
 
                 # obj, created = AuditDataChild.objects.update_or_create(
@@ -131,13 +193,14 @@ class Command(BaseCommand):
                 #     defaults = new_dict
                 # )
 
-                obj, created = UsableOutlet.objects.update_or_create(
-                    country_id=cmad.country_id,outlet_id=cmad.outlet_id,month_id=cmad.month_id,index_id=index_id,
-                    defaults = {'status':outlet_status}
-                )
-                print('>>>')
-                print(created)
-                print(obj)
+                # obj, created = UsableOutlet.objects.update_or_create(
+                #     country_id=cmad.country_id,
+                #     outlet_id=cmad.outlet_id,
+                #     month_id=cmad.month_id,
+                #     index_id=index_id,
+                #     defaults = {'status':outlet_status}
+                # )
+
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -145,7 +208,16 @@ class Command(BaseCommand):
             print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
             logger.error(Colors.BOLD_RED+'Error Msg:'+ str(e)+Colors.WHITE )
 
-    def commonOutets(panel,country_id,index_id,category_id):
+    def outlierDetection(self,panel,country_id,index_id,category_id):
+        try:
+            pass
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
+            logger.error(Colors.BOLD_RED+'Error Msg:'+ str(e)+Colors.WHITE )
+
+    def commonOutets(self,panel,country_id,index_id,category_id):
         try:
             pass
             # # ABS (Store Actual Sales /  Store Last Month Sales - 1) <= c
@@ -178,8 +250,8 @@ class Command(BaseCommand):
                 panel.save()
 
             self.priceCleaning(panel,country_id,index_id,category_id)
-            # slf.outlierDetection(panel,country_id,index_id,category_id)
-            self.commonOutets(panel,country_id,index_id,category_id)
+            self.outlierDetection(panel,country_id,index_id,category_id)
+            # self.commonOutets(panel,country_id,index_id,category_id)
 
             # self.processAuditData(self,country_id,index_id,category_id)
         except Exception as e:
@@ -211,15 +283,15 @@ class Command(BaseCommand):
 
                 #Get Threasholds
                 try:
-                    self.th = Threshold.objects.filter(country_id = country_id, index_id=index_id,category_id=category_id).first()
+                    self.TH = Threshold.objects.filter(country_id = country_id, index_id=index_id,category_id=category_id).first()
                 except Threshold.DoesNotExist:
-                    self.th = None
+                    self.TH = None
                     cdebug(f"Threshold not defined for category id {category_id}")
                     continue
 
 
 
-                self.avg_sd_sales_dict = self.getAvgSd(country_id, month_id, category_id, self.th.stddev_sample)
+                self.avg_sd_sales_dict = self.getAvgSd(country_id, month_id, category_id, self.TH.stddev_sample)
 
                 cdebug(self.current_month)
                 #Get current month  audit data with category
@@ -233,7 +305,7 @@ class Command(BaseCommand):
                     # sys.exit(0)
 
 
-                # self.processAuditData(country_id,index_id,category_id,th)
+                # self.processAuditData(country_id,index_id,category_id,TH)
 
 
 
@@ -275,15 +347,15 @@ class Command(BaseCommand):
     # def processAuditData(self,country_id,index_id,category_id):
 
     #     try:
-    #         # print(th.audited_data_stddev_max)
+    #         # print(TH.audited_data_stddev_max)
     #         #
     #         #
     #         # exit()
-    #         TH_SAMPLE = th.stddev_sample
-    #         TH_STDDEV = th.audited_data_stddev
+    #         TH_SAMPLE = TH.stddev_sample
+    #         TH_STDDEV = TH.audited_data_stddev
 
     #         #Get current month  audit data with category
-    #         curr_month_audit_data = AuditData.objects.filter(country_id = country_id,
+    #         curr_audit_data = AuditData.objects.filter(country_id = country_id,
     #                                                         category_id = category_id,
     #                                                         month_id = current_month.id)
 
@@ -301,27 +373,27 @@ class Command(BaseCommand):
 
     #         # cell_list = dict()
     #         # exit()
-    #         # model_a = curr_month_audit_data
+    #         # model_a = curr_audit_data
     #         skip_cols = ['id','pk','created','updated',]
 
     #         audit_data_list = []
     #         test = []
-    #         for cmad in curr_month_audit_data:
+    #         for cmad in curr_audit_data:
     #             # model_b = AuditDataChild()
     #             try:
-    #                 prev_month_audit_data = AuditData.objects.get(country_id = country_id,
+    #                 prev_audit_data = AuditData.objects.get(country_id = country_id,
     #                                                             product_id= cmad.product_id,
     #                                                             month_id = previous_month.id,
     #                                                             outlet_id=cmad.outlet_id)
     #             except AuditData.DoesNotExist:
-    #                 prev_month_audit_data  = None
+    #                 prev_audit_data  = None
 
-    #             if(prev_month_audit_data):
-    #                 prev_month_price = prev_month_audit_data.price
+    #             if(prev_audit_data):
+    #                 prev_price = prev_audit_data.price
     #             else:
-    #                 prev_month_price = 0
+    #                 prev_price = 0
 
-    #             # prettyprint_queryset(prev_month_audit_data)
+    #             # prettyprint_queryset(prev_audit_data)
 
     #             # avg_sd_sales = AuditData.objects.all().filter(country_id = country_id,
     #             #                             product_id = cmad.product_id,
@@ -375,7 +447,7 @@ class Command(BaseCommand):
 
 
     #             new_dict["flag_outlier"] = True
-    #             new_dict["price_variation"] = percentChange(cmad.price,prev_month_price)
+    #             new_dict["price_variation"] = percentChangeAbs(curr_price,prev_price)
     #             new_dict["avg_sales"] = avg_sales
     #             new_dict["sd_sales"] = sd_sales
     #             new_dict["valid_sales_min"] = valid_sales_min

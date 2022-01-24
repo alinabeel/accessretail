@@ -33,10 +33,11 @@ from core.settings import MEDIA_ROOT,MEDIA_URL
 from core.utils import (trace,prettyprint_query,prettyprint_queryset,
             format_datetime,parse_date,cdebug,find_location,csvHeadClean,
             printr,replaceIndex,convertSecond2Min,get_max_str,camelTerms,
-            percentChange,timeSpent)
+            percentChange,percentChangeAbs,timeSpent)
 
 from core.helpers import (getDictArray,getDicGroupList,getGroupFilter,getGroupFilterHuman,
             dropzeros,remove_exponent,getCategories,getMonths,modelValidFields,modelForeignFields,
             uploadStatusMessage,IdCodeModel,chkMonthLocked,getCode2AnyModelFieldList,updateUploadStatus,
             getTwoMonthFromDate)
+
 logger = logging.getLogger(__name__)

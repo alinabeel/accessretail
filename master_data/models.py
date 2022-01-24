@@ -540,6 +540,9 @@ class AuditDataDefault(models.Model):
 
     is_valid = models.BooleanField(default=True)
     flag_price = models.BooleanField(default=False)
+    flag_sales = models.BooleanField(default=False)
+    flag_purchse = models.BooleanField(default=False)
+    flag_stock = models.BooleanField(default=False)
     flag_neg_sales_corr = models.BooleanField(default=False)
     flag_outlier = models.BooleanField(default=False)
     flag_copied_previous = models.BooleanField(default=False)

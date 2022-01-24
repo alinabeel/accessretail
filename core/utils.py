@@ -219,10 +219,18 @@ def get_max_str(lst):
 def camelTerms(value):
     return re.findall('[A-Z][a-z]+|[0-9A-Z]+(?=[A-Z][a-z])|[0-9A-Z]{2,}|[a-z0-9]{2,}|[a-zA-Z0-9]', value)
 
-def percentChange(current, previous):
+def percentChangeAbs(current, previous):
     if current == previous:
         return 0
     try:
         return (abs(float(current) - float(previous)) / float(previous)) * 100.0
+    except ZeroDivisionError:
+        return 0
+
+def percentChange(current, previous):
+    if current == previous:
+        return 0
+    try:
+        return ((float(current) - float(previous)) / float(previous)) * 100.0
     except ZeroDivisionError:
         return 0

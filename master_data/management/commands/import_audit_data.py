@@ -1,3 +1,4 @@
+from unicodedata import category
 from core.common_libs import *
 from master_data.models import *
 from master_setups.models import *
@@ -23,10 +24,14 @@ class Command(BaseCommand):
         upload_id = options['upload_id']
         upload = Upload.objects.get(pk=upload_id)
 
+        index_category = IndexCategory.objects.filter(country_id = upload.country_id, index_id = upload.index_id)
+        index_category = index_category[0].get_index_category_ids()
+
         log = ""
 
         if(upload.import_mode == Upload.REFRESH):
-            AuditData.objects.filter(country=upload.country).delete()
+            AuditData.objects.filter(country_id=upload.country_id, category__id__in =  index_category).delete()
+            AuditDataChild.objects.filter(country_id=upload.country_id, category__id__in =  index_category).delete()
 
         # Get Valid Model Fields
         valid_fields = modelValidFields("AuditData")
@@ -271,9 +276,11 @@ class Command(BaseCommand):
                     row['sales_val'] = sales_val
 
                     new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
-                    if sales<0:
-                        cdebug(new_row)
-                        exit()
+
+                    # if sales<0:
+                    #     cdebug(new_row)
+                    #     exit()
+
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
                         # print(csv_indx,outlet_code)
                         # In this case, if the Person already exists, its existing name is preserved
@@ -281,6 +288,11 @@ class Command(BaseCommand):
                             country=upload.country, product_id=row['product_id'],outlet_id=row['outlet_id'] ,month_id=row['month_id'],
                             defaults=new_row
                         )
+                        obj, created = AuditDataChild.objects.get_or_create(
+                            country=upload.country, product_id=row['product_id'],outlet_id=row['outlet_id'] ,month_id=row['month_id'],
+                            defaults=new_row
+                        )
+
                         if(created): created_records+=1
 
 
@@ -290,6 +302,12 @@ class Command(BaseCommand):
                             country=upload.country, product_id=row['product_id'],outlet_id=row['outlet_id'],month_id=row['month_id'],
                             defaults=new_row
                         )
+
+                        obj, created = AuditDataChild.objects.update_or_create(
+                            country=upload.country, product_id=row['product_id'],outlet_id=row['outlet_id'],month_id=row['month_id'],
+                            defaults=new_row
+                        )
+
                         if(created): created_records+=1
                         else: updated_records+=1
                     # print("Loop  took %s seconds" % (time.time() - loop_start_time))
