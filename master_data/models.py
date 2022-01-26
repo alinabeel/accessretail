@@ -717,8 +717,8 @@ class Threshold(CreateUpdateMixIn, models.Model):
     audited_data_stddev= models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='3', help_text="(Store + P_code Actual Sales) Shall lie in between Avg (P_code Sales) +/- 3 SD ")
     stddev_sample = models.BooleanField(default=True, help_text="Use StdDev Sample if enable else StdDev Population")
 
-    outlet_factor_numaric_min = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='0')
-    outlet_factor_numaric_max = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='1')
+    # outlet_factor_numaric_min = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='0')
+    # outlet_factor_numaric_max = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='1')
 
     common_outlet_accept = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='5', help_text="ABS (Store Actual Sales /  Store Last Month Sales - 1) <= c")
     common_outlet_copy = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default='5', help_text="ABS (Store Actual Sales /  Store Census Sales - 1) > c")

@@ -26,6 +26,7 @@ class Command(BaseCommand):
 
         if(upload.import_mode == Upload.REFRESH):
             PanelProfile.objects.filter(country=upload.country, index=upload.index).delete()
+            PanelProfileChild.objects.filter(country=upload.country, index=upload.index).delete()
 
 
         # valid_fields = []
@@ -184,8 +185,11 @@ class Command(BaseCommand):
 
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
 
-
                         obj, created = PanelProfile.objects.get_or_create(
+                            country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
+                            defaults=new_row
+                        )
+                        obj, created = PanelProfileChild.objects.get_or_create(
                             country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
                             defaults=new_row
                         )
@@ -195,6 +199,10 @@ class Command(BaseCommand):
                     if(upload.import_mode == Upload.APPENDUPDATE ):
                         """In this case, if the Person already exists, its name is updated"""
                         obj, created = PanelProfile.objects.update_or_create(
+                            country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
+                            defaults=new_row
+                        )
+                        obj, created = PanelProfileChild.objects.update_or_create(
                             country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
                             defaults=new_row
                         )

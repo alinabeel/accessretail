@@ -203,6 +203,20 @@ def getPrvMonthDate(country_qs,current_month_id,outlet_id):
     except Month.DoesNotExist:
         previous_month_qs = None
 
+def calculateSales(total_purchase,opening_stock,total_stock,vd_factor):
+    # =ROUND(SUM(N6:R6)*AM6,0)
+    purchase = round(total_purchase * vd_factor,0)
+
+    # =IF((T6+AN6-U6-V6)>0,AN6,-1*(T6+AN6-U6-V6)+AN6)
+    rev_purchase_cond1 = opening_stock + purchase - total_stock
+    rev_purchase_cond2 = -1*(opening_stock + purchase - total_stock)+purchase
+
+    rev_purchase = purchase if rev_purchase_cond1 > 0 else rev_purchase_cond2
+
+    # =+T6+AO6-U6-V6
+    sales = (opening_stock + rev_purchase) - total_stock
+
+    return purchase,rev_purchase,sales
 
 def getTwoMonthFromDate(country_id, month_date):
     try:

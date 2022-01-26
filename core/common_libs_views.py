@@ -1,7 +1,6 @@
 import csv
 import re
 import time
-import datetime
 import sys
 import os
 import json
@@ -18,7 +17,8 @@ from dateutil.relativedelta import *
 from dateutil.easter import *
 from dateutil.rrule import *
 from dateutil.parser import *
-from datetime import *
+from datetime import datetime,date,timedelta
+# from datetime import *
 from dateutil.relativedelta import relativedelta
 
 
@@ -74,7 +74,7 @@ from core.utils import (trace,prettyprint_query,prettyprint_queryset,
 from core.helpers import (getDictArray,getDicGroupList,getGroupFilter,getGroupFilterHuman,
             dropzeros,remove_exponent,getCategories,getMonths,modelValidFields,modelForeignFields,
             uploadStatusMessage,IdCodeModel,chkMonthLocked,getCode2AnyModelFieldList,updateUploadStatus,
-            getTwoMonthFromDate)
+            getTwoMonthFromDate,calculateSales)
 
 
 from master_data.serializers import PanelProfileSerializers

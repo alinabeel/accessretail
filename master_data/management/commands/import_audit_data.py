@@ -1,10 +1,8 @@
 from unicodedata import category
-from core.common_libs import *
+from core.common_libs_views import *
 from master_data.models import *
 from master_setups.models import *
 
-def convert(seconds):
-    return time.strftime("%H:%M:%S", time.gmtime(seconds))
 
 # Sales = Last month stock + current month purchase - current month stock => for 2 month sales
 # sales = total_purchase => if first month
@@ -221,38 +219,13 @@ class Command(BaseCommand):
 
                         except PanelProfile.DoesNotExist:
                             vd_factor = 1
-                            # sales = total_purchase
                     else:
                         vd_factor = 1
-                        # sales = total_purchase
-
-                    # =ROUND(SUM(N6:R6)*AM6,0)
-                    purchase = round(total_purchase * vd_factor,0)
-
-                    # print(type(product_qs.weight))
-                    # =IF((T6+AN6-U6-V6)>0,AN6,-1*(T6+AN6-U6-V6)+AN6)
-
-                    rev_purchase_cond1 = opening_stock + purchase - total_stock
-                    rev_purchase_cond2 = -1*(opening_stock + purchase - total_stock)+purchase
 
 
-                    rev_purchase = purchase if rev_purchase_cond1 > 0 else rev_purchase_cond2
-
-                    # print(f"rev_purchase_cond1: {rev_purchase_cond1}")
-                    # print(f"rev_purchase_cond2: {rev_purchase_cond2}")
-                    # print(f"rev_purchase: {rev_purchase}")
 
 
-                    # =+T6+AO6-U6-V6
-                    sales = (opening_stock + rev_purchase) - total_stock
-
-                    # print(f"('{opening_stock}' + '{purchase}') - '{total_stock}' = {(opening_stock + purchase) - total_stock}")
-                    # print(f"('{opening_stock}' + '{rev_purchase}') - '{total_stock}' = {(opening_stock + rev_purchase) - total_stock}")
-
-                    # print(f"sales: {sales}")
-                    # print(f"purchase: {purchase}")
-                    # print(f"total_purchase: {total_purchase}")
-
+                    purchase,rev_purchase,sales = calculateSales(total_purchase,opening_stock,total_stock,vd_factor)
 
                     product_weight = product_weight_list[str(product_code).lower()]
                     product_weight = 0 if product_weight == None or product_weight < 0 else float(product_weight)

@@ -107,8 +107,6 @@ class ThresholdModelForm(forms.ModelForm):
             'audited_data_price_max',
             'audited_data_stddev',
             'stddev_sample',
-            'outlet_factor_numaric_min',
-            'outlet_factor_numaric_max',
             'common_outlet_accept',
             'new_outlet_accept_a',
             'new_outlet_accept_b',

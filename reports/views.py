@@ -1128,7 +1128,7 @@ class SampleMaintenanceCopyViewAjax(LoginRequiredMixin, generic.CreateView):
         # cdebug(obj.audit_date+timedelta(days=30))
 
 
-        # TODO: copy from any month but ad 30 days from last month
+        # TODO: copy from any month but add 30 days from last month
 
         obj = PanelProfile.objects.get(outlet__id=outlet_to,month__code=month_from)
         obj.pk = None # New Copy
