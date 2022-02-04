@@ -109,9 +109,10 @@ class ThresholdModelForm(forms.ModelForm):
             'stddev_sample',
             'common_outlet_accept',
             'new_outlet_accept_a',
+            'new_outlet_drop_a',
             'new_outlet_accept_b',
-            'drop_outlet_copied',
-            'drop_outlet_copied_once',
+            'new_outlet_drop_b',
+            'drop_outlet_copy_once_status',
             'weighted_store',
             'weighted_cell',
             )

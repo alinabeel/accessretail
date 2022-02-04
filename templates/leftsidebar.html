@@ -83,6 +83,9 @@
                                         class="mdi mdi-chevron-right"></i></span> </span></a>
 
                         <ul class="submenu">
+
+                            <li><a href="{% url 'correction:inspection-summery' country_code=global.country_code %}">Loading/Inspection Summery</a></li>
+                            <li><a href="{% url 'correction:panel-profile-list' country_code=global.country_code %}">Panel Profile</a></li>
                             <li><a href="{% url 'correction:audit-data-list' country_code=global.country_code %}">Audit Data</a></li>
                         </ul>
                     </li>

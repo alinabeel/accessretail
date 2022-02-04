@@ -73,12 +73,12 @@ class Command(BaseCommand):
 
                     row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
                     row["upload"] = upload
-                    print(row)
+
                     # Conver Foreign fields into row
                     for ff in foreign_fields:
                         if f"{ff}_code" in row:
                             row[f"{ff}"] = row.pop(f"{ff}_code", None)
-                    print(row)
+
 
                     try:
                         outlet_qs = Outlet.objects.get(
@@ -97,10 +97,15 @@ class Command(BaseCommand):
 
                         cat_sales_from,cat_sales_to,cat_sales_avg = 0,0,0
                         over_all_sales_from,over_all_sales_to,over_all_sales_avg = 0,0,0
+
+
+                        exclude = ['Refused','Do Not Handle']
                         if f"{cat}_sales" in row:
-                            cat_sales_from,cat_sales_to,cat_sales_avg = convertRangeSale(row[f"{cat}_sales"])
+                            if row[f"{cat}_sales"] not in exclude:
+                                cat_sales_from,cat_sales_to,cat_sales_avg = convertRangeSale(row[f"{cat}_sales"])
                         if "overall_shop_sales" in row:
-                            over_all_sales_from,over_all_sales_to,over_all_sales_avg = convertRangeSale(row['overall_shop_sales'])
+                            if row['overall_shop_sales'] not in exclude:
+                                over_all_sales_from,over_all_sales_to,over_all_sales_avg = convertRangeSale(row['overall_shop_sales'])
 
                         category_qs = Category.objects.get(
                             country=upload.country, code__iexact=str(cat)
@@ -114,21 +119,19 @@ class Command(BaseCommand):
                         row['category_sales_to'] = cat_sales_to
                         row['category_sales_avg'] = cat_sales_avg
                         new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
-                        cdebug(valid_fields_all)
-                        cdebug(new_row)
+
                         if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
 
                             obj, created = OutletCensus.objects.get_or_create(
-                                country_id=country_id, outlet_id=outlet_qs.id, category__code__iexact=cat,
+                                country_id=country_id,index_id=index_id, outlet_id=outlet_qs.id, category__code__iexact=cat,
                                 defaults=new_row
                             )
                             if(created): created_records+=1
 
-
                         if(upload.import_mode == Upload.APPENDUPDATE ):
-                            """In this case, if the Person already exists, its name is updated"""
+
                             obj, created = OutletCensus.objects.update_or_create(
-                                country_id=country_id, outlet_id=outlet_qs.id, category__code__iexact=cat,
+                                country_id=country_id,index_id=upload.index_id ,outlet_id=outlet_qs.id, category__code__iexact=cat,
                                 defaults=new_row
                             )
                             if(created): created_records+=1
@@ -136,10 +139,10 @@ class Command(BaseCommand):
 
 
 
-                            upload.skiped_records = skiped_records
-                            upload.created_records = created_records
-                            upload.updated_records = updated_records
-                            upload.save()
+                        upload.skiped_records = skiped_records
+                        upload.created_records = created_records
+                        upload.updated_records = updated_records
+                        upload.save()
 
 
             logger.error('CSV file processed successfully.')
@@ -155,7 +158,7 @@ class Command(BaseCommand):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
             logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
-            cdebug(row,'row')
+            cdebug(row,'Exception at row')
             log += 'CSV file processing failed. Error Msg:'+ str(e)
             upload.is_processing = Upload.ERROR
             upload.process_message = "CSV file processing failed. Error Msg:"+str(e)

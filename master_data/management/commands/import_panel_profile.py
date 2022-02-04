@@ -1,4 +1,4 @@
-from core.common_libs import *
+from core.common_libs_views import *
 from master_data.models import *
 from master_setups.models import *
 
@@ -25,8 +25,8 @@ class Command(BaseCommand):
         upload.save()
 
         if(upload.import_mode == Upload.REFRESH):
-            PanelProfile.objects.filter(country=upload.country, index=upload.index).delete()
-            PanelProfileChild.objects.filter(country=upload.country, index=upload.index).delete()
+            PanelProfile.objects.filter(country=upload.country, index_id=upload.index_id).delete()
+            PanelProfileChild.objects.filter(country=upload.country, index_id=upload.index_id).delete()
 
 
         # valid_fields = []
@@ -64,10 +64,11 @@ class Command(BaseCommand):
                 log += printr(".....Panel Profile Read Successfully.....")
                 n=0
                 log += printr("csv.DictReader took %s seconds" % (time.time() - start_time))
-
+                batch_data_list = []
                 for row in csv_reader:
                     n+=1
-                    if n%500==0:
+                    if n%1000==0:
+                        print(convertSecond2Min(time.time() - start_time))
                         print(n,end=' ',flush=True)
 
                     row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
@@ -78,14 +79,22 @@ class Command(BaseCommand):
                         if f"{ff}_code" in row:
                             row[f"{ff}"] = row.pop(f"{ff}_code", None)
 
+                    try:
+                        if row['index']:
+                            del(row['index'])
+                    except KeyError:
+                        pass
+
+
                     """Get Month"""
                     if(row['month'] != ''):
                         try:
                             row['month_id'] = month_list[str(row['month']).lower()]
                         except KeyError:
                             log += printr(f'month not exist at: {n}')
-                            skiped_records+=1
-                            continue
+                            updateUploadStatus(upload.id,"Pleas initilize month first.",Upload.FAILED,log)
+                            # skiped_records+=1
+                            # continue
                     else:
                         log += printr('month is empty at: '+str(row['month']))
                         skiped_records+=1
@@ -102,9 +111,9 @@ class Command(BaseCommand):
 
                     """ Audit Date """
                     if('audit_date' in row and row['audit_date'] != ''):
-                        row['audit_date'] = parser.parse(row['audit_date'],dayfirst=True)
+                        row['audit_date'] = parse(row['audit_date'],dayfirst=True)
                     else:
-                        log += printr(f'audit_date is empty/not exist at row at: {n}')
+                        # log += printr(f'audit_date is empty/not exist at row at: {n}')
                         skiped_records+=1
                         continue
 
@@ -113,11 +122,11 @@ class Command(BaseCommand):
                         try:
                             row['outlet_type_id'] = outlet_type_list[str(row['outlet_type']).lower()]
                         except KeyError:
-                            log += printr(f'outlet_type not exist at: {n}')
+                            # log += printr(f'outlet_type not exist at: {n}')
                             skiped_records+=1
                             continue
                     else:
-                        log += printr(f'outlet_type is empty at row at: {n}')
+                        # log += printr(f'outlet_type is empty at row at: {n}')
                         skiped_records+=1
                         continue
                     del row['outlet_type']
@@ -129,11 +138,11 @@ class Command(BaseCommand):
                         try:
                             row['outlet_status_id'] = outlet_status_list[str(row['outlet_status']).lower()]
                         except KeyError:
-                            log += printr(f'outlet_status not exist at: {n}')
+                            # log += printr(f'outlet_status not exist at: {n}')
                             skiped_records+=1
                             continue
                     else:
-                        log += printr(f'outlet_status is empty at row at: {n}')
+                        # log += printr(f'outlet_status is empty at row at: {n}')
                         skiped_records+=1
                         continue
                     del row['outlet_status']
@@ -144,75 +153,118 @@ class Command(BaseCommand):
                         try:
                             row['city_village_id'] = city_village_list[str(row['city_village']).lower()]
                         except KeyError:
-                            log += printr(f'city_village not exist at: {n}')
+                            # log += printr(f'city_village not exist at: {n}')
                             skiped_records+=1
                             continue
                     else:
-                        log += printr(f'outlet status is empty at row at: {n}')
+                        # log += printr(f'outlet status is empty at row at: {n}')
                         skiped_records+=1
                         continue
                     del row['city_village']
 
                     """Get or Create Outlet Object"""
-
                     if('outlet' in row and row['outlet'] != ''):
-                        outlet_obj, created = Outlet.objects.get_or_create(
-                            country=upload.country, code__iexact=str(row['outlet']),
-                            defaults={'code':row['outlet'],}
+                        outlet_obj = Outlet.objects.get(
+                                country_id=upload.country_id, code=str(row['outlet'])
                         )
-                        row['outlet'] = outlet_obj
+
+                        if not outlet_obj:
+                            outlet_obj = Outlet.objects.create(
+                                country=upload.country,code=row['outlet']
+                            )
+                            row['outlet'] = outlet_obj
                     else:
-                        log += printr(f'outlet is empty at row at: {n}')
+                        # log += printr(f'outlet is empty at row at: {n}')
                         skiped_records+=1
                         continue
+
+                    # if('outlet' in row and row['outlet'] != ''):
+                    #     outlet_obj, created = Outlet.objects.get_or_create(
+                    #         country=upload.country, code__iexact=str(row['outlet']),
+                    #         defaults={'code':row['outlet'],}
+                    #     )
+                    #     row['outlet'] = outlet_obj
+                    # else:
+                    #     log += printr(f'outlet is empty at row at: {n}')
+                    #     skiped_records+=1
+                    #     continue
 
 
                     try:
                         if row['cell_description'] != '' and len(row['cell_description'])>1:
                             cell_name = row['cell_description'].split("@")
                             cell_name = get_max_str(cell_name)
+                            cell_name = cell_name.upper()
                             serialize_str = (f"field_group[group][0][row][0][cols]=cell_description&field_group[group][0][row][0][operator]=icontains&field_group[group][0][row][0][value]={cell_name}")
 
-                            obj1, created1 = Cell.objects.update_or_create(
-                                country=upload.country, index=upload.index, name=cell_name,
-                                defaults = {'ipp':True,'serialize_str':serialize_str,'cell_acv':row['acv']}
+                            cell_obj, cell_created = Cell.objects.update_or_create(
+                                country=upload.country, index_id=upload.index_id, name=cell_name,
+                                defaults = {'ipp':True,'serialize_str':serialize_str}
                             )
+                            obj, created = UsableOutlet.objects.update_or_create(
+                                country=upload.country,
+                                cell_id=cell_obj.id,
+                                outlet_id=outlet_obj.id,
+                                month_id=row['month_id'],
+                                index_id=upload.index_id,
+                                defaults={'status':UsableOutlet.NOTUSABLE}
+                            )
+
                     except KeyError:
                         pass
 
 
+
                     new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
+                    new_row['country_id'] = upload.country_id
+                    new_row['index_id'] = upload.index_id
 
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
 
                         obj, created = PanelProfile.objects.get_or_create(
-                            country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
+                            country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index_id=upload.index_id,
                             defaults=new_row
                         )
                         obj, created = PanelProfileChild.objects.get_or_create(
-                            country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
+                            country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index_id=upload.index_id,
                             defaults=new_row
                         )
                         if(created): created_records+=1
 
 
-                    if(upload.import_mode == Upload.APPENDUPDATE ):
-                        """In this case, if the Person already exists, its name is updated"""
-                        obj, created = PanelProfile.objects.update_or_create(
-                            country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
-                            defaults=new_row
-                        )
-                        obj, created = PanelProfileChild.objects.update_or_create(
-                            country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index=upload.index,
-                            defaults=new_row
-                        )
-                        if(created): created_records+=1
-                        else: updated_records+=1
+                    if(upload.import_mode == Upload.APPENDUPDATE or upload.import_mode == Upload.UPDATE ):
 
-                    upload.skiped_records = skiped_records
-                    upload.created_records = created_records
-                    upload.updated_records = updated_records
-                    upload.save()
+                        batch_data_list.append(PanelProfile(**new_row)) #For bulk entry
+
+                        if len(batch_data_list) > 5000:
+                            created = PanelProfile.objects.bulk_create(
+                                    batch_data_list,
+                                    ignore_conflicts=True
+                            )
+                            batch_data_list = []
+
+
+                        # obj, created = PanelProfile.objects.update_or_create(
+                        #     country=upload.country,
+                        #     outlet=outlet_obj,
+                        #     month_id=row['month_id'],
+                        #     index_id=upload.index_id,
+                        #     defaults=new_row
+                        # )
+                        # obj, created = PanelProfileChild.objects.update_or_create(
+                        #     country=upload.country,
+                        #     outlet=outlet_obj,
+                        #     month_id=row['month_id'],
+                        #     index_id=upload.index_id,
+                        #     defaults=new_row
+                        # )
+                        # if(created): created_records+=1
+                        # else: updated_records+=1
+
+                    # upload.skiped_records = skiped_records
+                    # upload.created_records = created_records
+                    # upload.updated_records = updated_records
+                    # upload.save()
 
 
             logger.error('CSV file processed successfully.')

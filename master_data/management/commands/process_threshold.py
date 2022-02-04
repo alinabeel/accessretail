@@ -12,9 +12,14 @@ class Command(BaseCommand):
     start_time = time.time()
     last_time = timeSpent(start_time)
     log = ""
-    is_first_month = None
+    is_first_month = False
+    is_second_month = False
+    is_morethantwo = False
+    total_months = 0
     curr_month = None
     prev_month = None
+    third_month = None
+
     product_weight_list = None
     TH = None
     avg_sd_sales_dict = dict()
@@ -38,11 +43,71 @@ class Command(BaseCommand):
 
             return avg_sd_sales_dict
 
-    def recalculateSsles(self,panel,country_id,index_id,category_id):
+    def getCellOutletsAvgSales(self,panel,country_id,index_id,category_id,cell_obj, panel_profile_child=False):
+
+            cell_serialize_str = cell_obj.serialize_str
+            cell_group_filter_human = ''
+            cell_group_filter = ''
+            if cell_serialize_str != '':
+                cell_params = parse_qs((cell_serialize_str))
+                cell_list = getDictArray(cell_params,'field_group[group]')
+                cell_dic = getDicGroupList(cell_list)
+                cell_group_filter = getGroupFilter(cell_dic)
+
+                # cell_group_filter_human = getGroupFilterHuman(cell_dic)
+
+            # filter_human = "Cell( \n {})".format(cell_group_filter_human)
+            MODEL = "PanelProfile" if panel_profile_child is False else "PanelProfileChild"
+            queryListPPAllCell = eval(f"{MODEL}").objects.all() \
+                            .filter(country_id = country_id,
+                                    month_id = self.curr_month.id,
+                                    index_id = index_id
+                            ) \
+                            .filter(cell_group_filter) \
+                            .values_list('outlet_id', flat=True)
+
+
+
+            curr_audit_data = dict()
+            curr_audit_data['sum_sales'] = 0
+            curr_audit_data['avg_sales'] = 0
+
+            MODEL = "AuditData" if panel_profile_child is False else "AuditDataChild"
+            try:
+                curr_audit_data = eval(f"{MODEL}").objects \
+                                .filter(country_id = country_id,
+                                        category_id = category_id,
+                                        month_id = self.curr_month.id,
+                                        outlet_id__in = queryListPPAllCell) \
+                                .aggregate(sum_sales=Sum('sales'),avg_sales=Avg('sales'))
+            except AuditDataChild.DoesNotExist:
+                pass
+
+
+            return curr_audit_data
+
+    def updateCreateUsableOutlet(self,panel,country_id,index_id,cell_id,status):
+        try:
+            obj, created = UsableOutlet.objects.update_or_create(
+                country_id=country_id,
+                cell_id=cell_id,
+                outlet_id=panel.outlet.id,
+                month_id=self.curr_month.id,
+                index_id=index_id,
+                defaults={'status':status}
+            )
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
+            logger.error(Colors.BOLD_RED+'Error Msg:'+ str(e)+Colors.WHITE )
+
+    def recalculateSales(self,panel,country_id,index_id,category_id):
         try:
             outlet_id = panel.outlet.id
             curr_month_id = self.curr_month.id
             prev_month_id = self.prev_month.id
+
             curr_audit_data = AuditDataChild.objects.filter(country_id = country_id,
                                                             category_id = category_id,
                                                             month_id = curr_month_id,
@@ -333,14 +398,14 @@ class Command(BaseCommand):
                                                             country_id = country_id,
                                                             category_id = category_id,
                                                             month_id = self.prev_month.id,
-                                                            outlet_id = panel.outlet_id
+                                                            outlet_id = panel.outlet.id
                                                             )
 
                     prev_pp_qs = PanelProfile.objects.get(
                                                     country_id = country_id,
                                                     index_id = index_id,
                                                     month_id = self.prev_month.id,
-                                                    outlet_id = panel.outlet_id
+                                                    outlet_id = panel.outlet.id
                                                     )
 
                     prev_audit_date = prev_pp_qs.audit_date
@@ -359,7 +424,7 @@ class Command(BaseCommand):
                     for obj in prev_audit_data:
 
                         # obj.pk = None # New Copy
-                        # obj.outlet_id  = panel.outlet_id
+                        # obj.outlet_id  = panel.outlet.id
                         # obj.audit_status  = AuditDataChild.COPIED
                         # obj.audit_date = prev_audit_date+timedelta(days=30.5)
                         # obj.month_id = self.curr_month.id
@@ -463,7 +528,8 @@ class Command(BaseCommand):
 
 
 
-    def commonOutlets(self,panel,country_id,index_id,category_id):
+    def commonOutlets(self,panel,country_id,index_id,category_id,cell_obj):
+        # cdebug(self)
         try:
 
             # Accept the store if	ABS (Store Actual Sales /  Store Last Month Sales - 1) <= c
@@ -473,35 +539,57 @@ class Command(BaseCommand):
             # a = criteria
             # a is acceptance of store based on category/index"
 
-            curr_audit_data = AuditDataChild.objects.filter(country_id = country_id,
-                                                            category_id = category_id,
-                                                            month_id = self.curr_month.id,
-                                                              outlet_id = panel.outlet.id)
+            flag_common_outlet = False
+            is_valid = False
+            outlet_id = panel.outlet.id
+            curr_month_id = self.curr_month.id
+            prev_month_id = self.prev_month.id
 
-            prev_audit_data = AuditDataChild.objects.filter(country_id = country_id,
-                                                            category_id = category_id,
-                                                            month_id = self.prev_month.id,
-                                                              outlet_id = panel.outlet.id)
-            curr_sales = curr_audit_data.sales
-            prev_sales = prev_audit_data.sales
-
-            sales_variation = percentChange(curr_sales,prev_sales)
-            print(f'sales_variation: {sales_variation}, curr_sales:{curr_sales}, prev_sales:{prev_sales}')
-            sys.exit(0)
-            # if abs(curr_sales / prev_sales -1 ) <= self.TH.common_outlet_accept
-            # prettyprint_queryset(curr_audit_data)
-
-            # cdebug(f"{panel.outlet.code},{country_id},{index_id},{category_id},{self.TH},{self.curr_month.id}")
-
-            audit_data_list = []
-            test = []
-            outlet_status = UsableOutlet.QUARANTINE
-
-            for cmad in curr_audit_data:
-                self.updateAuditData(cmad)
+            try:
+                curr_audit_data = AuditDataChild.objects \
+                                .filter(country_id = country_id,
+                                        category_id = category_id,
+                                        month_id = curr_month_id,
+                                        outlet_id = outlet_id) \
+                                .aggregate(sum_sales=Sum('sales'))
+            except AuditDataChild.DoesNotExist:
+                curr_audit_data = None
 
 
+            try:
+                prev_audit_data = AuditDataChild.objects \
+                                .filter(country_id = country_id,
+                                        category_id = category_id,
+                                        month_id = prev_month_id,
+                                        outlet_id = outlet_id) \
+                                .aggregate(sum_sales=Sum('sales'))
+            except AuditDataChild.DoesNotExist:
+                prev_audit_data = None
 
+
+            if curr_audit_data['sum_sales'] is not None and prev_audit_data['sum_sales'] is not None:
+
+                curr_sales = curr_audit_data['sum_sales']
+                prev_sales = prev_audit_data['sum_sales']
+                printr(f"c , p = {curr_sales},{prev_sales}")
+                if abs((float(curr_sales) / float(prev_sales) -1)*100 ) <= self.TH.common_outlet_accept:
+                    flag_common_outlet = True
+                    is_valid = True
+                    self.updateCreateUsableOutlet(panel,country_id,index_id,cell_obj.id,UsableOutlet.USABLE)
+
+            panel.is_valid = is_valid
+            panel.flag_common_outlet = flag_common_outlet
+            panel.save()
+
+
+
+
+            # audit_data_list = []
+            # test = []
+            # outlet_status = UsableOutlet.QUARANTINE
+
+            # for cmad in curr_audit_data:
+            #     self.updateAuditData(cmad)
 
 
         except Exception as e:
@@ -529,77 +617,286 @@ class Command(BaseCommand):
             print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
             logger.error(Colors.BOLD_RED+'Error Msg:'+ str(e)+Colors.WHITE )
 
-    def processThreshold(self, country_id,index_id,month_id):
+    def newOutlets(self,panel,country_id,index_id,category_id,cell_obj):
         try:
-            # month_date =  datetime(2021, 8, 1)
 
-            month_qs = Month.objects.get(id=month_id)
-            month_date = month_qs.date
-
-            print(month_date)
-
-            #Calculate Previous Month, Next Month
-            self.is_first_month,self.curr_month, self.prev_month = getTwoMonthFromDate(country_id,month_date)
-
-
-            #Get Index categorries
-            index_category = IndexCategory.objects.filter(country_id = country_id, index_id = index_id)
-            index_category = index_category[0].get_index_category_ids()
+            curr_sales = 0
+            try:
+                curr_audit_data = AuditDataChild.objects \
+                                .filter(country_id = country_id,
+                                        category_id = category_id,
+                                        month_id = self.curr_month.id,
+                                        outlet_id = panel.outlet_id) \
+                                .aggregate(sum_sales=Sum('sales'),avg_sales=Avg('sales'))
+            except AuditDataChild.DoesNotExist:
+                curr_audit_data = None
 
 
-            #Calculate category wise
-            for category_id in index_category:
-
-                #Get Threasholds
-                try:
-                    self.TH = Threshold.objects.filter(country_id = country_id, index_id=index_id,category_id=category_id).first()
-                except Threshold.DoesNotExist:
-                    self.TH = None
-                    cdebug(f"Threshold not defined for category id {category_id}")
-                    continue
+            curr_sales = curr_audit_data['sum_sales']
 
 
+            try:
+                oc_qs = OutletCensus.objects.filter(country_id=country_id,
+                                                    index_id=index_id,
+                                                    category_id=category_id,
+                                                    outlet_id=panel.outlet.id) \
+                                            .values('category_sales_avg')
 
-                self.avg_sd_sales_dict = self.getAvgSd(country_id, month_id, category_id, self.TH.stddev_sample)
+                census_category_sales_avg = oc_qs[0]['category_sales_avg']
+            except OutletCensus.DoesNotExist:
+                oc_qs = None
+                census_category_sales_avg = 0
+            except KeyError:
+                oc_qs = None
+                census_category_sales_avg = 0
 
-                cdebug(self.curr_month)
-                #Get current month  audit data with category
-                panel_profile_qs = PanelProfile.objects.filter(country_id = country_id,
-                                                                index_id = index_id,
-                                                                month_id = self.curr_month.id)
+            # New Stores
+            #     2	Accept the store if	ABS (Store Actual Sales /  Store Census Sales - 1) <= a
+            flag_accepted_a = False
+            flag_droped_a = False
+            flag_accepted_b = False
+            flag_droped_b = False
 
-                for panel in panel_profile_qs:
-                    print(f"Processing Panel outlet code:{panel.outlet.code}")
-                    self.processPanelProfile(panel,country_id,index_id,category_id)
+            is_valid = False
+            if census_category_sales_avg > 0:
+                if abs((float(curr_sales) / float(census_category_sales_avg) -1)*100 ) <= self.TH.new_outlet_accept_a:
+                    flag_accepted_a = True
+                    is_valid = True
+                    self.updateCreateUsableOutlet(panel,country_id,index_id,cell_obj.id,UsableOutlet.USABLE)
 
-                    if self.is_first_month is False:
-                        ## STEP: 4 ##
-                        self.outlierDetectionDecsion(panel,country_id,index_id,category_id)
-                        # TODO: Recalculate sales
-                        ## STEP: 5 ##
-                        self.recalculateSsles(panel,country_id,index_id,category_id)
-
-                #Process on cleaned outlets
-                panel_profile_clean_qs = PanelProfileChild.objects.filter(country_id = country_id,
-                                                                index_id = index_id,
-                                                                month_id = self.curr_month.id,
-                                                                is_valid = True
-                                                            )
-
-                # STEP: 6 ##
-                # for panel in panel_profile_qs:
-                #     self.commonOutlets(panel,country_id,index_id,category_id)
-
-                    # sys.exit(0)
+            #       Drop the store if	ABS (Store Actual Sales /  Store Census Sales - 1) > a
+                if abs((float(curr_sales) / float(census_category_sales_avg) -1)*100 ) > self.TH.new_outlet_drop_a:
+                    flag_droped_a = True
+                    is_valid = False
+                    self.updateCreateUsableOutlet(panel,country_id,index_id,cell_obj.id,UsableOutlet.DROP)
 
 
-                # self.processAuditData(country_id,index_id,category_id,TH)
+            cell_outlet_avg_sales = self.getCellOutletsAvgSales(panel,country_id,index_id,category_id,cell_obj,True)
+            avg_sales = cell_outlet_avg_sales['avg_sales']
+
+            #     3	Accept the store if	ABS (Store Actual Sales /  Avg Cell Sales - 1) <= b
+            if avg_sales > 0:
+                if abs((float(curr_sales) / float(avg_sales) -1)*100 ) <= self.TH.new_outlet_accept_b:
+                    flag_accepted_b = True
+                    is_valid = True
+                    self.updateCreateUsableOutlet(panel,country_id,index_id,cell_obj.id,UsableOutlet.USABLE)
+
+            #       Drop the store if	ABS (Store Actual Sales /  Avg Cell Sales - 1) > b
+                if abs((float(curr_sales) / float(avg_sales) -1)*100 ) > self.TH.new_outlet_drop_b:
+                    flag_droped_b = True
+                    is_valid = False
+                    self.updateCreateUsableOutlet(panel,country_id,index_id,cell_obj.id,UsableOutlet.DROP)
+
+
+            panel.is_valid = is_valid
+            panel.flag_accepted_a = flag_accepted_a
+            panel.flag_droped_a = flag_droped_a
+            panel.flag_accepted_b = flag_accepted_b
+            panel.flag_droped_b = flag_droped_b
+            panel.save()
+
+            # ('common_outlet_accept',
+            # 'new_outlet_accept_a',
+            # 'new_outlet_accept_b',
+            # 'drop_outlet_copied',
+            # 'drop_outlet_copied_once',
+            # 'weighted_store',
+            # 'weighted_cell', )
+
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
             logger.error(Colors.BOLD_RED+'Error Msg:'+ str(e)+Colors.WHITE )
+
+    def dropedOutlets(self,panel,country_id,index_id,category_id,cell_obj):
+
+        try:
+            pass
+
+        #     curr_sales = panel.sales
+
+        #     try:
+        #         oc_qs = OutletCensus.objects.get(country_id=country_id,
+        #                                             index_id=index_id,
+        #                                             category_id=category_id,
+        #                                             outlet_id=panel.outlet.id) \
+        #                                     .values('category_sales_avg')
+        #         census_category_sales_avg = oc_qs.category_sales_avg
+        #     except OutletCensus.DoesNotExist:
+        #         oc_qs = None
+        #         census_category_sales_avg = 0
+
+        #     # New Stores
+        #     #     2	Accept the store if	ABS (Store Actual Sales /  Store Census Sales - 1) <= a
+        #     flag_accepted_a = False
+        #     flag_droped_a = False
+        #     flag_accepted_b = False
+        #     flag_droped_b = False
+
+        #     is_valid = False
+        #     if census_category_sales_avg > 0:
+        #         if abs((float(curr_sales) / float(census_category_sales_avg) -1)*100 ) <= self.TH.new_outlet_accept_a:
+        #             flag_accepted_a = True
+        #             is_valid = True
+        #             self.updateCreateUsableOutlet(panel,country_id,index_id,cell_obj.id,UsableOutlet.USABLE)
+
+        #     #       Drop the store if	ABS (Store Actual Sales /  Store Census Sales - 1) > a
+        #         if abs((float(curr_sales) / float(census_category_sales_avg) -1)*100 ) > self.TH.new_outlet_drop_a:
+        #             flag_droped_a = True
+        #             is_valid = False
+        #             self.updateCreateUsableOutlet(panel,country_id,index_id,cell_obj.id,UsableOutlet.DROP)
+
+
+        #     cell_outlet_avg_sales = self.getCellOutletsAvgSales(panel,country_id,self.curr_month.id,index_id,cell_obj,True)
+        #     avg_sales = cell_outlet_avg_sales['avg_sales']
+
+        #     #     3	Accept the store if	ABS (Store Actual Sales /  Avg Cell Sales - 1) <= b
+        #     if avg_sales > 0:
+        #         if abs((float(curr_sales) / float(avg_sales) -1)*100 ) <= self.TH.new_outlet_accept_b:
+        #             flag_accepted_b = True
+        #             is_valid = True
+        #             self.updateCreateUsableOutlet(panel,country_id,index_id,cell_obj.id,UsableOutlet.USABLE)
+
+        #     #       Drop the store if	ABS (Store Actual Sales /  Avg Cell Sales - 1) > b
+        #         if abs((float(curr_sales) / float(avg_sales) -1)*100 ) > self.TH.new_outlet_drop_b:
+        #             flag_droped_b = True
+        #             is_valid = False
+        #             self.updateCreateUsableOutlet(panel,country_id,index_id,cell_obj.id,UsableOutlet.DROP)
+
+
+        #     panel.is_valid = is_valid
+        #     panel.flag_accepted_a = flag_accepted_a
+        #     panel.flag_droped_a = flag_droped_a
+        #     panel.flag_accepted_b = flag_accepted_b
+        #     panel.flag_droped_b = flag_droped_b
+        #     panel.save()
+
+
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
+            logger.error(Colors.BOLD_RED+'Error Msg:'+ str(e)+Colors.WHITE )
+
+
+    def processThreshold(self, country_id,index_id,category_id,month_id):
+        try:
+            # month_date =  datetime(2021, 8, 1)
+
+            month_qs = Month.objects.get(id=month_id)
+            month_date = month_qs.date
+
+            cdebug(f"month: {month_date}")
+
+            #Calculate Previous Month, Next Month
+            self.curr_month, self.prev_month, self.third_month = getThreeMonthFromDate(country_id,month_date)
+
+
+            #Get Index categorries
+            # index_category = IndexCategory.objects.filter(country_id = country_id, index_id = index_id)
+            # index_category = index_category[0].get_index_category_ids()
+
+
+            #Calculate category wise
+            # for category_id in index_category:
+
+            #Get Threasholds
+            try:
+                self.TH = Threshold.objects.filter(country_id = country_id, index_id=index_id,category_id=category_id).first()
+            except Threshold.DoesNotExist:
+                self.TH = None
+                cdebug(f"Threshold not defined for category id {category_id}")
+                return
+
+
+
+            self.avg_sd_sales_dict = self.getAvgSd(country_id, month_id, category_id, self.TH.stddev_sample)
+
+            # cdebug(self.curr_month)
+            #Get current month  audit data with category
+            panel_profile_qs = PanelProfile.objects.filter(country_id = country_id,
+                                                            index_id = index_id,
+                                                            month_id = self.curr_month.id)
+
+            for panel in panel_profile_qs:
+                print(f"Processing Panel outlet id,code:{panel.outlet.id},{panel.outlet.code}")
+
+                self.total_months = getOutletTotalMonthFromDate(country_id, month_date, panel.outlet_id)
+                printr(f"total_months: {self.total_months}")
+                self.is_first_month = True if self.total_months == 1 else False
+                self.is_second_month = True if self.total_months == 2 else False
+                self.is_morethantwo = True if self.total_months >= 3 else False
+
+                self.processPanelProfile(panel,country_id,index_id,category_id)
+
+                if self.total_months > 1:
+                    ## STEP: 4 ##
+                    self.outlierDetectionDecsion(panel,country_id,index_id,category_id)
+                    ## STEP: 5 ##
+                    self.recalculateSales(panel,country_id,index_id,category_id)
+
+            #Process on cleaned outlets
+            panel_profile_clean_qs = PanelProfileChild.objects.filter(country_id = country_id,
+                                                            index_id = index_id,
+                                                            month_id = self.curr_month.id,
+                                                            is_valid = True
+                                                        )
+
+
+
+            ## STEP: 6 ##
+
+            for panel in panel_profile_clean_qs:
+
+                try:
+                    cell_obj = Cell.objects.filter(
+                        country_id=country_id,
+                        index_id=index_id,
+                        name__iexact=panel.cell_description,
+                    ).get()
+                    # prettyprint_queryset(cell_obj)
+                except Cell.DoesNotExist:
+                    cell_obj = None
+
+                if cell_obj is not None and self.total_months > 1:
+                    self.commonOutlets(panel,country_id,index_id,category_id,cell_obj)
+
+
+                #New Store:
+                # 1	In 1st month store will be kept in Qurantine,
+                if cell_obj is not None and self.is_first_month is True:
+                    cdebug(cell_obj.id)
+                    self.updateCreateUsableOutlet(panel,country_id,index_id,cell_obj.id,UsableOutlet.QUARANTINE)
+
+                #New Store:
+                # 2nd Month Store will appeasr as new store tag
+                if self.is_second_month is True:
+                    panel.flag_new_outlet = True
+                    panel.save()
+
+                # if cell_obj is not None and self.is_second_month is True:
+                #     self.updateCreateUsableOutlet(panel,country_id,index_id,cell_obj.id,UsableOutlet.N)
+
+                if cell_obj is not None and self.total_months == 2:
+                    self.newOutlets(panel,country_id,index_id,category_id,cell_obj)
+                    self.dropedOutlets(panel,country_id,index_id,category_id,cell_obj)
+
+                # sys.exit(0)
+
+
+            # self.processAuditData(country_id,index_id,category_id,TH)
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
+            logger.error(Colors.BOLD_RED+'Error Msg:'+ str(e)+Colors.WHITE )
+    def add_arguments(self, parser):
+        parser.add_argument('index_id', type=int)
+        parser.add_argument('category_id', type=int)
 
     def handle(self, *args, **options):
         try:
@@ -608,8 +905,14 @@ class Command(BaseCommand):
             # upload = Upload.objects.get(pk=upload_id)
             country = Country.objects.get(pk=1)
             country_id = country.id
-            month_date =  datetime(2021, 8, 1)
-            index_id = 3
+            # month_date =  datetime(2021, 8, 1)
+            # index_id = 1
+            # category_id = 8
+
+            # index_id = 3 #Tobaco
+            # category_id = 20  #Cig
+            index_id = options['index_id']
+            category_id = options['category_id']
 
 
             self.product_weight_list = getCode2AnyModelFieldList(country_id,'Product','weight')
@@ -620,9 +923,10 @@ class Command(BaseCommand):
                 .values('month__id','month__date','month__code') \
                 .annotate(curr_month=Max("month__date")) \
                 .order_by('month__date')
+            # prettyprint_queryset(month_qs)
 
             for month in month_qs:
-                self.processThreshold(country_id,index_id,month['month__id'])
+                self.processThreshold(country_id,index_id,category_id,month['month__id'])
 
 
 
@@ -642,8 +946,10 @@ class Command(BaseCommand):
 #                	method outlierDetection
 # 	                method updateAuditDataChild
 # 	        method outlierDetectionDecsion
-#           method recalculateSsles
+#           method recalculateSales
+#           *Process on cleaned outlets*
 # 	        method commonOutlets
+#           method newOutlets
 
 
 

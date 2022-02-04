@@ -97,11 +97,16 @@ class Command(BaseCommand):
                             skiped_records+=1
                             continue
                     else:
-                        log += printr(f'category is empty at row at: {n}')
+                        log += printr(f'category is empty at row: {n}')
                         skiped_records+=1
                         continue
+
                     del row['category']
 
+                    if row['category_id'] not in index_category:
+                        log += printr(f'category not assigned to index_category: ')
+                        skiped_records+=1
+                        continue
                     # extra_count = 1
                     # max_extra = 30
                     # for key, val in list(temp_row.items()):
@@ -162,7 +167,7 @@ class Command(BaseCommand):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
             logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
-            cdebug(row,'row')
+            cdebug(row,'Exception:')
             log += 'CSV file processing failed. Error Msg:'+ str(e)
             upload.is_processing = Upload.ERROR
             upload.process_message = "CSV file processing failed. Error Msg:"+str(e)

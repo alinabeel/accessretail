@@ -1,5 +1,5 @@
 from typing import ValuesView
-from core.utils import cdebug
+from core.utils import cdebug, prettyprint_query, prettyprint_queryset
 import json
 import csv
 import os
@@ -218,48 +218,77 @@ def calculateSales(total_purchase,opening_stock,total_stock,vd_factor):
 
     return purchase,rev_purchase,sales
 
-def getTwoMonthFromDate(country_id, month_date):
+def getThreeMonthFromDate(country_id, month_date):
     try:
         #Calculate Previous Month, Next Month
         audit_date_qs = AuditData.objects.all() \
-            .filter(Q(country_id = country_id) & Q(month__date__lte = month_date) ) \
+            .filter(country_id = country_id, month__date__lte = month_date) \
             .values('month__date','month__code') \
             .annotate(current_month=Max("month__date")) \
             .order_by('-month__date')[0:2]
 
         # audit_date_qs = PanelProfile.objects.all().filter(country_id = country_id).values('month__date').annotate(current_month=Max('audit_date')).order_by('month__date')[0:3]
-
+        # prettyprint_queryset(audit_date_qs)
         date_arr = []
 
         for instance in audit_date_qs:
             date_arr.append(instance['month__date'])
 
         is_first_month = False
-        month_1 = month_2  = None
-        current_month = previous_month = None
+        is_second_month = False
+        month_1 = month_2  = month_3 = None
+        current_month = previous_month = third_month = None
 
-        if(len(date_arr)==2):
+        if(len(date_arr)==3):
+            month_1 , month_2, month_3 = date_arr
+            current_month = Month.objects.get(date=month_1)
+            previous_month  = Month.objects.get(date=month_2)
+            third_month  = Month.objects.get(date=month_3)
+            # cdebug('3-Month data')
+        elif(len(date_arr)==2):
             month_1 , month_2 = date_arr
             current_month = Month.objects.get(date=month_1)
             previous_month  = Month.objects.get(date=month_2)
-            cdebug('2-Month data')
+            # cdebug('2-Month data')
         else:
-            cdebug('1-Month data')
+            # cdebug('1-Month data')
             is_first_month = True
             month_1 = date_arr[0]
             current_month = Month.objects.get(date=month_1)
 
-        print(f"{is_first_month},{current_month}, {previous_month}")
-        return is_first_month,current_month, previous_month
+        # print(f"{is_first_month},{current_month}, {previous_month}")
+        return current_month, previous_month, third_month
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
 
 
+def getOutletTotalMonthFromDate(country_id, month_date, outlet_id):
+
+    #Calculate Total month of outlet
+    total_months = 0
+    try:
+        audit_date_child_qs = AuditDataChild.objects \
+            .filter(country_id = country_id,
+                    month__date__lte = month_date,
+                    outlet_id = outlet_id
+                    ) \
+            .values('month__date','month__code') \
+            .annotate(count_months=Count('month_id'))
+        # prettyprint_queryset(audit_date_child_qs)
+        # cdebug(audit_date_child_qs)
+        total_months = len(audit_date_child_qs)
+    except AuditDataChild.DoesNotExist:
+        audit_date_child_qs = None
+
+    return total_months
+
+
+
 def updateUploadStatus(id,msg,is_processing,log=''):
     upload = Upload.objects.get(pk=id)
-    upload.is_processing = Upload.ERROR
+    upload.is_processing = is_processing
     upload.process_message = msg
     upload.log  = log
     upload.save()

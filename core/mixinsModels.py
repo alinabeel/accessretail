@@ -15,8 +15,8 @@ class UpperCaseCharField(models.CharField):
             return super(self.__class__, self).pre_save(model_instance, add)
 
 class CodeNameMixIn(models.Model):
-    name = models.CharField(max_length=150)
-    code = UpperCaseCharField(max_length=50,validators=[validators.validate_slug])
+    name = models.CharField(max_length=150,db_index=True,)
+    code = UpperCaseCharField(max_length=50,db_index=True,validators=[validators.validate_slug])
 
     class Meta:
         abstract = True

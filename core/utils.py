@@ -143,6 +143,11 @@ def cdebug(message,title='Debug'):
     text = pprint.pformat(message)
     termcolor.cprint(text, color='cyan', on_color=None, attrs=None)
 
+def cprint(message,title='Debug'):
+    caller = inspect.getframeinfo(inspect.stack()[1][0])
+    termcolor.cprint(f'---------{title}--{os.path.basename(caller.filename)}:{caller.function}:{caller.lineno} --------','red', 'on_blue', ['blink','bold'])
+    text = message
+    termcolor.cprint(text, color='cyan', on_color=None, attrs=None)
 
 
 def find_location(text,RECIPES):

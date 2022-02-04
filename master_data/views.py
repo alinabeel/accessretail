@@ -163,8 +163,10 @@ class CategoryImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.frommodel = "category"
         form_obj.save()
 
-        print(Colors.BLUE,form_obj.pk)
-        proc = Popen('python manage.py import_category '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+        command = 'python manage.py import_category '+str(form_obj.pk)
+        print(Colors.BOLD_YELLOW,command)
+        proc = Popen(command, shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+
 
         # management.call_command('import_census',self.kwargs["country_code"])
         return super(self.__class__, self).form_valid(form)
@@ -452,8 +454,9 @@ class PanelProfileImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.frommodel = "panel_profile"
         form_obj.save()
 
-        print(Colors.BLUE,form_obj.pk)
-        proc = Popen('python manage.py import_panel_profile '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+        command = 'python manage.py import_panel_profile '+str(form_obj.pk)
+        print(Colors.BOLD_YELLOW,command)
+        proc = Popen(command, shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         return super(self.__class__, self).form_valid(form)
 
@@ -553,8 +556,9 @@ class UsableOutletImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.frommodel = "usable_outlet"
         form_obj.save()
 
-        print(Colors.BLUE,form_obj.pk)
-        proc = Popen('python manage.py import_usable_outlet_cell '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+        command = 'python manage.py import_usable_outlet_cell '+str(form_obj.pk)
+        print(Colors.BOLD_YELLOW,command)
+        proc = Popen(command, shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         return super(self.__class__, self).form_valid(form)
 
@@ -805,8 +809,10 @@ class ProductImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.frommodel = "product"
         form_obj.save()
 
-        print(Colors.BLUE,form_obj.pk)
-        proc = Popen('python manage.py import_product '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+        command = 'python manage.py import_product '+str(form_obj.pk)
+        print(Colors.BOLD_YELLOW,command)
+        proc = Popen(command, shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+
 
         return super(self.__class__, self).form_valid(form)
 
@@ -910,8 +916,10 @@ class AuditDataImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.frommodel = "audit_data"
         form_obj.save()
 
-        print(Colors.BLUE,form_obj.pk)
-        proc = Popen('python manage.py import_audit_data '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+        command = 'python manage.py import_audit_data '+str(form_obj.pk)
+        print(Colors.BOLD_YELLOW,command)
+        proc = Popen(command, shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+
 
         return super(self.__class__, self).form_valid(form)
 
@@ -1497,8 +1505,11 @@ class CellImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.frommodel = "cell"
         form_obj.save()
 
-        print(Colors.BLUE,form_obj.pk)
-        proc = Popen('python manage.py import_cell '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+        command = 'python manage.py import_cell '+str(form_obj.pk)
+        print(Colors.BOLD_YELLOW,command)
+        proc = Popen(command, shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+
+
 
         return super(self.__class__, self).form_valid(form)
 
@@ -2239,8 +2250,11 @@ class OutletTypeImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.frommodel = "outlet_type"
         form_obj.save()
 
-        print(Colors.BLUE,form_obj.pk)
-        proc = Popen('python manage.py import_outlet_type '+str(form_obj.pk), shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+        command = 'python manage.py import_outlet_type '+str(form_obj.pk)
+        print(Colors.BOLD_YELLOW,command)
+        proc = Popen(command, shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
+
+
 
         return super(self.__class__, self).form_valid(form)
 
@@ -2484,7 +2498,7 @@ class OutletCensusImportView(LoginRequiredMixin, generic.CreateView):
         form_obj.save()
 
         command = f'python manage.py import_outlet_census {form_obj.pk}'
-        print(Colors.BLUE, command)
+        print(Colors.BOLD_YELLOW, command)
         proc = Popen(command, shell=True, stdin=stdin, stdout=stdout, stderr=stderr)
 
         return super(self.__class__, self).form_valid(form)

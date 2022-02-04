@@ -9,10 +9,12 @@ from master_data.models import Month,RBD,Category, Threshold
 class RBDReport(CreateUpdateMixIn,models.Model):
     CELLSUMMARY = 'cell-summary'
     CELLSNAPSHOT = 'cell-snapshot'
+    THRESHOLDPROCESSING = 'threshold-processing'
 
     REPORTTYPE_CHOICES = (
         (CELLSUMMARY , 'Cell Summary'),
         (CELLSNAPSHOT , 'Cell Snapshot'),
+        (THRESHOLDPROCESSING,'Threshold Processing'),
     )
 
     country = models.ForeignKey(Country, on_delete=models.CASCADE)

@@ -99,7 +99,7 @@ class Command(BaseCommand):
 
 
                     if(upload.import_mode == Upload.APPENDUPDATE ):
-                        """In this case, if the Person already exists, its name is updated"""
+
                         obj, created = UsableOutlet.objects.update_or_create(
                             country=upload.country, outlet=outlet_obj, month=month_obj,
                             defaults=row

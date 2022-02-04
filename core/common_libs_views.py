@@ -74,7 +74,7 @@ from core.utils import (trace,prettyprint_query,prettyprint_queryset,
 from core.helpers import (getDictArray,getDicGroupList,getGroupFilter,getGroupFilterHuman,
             dropzeros,remove_exponent,getCategories,getMonths,modelValidFields,modelForeignFields,
             uploadStatusMessage,IdCodeModel,chkMonthLocked,getCode2AnyModelFieldList,updateUploadStatus,
-            getTwoMonthFromDate,calculateSales)
+            getThreeMonthFromDate,getOutletTotalMonthFromDate,calculateSales)
 
 
 from master_data.serializers import PanelProfileSerializers
