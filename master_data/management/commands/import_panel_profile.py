@@ -46,7 +46,7 @@ class Command(BaseCommand):
         valid_fields_all = valid_fields + foreign_fields
 
         for ff in foreign_fields:
-                valid_fields_all.append(f"{ff}_id")
+            valid_fields_all.append(f"{ff}_id")
         # cdebug(valid_fields_all)
         # print(valid_fields)
         # print(foreign_fields)
@@ -61,13 +61,16 @@ class Command(BaseCommand):
         try:
             with open(MEDIA_ROOT+'/'+str(upload.file), 'r',encoding='utf-8-sig') as read_obj:
                 csv_reader = DictReader(read_obj)
-                log += printr(".....Panel Profile Read Successfully.....")
+                log += printr(".....CSV Read Successfully.....")
                 n=0
-                log += printr("csv.DictReader took %s seconds" % (time.time() - start_time))
+                printr("csv.DictReader took %s seconds" % (time.time() - start_time))
                 batch_data_list = []
+                objs = []
+                batch_start_time = time.time()
                 for row in csv_reader:
+
                     n+=1
-                    if n%1000==0:
+                    if n%5000==0:
                         print(convertSecond2Min(time.time() - start_time))
                         print(n,end=' ',flush=True)
 
@@ -91,18 +94,18 @@ class Command(BaseCommand):
                         try:
                             row['month_id'] = month_list[str(row['month']).lower()]
                         except KeyError:
-                            log += printr(f'month not exist at: {n}')
+                            # log += printr(f'month not exist at: {n}')
                             updateUploadStatus(upload.id,"Pleas initilize month first.",Upload.FAILED,log)
                             # skiped_records+=1
                             # continue
                     else:
-                        log += printr('month is empty at: '+str(row['month']))
+                        # log += printr('month is empty at: '+str(row['month']))
                         skiped_records+=1
                         continue
 
                     #Check if month is locked
                     if(month_islocked_list[str(row['month']).lower()]==True):
-                        log += 'Month Locked:, CSV ROW: '+ str(n)
+                        # log += 'Month Locked:, CSV ROW: '+ str(n)
                         skiped_records+=1
                         continue
 
@@ -111,7 +114,8 @@ class Command(BaseCommand):
 
                     """ Audit Date """
                     if('audit_date' in row and row['audit_date'] != ''):
-                        row['audit_date'] = parse(row['audit_date'],dayfirst=True)
+                        # row['audit_date'] = parse(row['audit_date'],dayfirst=True)
+                        row['audit_date'] = parse(row['audit_date'], dayfirst=False)
                     else:
                         # log += printr(f'audit_date is empty/not exist at row at: {n}')
                         skiped_records+=1
@@ -162,17 +166,20 @@ class Command(BaseCommand):
                         continue
                     del row['city_village']
 
+
+                    # cdebug(row)
                     """Get or Create Outlet Object"""
                     if('outlet' in row and row['outlet'] != ''):
-                        outlet_obj = Outlet.objects.get(
-                                country_id=upload.country_id, code=str(row['outlet'])
-                        )
-
-                        if not outlet_obj:
-                            outlet_obj = Outlet.objects.create(
-                                country=upload.country,code=row['outlet']
+                        try:
+                            outlet_obj = Outlet.objects.get(
+                                    country_id=upload.country_id, code=str(row['outlet'])
                             )
-                            row['outlet'] = outlet_obj
+                        except Outlet.DoesNotExist:
+                            outlet_obj = Outlet.objects.create(
+                                country_id=upload.country_id,code=row['outlet']
+                            )
+                        del(row['outlet'])
+                        row['outlet_id'] = outlet_obj.id
                     else:
                         # log += printr(f'outlet is empty at row at: {n}')
                         skiped_records+=1
@@ -192,27 +199,38 @@ class Command(BaseCommand):
 
                     try:
                         if row['cell_description'] != '' and len(row['cell_description'])>1:
+
                             cell_name = row['cell_description'].split("@")
                             cell_name = get_max_str(cell_name)
                             cell_name = cell_name.upper()
                             serialize_str = (f"field_group[group][0][row][0][cols]=cell_description&field_group[group][0][row][0][operator]=icontains&field_group[group][0][row][0][value]={cell_name}")
+                            try:
+                                cell_obj = Cell.objects.get(
+                                    country_id=upload.country_id, index_id=upload.index_id, name=cell_name,
+                                )
+                            except Cell.DoesNotExist:
+                                cell_obj = Cell.objects.create(
+                                    country_id=upload.country_id, index_id=upload.index_id, name=cell_name,
+                                    ipp=True,serialize_str=serialize_str
+                                )
 
-                            cell_obj, cell_created = Cell.objects.update_or_create(
-                                country=upload.country, index_id=upload.index_id, name=cell_name,
-                                defaults = {'ipp':True,'serialize_str':serialize_str}
-                            )
-                            obj, created = UsableOutlet.objects.update_or_create(
-                                country=upload.country,
-                                cell_id=cell_obj.id,
-                                outlet_id=outlet_obj.id,
-                                month_id=row['month_id'],
-                                index_id=upload.index_id,
-                                defaults={'status':UsableOutlet.NOTUSABLE}
-                            )
+                            # cell_obj, cell_created = Cell.objects.update_or_create(
+                            #     country=upload.country, index_id=upload.index_id, name=cell_name,
+                            #     defaults = {'ipp':True,'serialize_str':serialize_str}
+                            # )
+
+                            # TODO: Comment out temporarly
+                            # obj, created = UsableOutlet.objects.update_or_create(
+                            #     country=upload.country,
+                            #     cell_id=cell_obj.id,
+                            #     outlet_id=outlet_obj.id,
+                            #     month_id=row['month_id'],
+                            #     index_id=upload.index_id,
+                            #     defaults={'status':UsableOutlet.NOTUSABLE}
+                            # )
 
                     except KeyError:
                         pass
-
 
 
                     new_row = { key:value for (key,value) in row.items() if key in valid_fields_all}
@@ -220,28 +238,100 @@ class Command(BaseCommand):
                     new_row['index_id'] = upload.index_id
 
                     if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
-
-                        obj, created = PanelProfile.objects.get_or_create(
-                            country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index_id=upload.index_id,
-                            defaults=new_row
-                        )
-                        obj, created = PanelProfileChild.objects.get_or_create(
-                            country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index_id=upload.index_id,
-                            defaults=new_row
-                        )
-                        if(created): created_records+=1
-
-
-                    if(upload.import_mode == Upload.APPENDUPDATE or upload.import_mode == Upload.UPDATE ):
-
                         batch_data_list.append(PanelProfile(**new_row)) #For bulk entry
 
                         if len(batch_data_list) > 5000:
-                            created = PanelProfile.objects.bulk_create(
+                            print('Batch took:',convertSecond2Min(time.time() - batch_start_time))
+                            PanelProfile.objects.bulk_create(
+                                    batch_data_list,
+                                    ignore_conflicts=True
+                            )
+                            PanelProfileChild.objects.bulk_create(
                                     batch_data_list,
                                     ignore_conflicts=True
                             )
                             batch_data_list = []
+                            batch_start_time = time.time()
+
+                    update_col = list()
+                    if(upload.import_mode == Upload.APPENDUPDATE or upload.import_mode == Upload.UPDATE ):
+
+                        try:
+                            obj = PanelProfile.objects.get(
+                                country_id=upload.country_id,
+                                outlet_id=outlet_obj.id,
+                                month_id=row['month_id'],
+                                index_id=upload.index_id,
+                            )
+
+                            for k,v in new_row.items():
+                                setattr(obj,k,v)
+                                update_col.append(k)
+
+                            batch_data_list.append(obj)
+                        except PanelProfile.DoesNotExist:
+                            pass
+
+                        if len(batch_data_list) > 5000:
+                            print('Batch took:',convertSecond2Min(time.time() - batch_start_time))
+                            PanelProfile.objects.bulk_update(batch_data_list,update_col,batch_size=5000)
+                            PanelProfileChild.objects.bulk_update(batch_data_list,update_col,batch_size=5000)
+
+                            batch_data_list = []
+                            batch_start_time = time.time()
+
+                            # for person in p:
+                            #     obj = People.objects.get(email=person['email'])
+                            #     obj.birthday = person['birthday']
+                            #     objs.append(obj)
+                            # People.objects.bulk_update(objs, ['birthday'], batch_size=1000)
+
+                if batch_data_list :
+                    if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
+                        PanelProfile.objects.bulk_create(batch_data_list,ignore_conflicts=True)
+                        PanelProfileChild.objects.bulk_create(batch_data_list,ignore_conflicts=True)
+
+
+                    if(upload.import_mode == Upload.APPENDUPDATE or upload.import_mode == Upload.UPDATE ):
+                        PanelProfile.objects.bulk_update(batch_data_list,update_col,batch_size=5000)
+                        PanelProfileChild.objects.bulk_update(batch_data_list,update_col,batch_size=5000)
+
+                    # cdebug(new_row)
+                    # # if(upload.import_mode == Upload.APPEND or upload.import_mode == Upload.REFRESH ):
+
+                    # try:
+                    #     panelprofile_obj = PanelProfile.objects.get(
+                    #         country_id=upload.country_id, outlet_id=outlet_obj.id, month_id=row['month_id'],index_id=upload.index_id
+                    #     )
+                    # except PanelProfile.DoesNotExist:
+                    #     panelprofile_obj = PanelProfile.objects.create(
+                    #         country_id=upload.country_id, outlet_id=outlet_obj.id, month_id=row['month_id'],index_id=upload.index_id
+                    #     )
+
+                        # panelprofilechild_obj = PanelProfileChild.objects.get(
+                        #     country_id=upload.country_id, outlet=outlet_obj, month_id=row['month_id'],index_id=upload.index_id,
+                        # )
+                        # obj, created = PanelProfile.objects.get_or_create(
+                        #     country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index_id=upload.index_id,
+                        #     defaults=new_row
+                        # )
+                        # obj, created = PanelProfileChild.objects.get_or_create(
+                        #     country=upload.country, outlet=outlet_obj, month_id=row['month_id'],index_id=upload.index_id,
+                        #     defaults=new_row
+                        # )
+                        # if(created): created_records+=1
+
+
+                    # if(upload.import_mode == Upload.APPENDUPDATE or upload.import_mode == Upload.UPDATE ):
+
+                    #     batch_data_list.append(PanelProfile(**new_row)) #For bulk entry
+
+                    #     if len(batch_data_list) > 5000:
+                    #         created = PanelProfile.objects.bulk_create(
+                    #                 batch_data_list,
+                    #                 ignore_conflicts=True
+                    #         )
+                    #         batch_data_list = []
 
 
                         # obj, created = PanelProfile.objects.update_or_create(
@@ -280,7 +370,7 @@ class Command(BaseCommand):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
             logger.error(Colors.BOLD_RED+'CSV file processing failed. Error Msg:'+ str(e)+Colors.WHITE )
-            cdebug(row,'Exception at Row')
+            # cdebug(row,'Exception at Row')
             log += 'CSV file processing failed. Error Msg:'+ str(e)
             upload.is_processing = Upload.ERROR
             upload.process_message = "CSV file processing failed. Error Msg:"+str(e)

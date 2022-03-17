@@ -529,6 +529,25 @@ class AuditDataDefault(models.Model):
     audit_status = models.CharField(max_length=1, choices=AUDIT_STATUS_CHOICES,default=AUDITED)
 
 
+    class Meta:
+        abstract = True
+
+
+class AuditData(CreateUpdateMixIn,AuditDataDefault,models.Model):
+
+    class Meta:
+        unique_together = (('country','outlet','product','month'))
+        db_table = 'audit_data'
+        verbose_name = 'Audit Data'
+        verbose_name_plural = 'Audit Data'
+
+    def __str__(self):
+        return self.id
+
+class AuditDataChild(CreateUpdateMixIn,AuditDataDefault,models.Model):
+    num_pf = models.DecimalField(default=0,max_digits=18,decimal_places=6,)
+    acv_pf = models.DecimalField(default=0,max_digits=18,decimal_places=6,)
+    volume = models.DecimalField(default=0,max_digits=18,decimal_places=6,)
 
     price_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
     purchase_variation = models.DecimalField(max_digits=11, decimal_places=2,null=True,blank=True,default=0)
@@ -551,23 +570,6 @@ class AuditDataDefault(models.Model):
     flag_neg_sales_corr = models.BooleanField(default=False)
     flag_outlier = models.BooleanField(default=False)
     flag_copied_previous = models.BooleanField(default=False)
-
-    class Meta:
-        abstract = True
-
-
-class AuditData(CreateUpdateMixIn,AuditDataDefault,models.Model):
-
-    class Meta:
-        unique_together = (('country','outlet','product','month'))
-        db_table = 'audit_data'
-        verbose_name = 'Audit Data'
-        verbose_name_plural = 'Audit Data'
-
-    def __str__(self):
-        return self.id
-
-class AuditDataChild(CreateUpdateMixIn,AuditDataDefault,models.Model):
 
     class Meta:
 

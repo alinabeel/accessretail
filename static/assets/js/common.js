@@ -15,6 +15,7 @@ function getCSRFToken() {
 }
 
 function newexportaction(e, dt, button, config) {
+    console.log(dt);
     var self = this;
     var oldStart = dt.settings()[0]._iDisplayStart;
     dt.one('preXhr', function (e, s, data) {

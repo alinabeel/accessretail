@@ -1,5 +1,6 @@
 from concurrent.futures import process
 from logging import error
+from tkinter.messagebox import NO
 
 from django.db.models.expressions import Value
 from core.common_libs_views import *
@@ -220,13 +221,14 @@ class Command(BaseCommand):
             prev_sales = 0
             prev_purchase = 0
             prev_stock = 0
-            if(self.is_first_month):
+
+            if self.is_first_month:
                 prev_price = curr_price
                 prev_sales = curr_sales
                 prev_purchase = curr_purchase
                 prev_stock = curr_stock
 
-            else:
+            if self.prev_month != None :
                 try:
                     prev_audit_data = AuditData.objects.get(country_id = cmad.country_id,
                                                                 product_id = cmad.product_id,
@@ -237,6 +239,8 @@ class Command(BaseCommand):
                     prev_purchase = prev_audit_data.purchase
                 except AuditData.DoesNotExist:
                     prev_audit_data  = None
+            else:
+                prev_audit_data = None
 
 
             price_variation = percentChange(curr_price,prev_price)
@@ -380,83 +384,90 @@ class Command(BaseCommand):
                                                     outlet_id = panel.outlet.id,
                                                     flag_outlier =  True
                                                     )
+
             curr_audit_data_has_outlier = curr_audit_data.filter(flag_outlier =  True)
+
+
 
             if len(curr_audit_data_has_outlier) >= 1:
                 # Delete al audit data and copy from prevous month
                 curr_audit_data.delete()
+                # try:
+
+                # cdebug(self.prev_month)
+                # sys.exit(0)
                 try:
-
-                    # cdebug(self.prev_month)
-                    # sys.exit(0)
-
-
-
-
-
                     prev_audit_data = AuditDataChild.objects.filter(
                                                             country_id = country_id,
                                                             category_id = category_id,
                                                             month_id = self.prev_month.id,
                                                             outlet_id = panel.outlet.id
                                                             )
+                except AuditDataChild.DoesNotExist:
+                    return
 
-                    prev_pp_qs = PanelProfile.objects.get(
+                try:
+                    prev_pp_qs = PanelProfileChild.objects.get(
                                                     country_id = country_id,
                                                     index_id = index_id,
                                                     month_id = self.prev_month.id,
                                                     outlet_id = panel.outlet.id
                                                     )
+                except PanelProfileChild.DoesNotExist:
+                    return
 
-                    prev_audit_date = prev_pp_qs.audit_date
+                # cdebug(prev_pp_qs)
+                # prettyprint_queryset(prev_pp_qs)
+                # exit()
+                prev_audit_date = prev_pp_qs.audit_date
 
 
-                    panel.audit_status = PanelProfile.COPIED
-                    panel.save()
+                panel.audit_status = PanelProfile.COPIED
+                panel.save()
+                # obj.pk = None # New Copy
+                # # obj.outlet_id  = outlet_to
+                # obj.audit_status  = PanelProfile.COPIED
+                # obj.audit_date = obj.audit_date+timedelta(days=30)
+                # obj.month = date_arr_obj[0]
+                # obj.save()
+
+
+                for obj in prev_audit_data:
+
                     # obj.pk = None # New Copy
-                    # # obj.outlet_id  = outlet_to
-                    # obj.audit_status  = PanelProfile.COPIED
-                    # obj.audit_date = obj.audit_date+timedelta(days=30)
-                    # obj.month = date_arr_obj[0]
+                    # obj.outlet_id  = panel.outlet.id
+                    # obj.audit_status  = AuditDataChild.COPIED
+                    # obj.audit_date = prev_audit_date+timedelta(days=30.5)
+                    # obj.month_id = self.curr_month.id
                     # obj.save()
 
+                    new_dict = dict()
+                    skip_cols = ['id','pk','created','updated',]
 
-                    for obj in prev_audit_data:
-
-                        # obj.pk = None # New Copy
-                        # obj.outlet_id  = panel.outlet.id
-                        # obj.audit_status  = AuditDataChild.COPIED
-                        # obj.audit_date = prev_audit_date+timedelta(days=30.5)
-                        # obj.month_id = self.curr_month.id
-                        # obj.save()
-
-                        new_dict = dict()
-                        skip_cols = ['id','pk','created','updated',]
-
-                        for field in obj._meta.get_fields():
-                            if(field.name in skip_cols): continue
-                            if isinstance(field, models.ForeignKey): continue
-                            if isinstance(field, models.ManyToManyRel): continue
-                            if isinstance(field, models.ManyToOneRel): continue
-                            new_dict[field.name] = getattr(obj, field.name)
+                    for field in obj._meta.get_fields():
+                        if(field.name in skip_cols): continue
+                        if isinstance(field, models.ForeignKey): continue
+                        if isinstance(field, models.ManyToManyRel): continue
+                        if isinstance(field, models.ManyToOneRel): continue
+                        new_dict[field.name] = getattr(obj, field.name)
 
 
-                        new_dict['audit_status'] = AuditData.COPIED
-                        new_dict['audit_date'] = prev_audit_date+timedelta(days=30.5)
-                        obj, created = AuditDataChild.objects.update_or_create(
-                            country_id=obj.country_id,
-                            product_id=obj.product_id,
-                            outlet_id=obj.outlet_id,
-                            month_id=obj.month_id,
-                            category_id=obj.category_id,
-                            defaults=new_dict
-                        )
+                    new_dict['audit_status'] = AuditData.COPIED
+                    new_dict['audit_date'] = prev_audit_date+timedelta(days=30.5)
+                    obj, created = AuditDataChild.objects.update_or_create(
+                        country_id=obj.country_id,
+                        product_id=obj.product_id,
+                        outlet_id=obj.outlet_id,
+                        month_id=obj.month_id,
+                        category_id=obj.category_id,
+                        defaults=new_dict
+                    )
 
                     # prev_price = prev_audit_data.price
                     # prev_sales = prev_audit_data.sales
                     # prev_purchase = prev_audit_data.purchase
-                except AuditDataChild.DoesNotExist:
-                    prev_audit_data  = None
+                # except AuditDataChild.DoesNotExist:
+                #     prev_audit_data  = None
 
             # prettyprint_queryset(curr_audit_data)
             # cdebug(f"{panel.outlet.code},{country_id},{index_id},{category_id},{self.TH},{self.curr_month.id}")
@@ -571,8 +582,12 @@ class Command(BaseCommand):
 
                 curr_sales = curr_audit_data['sum_sales']
                 prev_sales = prev_audit_data['sum_sales']
+
+                prev_sales = 1 if prev_sales==0 else prev_sales
+
                 printr(f"c , p = {curr_sales},{prev_sales}")
-                if abs((float(curr_sales) / float(prev_sales) -1)*100 ) <= self.TH.common_outlet_accept:
+                cp_formula = abs((float(curr_sales) / float(prev_sales) -1)*100 )
+                if cp_formula <= self.TH.common_outlet_accept:
                     flag_common_outlet = True
                     is_valid = True
                     self.updateCreateUsableOutlet(panel,country_id,index_id,cell_obj.id,UsableOutlet.USABLE)
@@ -597,15 +612,16 @@ class Command(BaseCommand):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(Colors.RED, "Exception:",exc_type, fname, exc_tb.tb_lineno,Colors.WHITE)
             logger.error(Colors.BOLD_RED+'Error Msg:'+ str(e)+Colors.WHITE )
+            exit()
 
     def processPanelProfile(self,panel,country_id,index_id,category_id):
         try:
 
             if(self.is_first_month):
-                panel.flag_new_outlet = self.is_first_month
+                panel.flag_new_outlet = True
                 panel.save()
             else:
-                panel.flag_new_outlet = self.is_first_month
+                panel.flag_new_outlet = False
                 panel.save()
             ## STEP: 1 ##
             self.priceCleaning(panel,country_id,index_id,category_id)
@@ -786,13 +802,39 @@ class Command(BaseCommand):
         try:
             # month_date =  datetime(2021, 8, 1)
 
+
             month_qs = Month.objects.get(id=month_id)
+            self.curr_month = month_qs
             month_date = month_qs.date
 
             cdebug(f"month: {month_date}")
 
+
+            audit_date_qs = PanelProfile.objects.all() \
+                .filter(country_id = country_id, index_id = index_id) \
+                .values('month__code','month__id') \
+                .annotate(monts_count=Count('month__date')) \
+                .order_by('month__date')
+
+            audit_dates = list(audit_date_qs)
+
+            first_month_id = audit_dates[0]['month__id']
+            current_month_id = month_id
+            previous_month_id = None
+
+
+
+            if first_month_id != current_month_id:
+                current_month_index = next((index for (index, d) in enumerate(audit_dates) if d["month__id"] == month_id), None)
+                if current_month_index is not None:
+                    previous_month_id = audit_dates[current_month_index-1]['month__id']
+                    self.prev_month = Month.objects.get(id=previous_month_id)
             #Calculate Previous Month, Next Month
-            self.curr_month, self.prev_month, self.third_month = getThreeMonthFromDate(country_id,month_date)
+            # self.curr_month, self.prev_month, self.third_month = getThreeMonthFromDate(country_id,month_date)
+
+
+
+
 
 
             #Get Index categorries
@@ -817,22 +859,31 @@ class Command(BaseCommand):
 
             # cdebug(self.curr_month)
             #Get current month  audit data with category
-            panel_profile_qs = PanelProfile.objects.filter(country_id = country_id,
+            panel_profile_qs = PanelProfileChild.objects.filter(country_id = country_id,
                                                             index_id = index_id,
-                                                            month_id = self.curr_month.id)
+                                                            month_id = self.curr_month.id
+                                                        )
+
 
             for panel in panel_profile_qs:
                 print(f"Processing Panel outlet id,code:{panel.outlet.id},{panel.outlet.code}")
 
                 self.total_months = getOutletTotalMonthFromDate(country_id, month_date, panel.outlet_id)
-                printr(f"total_months: {self.total_months}")
-                self.is_first_month = True if self.total_months == 1 else False
-                self.is_second_month = True if self.total_months == 2 else False
-                self.is_morethantwo = True if self.total_months >= 3 else False
+                printr(f"total_months: {self.total_months}, curr_month:{self.curr_month}")
+
+                # self.is_first_month = True if self.total_months == 1 else False
+                # self.is_second_month = True if self.total_months == 2 else False
+                # self.is_morethantwo = True if self.total_months >= 3 else False
+
+
+                self.is_first_month = True if self.curr_month is not None and self.prev_month is None and self.third_month is None else False
+                self.is_second_month = True if self.curr_month is not None and self.prev_month is not None and self.third_month is None else False
+                # self.is_morethantwo = True if self.curr_month is not None and self.prev_month is not None and self.third_month is not None else False
+
 
                 self.processPanelProfile(panel,country_id,index_id,category_id)
 
-                if self.total_months > 1:
+                if self.total_months > 1 and self.is_first_month == False:
                     ## STEP: 4 ##
                     self.outlierDetectionDecsion(panel,country_id,index_id,category_id)
                     ## STEP: 5 ##
@@ -924,8 +975,12 @@ class Command(BaseCommand):
                 .annotate(curr_month=Max("month__date")) \
                 .order_by('month__date')
             # prettyprint_queryset(month_qs)
-
+            # exit()
+            c = 0
             for month in month_qs:
+                # if c==0:
+                #     c += 1
+                #     continue
                 self.processThreshold(country_id,index_id,category_id,month['month__id'])
 
 

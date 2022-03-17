@@ -1,4 +1,4 @@
-from unicodedata import category
+from threading import Thread
 from core.common_libs_views import *
 from master_data.models import *
 from master_setups.models import *
@@ -21,6 +21,14 @@ class Command(BaseCommand):
         start_time = time.time()
         upload_id = options['upload_id']
         upload = Upload.objects.get(pk=upload_id)
+
+        audit_date_qs = PanelProfile.objects.all() \
+            .filter(country_id = upload.country_id, index_id = upload.index_id) \
+            .values('month__code','month__id') \
+            .annotate(monts_count=Count('month__date')) \
+            .order_by('month__date')
+
+        audit_dates = list(audit_date_qs)
 
         index_category = IndexCategory.objects.filter(country_id = upload.country_id, index_id = upload.index_id)
         index_category = index_category[0].get_index_category_ids()
@@ -186,6 +194,9 @@ class Command(BaseCommand):
 
                     # =IF((T6+AN6-U6-V6)>0, AN6, -1*(T6+AN6-U6-V6)+AN6)
 
+
+
+
                     try:
                         panel_profile_qs = PanelProfile.objects.get(
                             country=upload.country,outlet_id=row['outlet_id'] ,month_id=row['month_id']
@@ -196,31 +207,47 @@ class Command(BaseCommand):
                         skiped_records+=1
                         continue
 
+                    first_month_id = audit_dates[0]['month__id']
+                    current_month_id = panel_profile_qs.month_id
+
+
+
                     current_month_audit_date = panel_profile_qs.audit_date
 
-                    current_month = current_month_audit_date.replace(day=1)
-                    previous_month = current_month + relativedelta(months=-1)
+                    vd_factor = 1
 
-                    try:
-                        previous_month_qs = Month.objects.get(country=upload.country, date=previous_month)
-                    except Month.DoesNotExist:
-                        previous_month_qs = None
-
-
-                    if previous_month_qs is not None:
-                        try:
-                            panel_profile_qs = PanelProfile.objects.get(
-                                country=upload.country,outlet_id=row['outlet_id'] ,month_id=previous_month_qs.id
-                            )
-                            previous_month_audit_date = panel_profile_qs.audit_date
-
-                            delta = current_month_audit_date - previous_month_audit_date
-                            vd_factor= delta.days/30.5
-
-                        except PanelProfile.DoesNotExist:
-                            vd_factor = 1
-                    else:
+                    if first_month_id == current_month_id:
                         vd_factor = 1
+                    else:
+                        current_month_index = next((index for (index, d) in enumerate(audit_dates) if d["month__id"] == row['month_id']), None)
+
+                        if current_month_index is not None:
+                            previous_month_id = audit_dates[current_month_index-1]['month__id']
+
+                            # current_month = current_month_audit_date.replace(day=1)
+                            # previous_month = current_month + relativedelta(months=-1)
+
+                            # try:
+                            #     previous_month_qs = Month.objects.get(country=upload.country, date=previous_month)
+                            # except Month.DoesNotExist:
+                            #     previous_month_qs = None
+
+
+                            # if previous_month_qs is not None:
+                            try:
+                                panel_profile_qs = PanelProfile.objects.get(
+                                    country=upload.country,
+                                    outlet_id=row['outlet_id'],
+                                    month_id=previous_month_id
+                                )
+                                previous_month_audit_date = panel_profile_qs.audit_date
+
+                                delta = current_month_audit_date - previous_month_audit_date
+                                vd_factor= delta.days/30.5
+
+                            except PanelProfile.DoesNotExist:
+                                vd_factor = 1
+
 
 
 

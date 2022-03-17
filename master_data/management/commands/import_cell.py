@@ -9,12 +9,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+
+
+
         skiped_records = 0
         updated_records = 0
         created_records = 0
 
         start_time = time.time()
         upload_id = options['upload_id']
+
 
         upload = Upload.objects.get(pk=upload_id)
 
@@ -41,6 +45,7 @@ class Command(BaseCommand):
                     row = {replaceIndex(k): v.strip() for (k, v) in row.items()}
 
                     row['upload'] = upload
+                    row['cell_name'] = row['cell_name'].upper()
                     cell_name = row['cell_name']
                     cell_acv = row['cell_acv']
 
@@ -49,10 +54,10 @@ class Command(BaseCommand):
                         skiped_records+=1
                         continue
 
-                    if(row['is_active'].lower() in ['t','true','y','yes','',1,'1','']):
-                        row['is_active'] = True
-                    else:
-                        row['is_active'] = False
+                    row['is_active'] = True
+                    # if( row['is_active'].lower() in ['t','true','y','yes','',1,'1','']):
+                    #     row['is_active'] = True
+
 
                     new_row = { key:value for (key,value) in row.items() if key in valid_fields}
                     cdebug(new_row)
